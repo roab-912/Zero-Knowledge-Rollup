@@ -354,6 +354,13 @@ Table 1 reports the empirical mean proving time and the resulting throughput
 | 4096 |   2.437   |    1681.04 |   13.893  |     294.83 |          5.70 |
 | 8192 |   4.673   |    1753.21 |   28.843  |     284.02 |          6.17 |
 
+![Mean proving latency T_p(N) for both backends, log–log axes.](bench-out/20260301_113715/graph/latency_vs_circuit_size.png)
+
+*Figure 1.* Mean proving time *T_p(N)* against batch size *N*, both backends.
+The two curves are visibly parallel in the linear regime, with a constant
+multiplicative offset reflecting the per-call constant-factor advantage of the
+native backend.
+
 Two regimes are visible. For small *N* (typically *N ≤ 32* under `rapidsnark`,
 *N ≤ 16* under `snarkjs`), proving time is dominated by a constant overhead β
 — process spawn, key loading, witness initialisation — and the curve is
@@ -383,6 +390,21 @@ amortisation is the canonical reading of "compression" in a validity rollup:
 the per-transaction off-chain cost decays super-linearly in the
 overhead-dominated regime, then asymptotes to the constant α once the linear
 regime is reached around *N ≈ 256*.
+
+![Amortised per-transaction proving cost τ(N) = T_p(N)/N.](bench-out/20260301_113715/graph/time_per_tx_vs_circuit_size.png)
+
+*Figure 2.* Amortised proving cost τ(N) = *T_p(N)/N* per transaction,
+log–log axes. The descending slope of magnitude one in the small-*N* regime
+reflects τ ≈ β/*N* (overhead amortisation); the asymptote on the right
+corresponds to the marginal cost α.
+
+![Realised throughput Θ(N) = N / T_p(N) against batch size.](bench-out/20260301_113715/graph/throughput_vs_circuit_size.png)
+
+*Figure 3.* Realised throughput Θ(N) = *N / T_p(N)*. Throughput grows
+super-linearly in *N* during the overhead-dominated regime and saturates at
+the asymptote 1/α (≈ 1830 tx/s for `rapidsnark`, ≈ 274 tx/s for `snarkjs`).
+The slight downward inflexion of `snarkjs` past *N = 2048* is the throughput
+signature of the super-linear regression discussed in §8.5.
 
 ### 8.4 Verification time
 
@@ -433,6 +455,14 @@ pressure and the memory footprint of large-*N* witness vectors. This places a
 practical engineering bound on the JavaScript backend well before the
 single-blob payload bound is reached, and motivates the use of the native
 backend whenever batch sizes approach the upper end of the supported range.
+
+![Scaling efficiency of the prover backends as a function of batch size.](bench-out/20260301_113715/graph/scaling_efficiency.png)
+
+*Figure 4.* Scaling efficiency. The flat plateau on the left is the
+overhead-dominated regime (proof cost essentially independent of *N*); the
+descending tail on the right traces the marginal-cost regime, with `snarkjs`
+peeling away from `rapidsnark` past *N ≈ 2048* — the empirical signature of
+the V8 memory-pressure inflexion.
 
 ### 8.6 Discussion
 
