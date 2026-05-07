@@ -1,6 +1,6 @@
 # A Zero-Knowledge Rollup for Monetary Transactions
 
-> Reference implementation accompanying a CIFRE doctoral thesis (2023–2025) on
+> Reference implementation accompanying a CIFRE doctoral thesis (2024–2027) on
 > the use of succinct cryptographic proofs to scale on-chain monetary
 > settlement systems. The artefact instantiates a Groth16-based zk-rollup
 > targeting Ethereum, with EIP-4844 blobs as the data-availability layer.
@@ -496,38 +496,7 @@ explicitly, in increasing order of severity:
 
 ---
 
-## 10. Citation
-
-If this artefact informs published work, please cite the accompanying
-doctoral thesis:
-
-> Barbier, R. (in preparation). *Amélioration des qualités de la blockchain
-> au sein d'un réseau dynamique pour l'industrie 4.0* [Improving the
-> properties of the blockchain within a dynamic network for Industry 4.0].
-> CIFRE doctoral thesis (2024–2027), IMT Atlantique, École Doctorale SPIN,
-> Brest, France. Academic supervisor: Françoise Sailhan (Équipe Madness,
-> IMT Atlantique). Industrial supervisor: Loïc Machado (CTO, Vistory).
-
-BibTeX:
-
-```bibtex
-@phdthesis{barbier_thesis_2027,
-  author       = {Barbier, Remi},
-  title        = {Amelioration des qualites de la blockchain au sein
-                  d'un reseau dynamique pour l'industrie 4.0},
-  school       = {IMT Atlantique, Ecole Doctorale SPIN},
-  type         = {CIFRE doctoral thesis (in preparation)},
-  year         = {2024--2027},
-  address      = {Brest, France},
-  note         = {Academic supervisor: Francoise Sailhan
-                  (Equipe Madness, IMT Atlantique).
-                  Industrial supervisor: Loic Machado (CTO, Vistory).}
-}
-```
-
----
-
-## 11. Acknowledgements
+## 10. Acknowledgements
 
 This work was conducted under a CIFRE doctoral grant (Convention Industrielle
 de Formation par la Recherche), partnering Vistory with the host academic
