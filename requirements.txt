@@ -1,0 +1,17 @@
+# Core API et runtime
+fastapi>=0.110
+uvicorn>=0.27
+pydantic>=2.6
+aiohttp>=3.9
+python-dotenv>=1.0
+
+# Bench / scripts
+numpy>=1.26
+matplotlib>=3.8
+scipy>=1.12
+
+# On-chain (déploiement, blob EIP-4844, vérification)
+web3>=6.20
+eth-account>=0.11
+py-solc-x>=2.0
+ckzg>=1.0

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-03-01T15:05:44.977856",
+  "outdir": "../bench_out/20260301_113715",
+  "params": {
+    "attempts": 100,
+    "sizes": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192
+    ],
+    "sleep_between_s": 1,
+    "warmup": true
+  },
+  "env": {
+    "user": "root",
+    "platform": "Linux-6.12.48+deb13-amd64-x86_64-with-glibc2.41",
+    "python_version": "3.13.5"
+  },
+  "artifacts": {
+    "figures": {
+      "summary_png": "figs/rapidsnark_vs_snarkjs.png",
+      "summary_svg": "figs/rapidsnark_vs_snarkjs.svg"
+    },
+    "csv": {
+      "rapidsnark_generate_summary": "rapidsnark_generate_summary.csv",
+      "snarkjs_generate_summary": "snarkjs_generate_summary.csv",
+      "snarkjs_verify_summary": "snarkjs_verify_summary.csv"
+    },
+    "raw_json": {
+      "rapidsnark_timings": "raw/rapidsnark_timings.json",
+      "snarkjs_timings": "raw/snarkjs_timings.json",
+      "snarkjs_verify_timings": "raw/snarkjs_verify_timings.json"
+    }
+  }
+}
