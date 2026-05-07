@@ -580,3 +580,47 @@ laboratory. The implementation depends on `circom`, `snarkjs`, `rapidsnark`,
 the `c-kzg-4844` reference implementation of EIP-4844 polynomial commitments,
 and the `web3.py` and `eth-account` toolchains; their authors are gratefully
 acknowledged.
+
+## 12. License and reuse
+
+**Copyright © Rémi Barbier. All rights reserved.**
+
+This repository is published for the purposes of transparency, peer review,
+and reproducibility. **No open-source licence is granted.** The absence of a
+permissive licence (such as MIT, Apache-2.0, BSD, or GPL) is intentional:
+this work is *not* free or open-source software in the legal sense of those
+terms, and the author retains the entirety of the rights conferred by the
+French *Code de la propriété intellectuelle* and, where applicable, the
+Berne Convention.
+
+Permitted, without prior written consent:
+
+* viewing the source on this hosting platform;
+* citing this work in academic or professional publications, with proper
+  attribution to the author and a stable reference to this repository;
+* executing the code locally for the **sole purpose of personal study,
+  scientific verification, or reproduction of any results published herein**,
+  in a private, non-commercial setting;
+* quoting short excerpts (limited and non-substantial, in the sense of *fair
+  use* / *courte citation*) within a properly attributed publication.
+
+Not permitted, absent prior written authorisation from the author:
+
+* redistribution, in source or compiled form, in whole or in part;
+* the production of derivative works (forks, ports, refactorings,
+  translations, integrations into other codebases);
+* any commercial use, whether direct or indirect, including in
+  proof-of-concept pilots, internal tooling, or hosted services;
+* the use of this work, in whole or in part, to train, fine-tune, or
+  otherwise inform the behaviour of automated systems (machine-learning
+  models, code-generation models, retrieval-augmented systems);
+* the removal or alteration of authorship, copyright, or licensing notices.
+
+Requests for any use beyond the permissions enumerated above must be
+addressed in writing to the author; such requests will be considered on a
+case-by-case basis.
+
+This notice is provided in good faith and is not intended to be exhaustive;
+no clause of this section shall be construed to grant, by implication,
+estoppel, or otherwise, any licence under any patent, trademark, copyright,
+or other intellectual property right, except as explicitly stated above.
