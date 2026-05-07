@@ -306,7 +306,168 @@ sub-optimal but auditable.
 
 ---
 
-## 8. Limitations and threat model
+## 8. Empirical performance evaluation
+
+This section reports the empirical proving and verification costs of the
+artefact, measured under controlled conditions. The campaign discussed below
+corresponds to the manifest
+`bench-out/20260301_113715/manifest.json` (acquisition date 2026-03-01); raw
+per-attempt timings are stored as JSON under
+`bench-out/20260301_113715/raw/`, summary CSVs at the campaign root, and the
+derived figures under `bench-out/20260301_113715/graph/`.
+
+### 8.1 Experimental protocol
+
+Measurements were conducted on a Linux 6.12.48 host (Debian 13, x86-64,
+glibc 2.41) running CPython 3.13.5. For each batch size
+*N ∈ {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192}* — powers
+of two up to the single-blob ceiling — we performed 100 independent attempts,
+separated by a one-second sleep, and preceded by a single warm-up invocation
+to stabilise the OS page cache and the JavaScript JIT. Three quantities were
+recorded for each attempt:
+
+* *T_p^R(N)* — wall-clock proving time using the `rapidsnark` (C++) backend;
+* *T_p^S(N)* — wall-clock proving time using the `snarkjs` (JavaScript) backend;
+* *T_v^S(N)* — wall-clock verification time using `snarkjs verify`.
+
+All values reported below are arithmetic means over the 100 attempts.
+
+### 8.2 Proving time
+
+Table 1 reports the empirical mean proving time and the resulting throughput
+*Θ(N) = N / T_p(N)* for both backends.
+
+| N    | T_p^R (s) | Θ_R (tx/s) | T_p^S (s) | Θ_S (tx/s) | T_p^S / T_p^R |
+|-----:|----------:|-----------:|----------:|-----------:|--------------:|
+|    1 |   0.198   |       5.04 |    0.652  |       1.53 |          3.29 |
+|    2 |   0.199   |      10.06 |    0.662  |       3.02 |          3.33 |
+|    4 |   0.202   |      19.85 |    0.673  |       5.94 |          3.34 |
+|    8 |   0.205   |      38.96 |    0.692  |      11.56 |          3.37 |
+|   16 |   0.212   |      75.38 |    0.728  |      21.99 |          3.43 |
+|   32 |   0.225   |     142.16 |    0.790  |      40.53 |          3.51 |
+|   64 |   0.242   |     263.96 |    0.897  |      71.37 |          3.70 |
+|  128 |   0.277   |     462.54 |    1.101  |     116.27 |          3.98 |
+|  256 |   0.349   |     732.83 |    1.435  |     178.36 |          4.11 |
+|  512 |   0.485   |    1056.70 |    2.096  |     244.30 |          4.33 |
+| 1024 |   0.790   |    1296.70 |    3.453  |     296.55 |          4.37 |
+| 2048 |   1.341   |    1527.09 |    6.386  |     320.72 |          4.76 |
+| 4096 |   2.437   |    1681.04 |   13.893  |     294.83 |          5.70 |
+| 8192 |   4.673   |    1753.21 |   28.843  |     284.02 |          6.17 |
+
+Two regimes are visible. For small *N* (typically *N ≤ 32* under `rapidsnark`,
+*N ≤ 16* under `snarkjs`), proving time is dominated by a constant overhead β
+— process spawn, key loading, witness initialisation — and the curve is
+quasi-flat: *T_p(N) ≈ β*. For large *N* (*N ≥ 256*), the behaviour is well
+approximated by an affine model *T_p(N) ≈ α N + β*, consistent with the
+asymptotic O(|C|) cost of Groth16 proof generation in the circuit size *|C|*.
+A linear regression restricted to *N ∈ {256, 512, …, 8192}* yields:
+
+* `rapidsnark`: α_R ≈ 5.45 × 10⁻⁴ s/tx, β_R ≈ 2.0 × 10⁻¹ s
+* `snarkjs`   : α_S ≈ 3.65 × 10⁻³ s/tx (with a positive higher-order term
+  evidenced by *T_p^S(4096) / T_p^S(2048) ≈ 2.18*, see §8.5)
+
+The marginal per-transaction proving cost of `rapidsnark` is therefore
+approximately one order of magnitude lower than that of `snarkjs`. The
+end-to-end wall-clock speedup grows monotonically with *N*, from a factor 3.3
+at *N = 1* — where the constant overhead dominates — to a factor 6.2 at
+*N = 8192*.
+
+### 8.3 Amortised proving cost
+
+Define τ(N) = *T_p(N) / N*, the amortised proving cost per transaction. Under
+`rapidsnark`, τ decreases from 198 ms/tx at *N = 1* to ≈ 570 µs/tx at
+*N = 8192*, a 347-fold reduction; under `snarkjs`, τ decreases from
+652 ms/tx to 3.52 ms/tx, a 185-fold reduction. The corresponding throughput
+gains *Θ(8192) / Θ(1)* coincide numerically, by definition. This monotone
+amortisation is the canonical reading of "compression" in a validity rollup:
+the per-transaction off-chain cost decays super-linearly in the
+overhead-dominated regime, then asymptotes to the constant α once the linear
+regime is reached around *N ≈ 256*.
+
+### 8.4 Verification time
+
+The mean snarkjs verification time *T_v^S(N)* is reported in Table 2.
+
+| N    | T_v^S (s) |   | N    | T_v^S (s) |
+|-----:|----------:|---|-----:|----------:|
+|    1 |   0.5875  |   |  128 |   0.5905  |
+|    2 |   0.5899  |   |  256 |   0.5876  |
+|    4 |   0.5904  |   |  512 |   0.5880  |
+|    8 |   0.5899  |   | 1024 |   0.5854  |
+|   16 |   0.5886  |   | 2048 |   0.5853  |
+|   32 |   0.5855  |   | 4096 |   0.5875  |
+|   64 |   0.5858  |   | 8192 |   0.5835  |
+
+The 14 sample means lie in the interval [0.5835, 0.5905] s, with empirical
+mean 0.5875 s and standard deviation across *N* below 2 ms. *T_v* is therefore
+statistically indistinguishable across batch sizes, empirically confirming
+the canonical property of Groth16 that verification cost is independent of
+the circuit size: the verifier evaluates a fixed three-pairing equation on
+the single public input σ_pub, irrespective of *N*. This O(1) verifier is
+the structural source of the scaling argument — at fixed on-chain
+verification budget, doubling *N* halves the per-transaction settlement
+cost, until other resources (data availability, prover memory, circuit-size
+ceremony) become binding.
+
+### 8.5 Scaling regime and backend comparison
+
+We define the doubling ratio *ρ(N) = T_p(2N) / T_p(N)*. In a strictly linear
+regime ρ → 2, while ρ < 2 indicates residual overhead amortisation and ρ > 2
+reveals super-linear degradation. The two backends behave very differently in
+the upper range:
+
+|  2N / N    | rapidsnark ρ | snarkjs ρ |
+|-----------:|-------------:|----------:|
+|   64 /  32 |        1.08  |     1.14  |
+|  256 / 128 |        1.26  |     1.30  |
+| 1024 / 512 |        1.63  |     1.65  |
+| 2048 /1024 |        1.70  |     1.85  |
+| 4096 /2048 |        1.82  |     2.18  |
+| 8192 /4096 |        1.92  |     2.08  |
+
+`rapidsnark` converges towards the theoretical limit ρ = 2 from below and
+remains within the linear regime up to *N = 8192*. `snarkjs`, by contrast,
+exhibits a clear super-linear inflexion past *N ≈ 2048* (ρ ≈ 2.18 at the
+4096 / 2048 transition), most plausibly attributable to V8 garbage-collection
+pressure and the memory footprint of large-*N* witness vectors. This places a
+practical engineering bound on the JavaScript backend well before the
+single-blob payload bound is reached, and motivates the use of the native
+backend whenever batch sizes approach the upper end of the supported range.
+
+### 8.6 Discussion
+
+Three observations are central.
+
+1. *Backend choice is not aesthetic.* For the same Groth16 proof system, the
+   `rapidsnark` backend is between 3.3× and 6.2× faster than `snarkjs` over
+   the explored range. Beyond *N ≈ 2048*, the gap widens further as the
+   JavaScript backend leaves the linear regime. On the orchestrator's wall
+   clock at *N = 8192*, the difference (≈ 4.7 s versus ≈ 28.8 s) is large
+   enough to be a binding constraint relative to typical L1 block times.
+2. *The system is bandwidth-bound, not proof-bound.* At
+   Θ_R(8192) ≈ 1753 tx/s, a single 4.67-second proof attests to 8192
+   transactions, comfortably within the 12-second slot budget on Sepolia.
+   The practical bottleneck under the present design is therefore the
+   data-availability layer — a single EIP-4844 blob carries ≈ 127 kB of
+   usable JSON-encoded payload — rather than the cryptographic cost of
+   proof generation. Tightening the binary serialisation, or extending the
+   contract to consume `blobhash(i)` for *i ≥ 1*, are the immediate levers.
+3. *Verification is asymptotically free per transaction.* Because *T_v* is
+   constant in *N*, the on-chain settlement cost amortised per transaction
+   decays as 1/*N* and is rapidly dominated by intrinsic transaction
+   overhead and blob-gas pricing rather than by SNARK verification itself.
+   This is precisely the mechanism by which validity rollups translate
+   proof succinctness into throughput scaling.
+
+The figures in `bench-out/20260301_113715/graph/` provide a graphical view
+of the same observations: `latency_vs_circuit_size`,
+`throughput_vs_circuit_size`, `time_per_tx_vs_circuit_size`, and
+`scaling_efficiency`. New campaigns can be acquired through the bench
+harness and re-rendered with `scripts/generate_graph_from_bench_out.py`.
+
+---
+
+## 9. Limitations and threat model
 
 The artefact is a research prototype and **must not** be deployed to mainnet
 under its present form. The following limitations are acknowledged
@@ -335,7 +496,7 @@ explicitly, in increasing order of severity:
 
 ---
 
-## 9. Citation
+## 10. Citation
 
 If this artefact informs published work, please cite the accompanying
 doctoral thesis:
@@ -351,22 +512,22 @@ BibTeX:
 
 ```bibtex
 @phdthesis{barbier_thesis_2027,
-  author       = {Barbier, R{\'e}mi},
-  title        = {Am{\'e}lioration des qualit{\'e}s de la blockchain au sein
-                  d'un r{\'e}seau dynamique pour l'industrie 4.0},
-  school       = {IMT Atlantique, {\'E}cole Doctorale SPIN},
+  author       = {Barbier, Remi},
+  title        = {Amelioration des qualites de la blockchain au sein
+                  d'un reseau dynamique pour l'industrie 4.0},
+  school       = {IMT Atlantique, Ecole Doctorale SPIN},
   type         = {CIFRE doctoral thesis (in preparation)},
   year         = {2024--2027},
   address      = {Brest, France},
-  note         = {Academic supervisor: Fran{\c c}oise Sailhan
-                  ({\'E}quipe Madness, IMT Atlantique).
-                  Industrial supervisor: Lo{\"i}c Machado (CTO, Vistory).}
+  note         = {Academic supervisor: Francoise Sailhan
+                  (Equipe Madness, IMT Atlantique).
+                  Industrial supervisor: Loic Machado (CTO, Vistory).}
 }
 ```
 
 ---
 
-## 10. Acknowledgements
+## 11. Acknowledgements
 
 This work was conducted under a CIFRE doctoral grant (Convention Industrielle
 de Formation par la Recherche), partnering Vistory with the host academic
