@@ -171,6 +171,31 @@ The single state-transition predicate is the validity of the SNARK with
 respect to the public signals; the blob commitment ensures that the input to
 that predicate is publicly retrievable.
 
+### 4.3 Deployed instances (Sepolia)
+
+The artefact has been deployed to the Ethereum **Sepolia** testnet
+(chain id 11155111). The addresses below correspond to the verifier and
+rollup contracts referenced by the running system and can be inspected
+directly on Etherscan.
+
+| Component        | Batch size *N* | Address                                                                                                                          |
+| ---------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Rollup           | —              | [`0x795B914CE8fCd84B81e93F740a12F90B7941Ba84`](https://sepolia.etherscan.io/address/0x795B914CE8fCd84B81e93F740a12F90B7941Ba84) |
+| Groth16Verifier  | 1              | [`0xb33b27Ca3c02923858e9a32Af4A00c9F41F03F54`](https://sepolia.etherscan.io/address/0xb33b27Ca3c02923858e9a32Af4A00c9F41F03F54) |
+| Groth16Verifier  | 2              | [`0xBeeBAA7266c0Ba5534Bb249767E1EC8E77b16526`](https://sepolia.etherscan.io/address/0xBeeBAA7266c0Ba5534Bb249767E1EC8E77b16526) |
+| Groth16Verifier  | 4              | [`0xA46FF549F61D29C8553dB863DdB73D5659Da5FCD`](https://sepolia.etherscan.io/address/0xA46FF549F61D29C8553dB863DdB73D5659Da5FCD) |
+| Groth16Verifier  | 8              | [`0x9483FE50F3759Ae4f52050fAde2C1d22114A3DA7`](https://sepolia.etherscan.io/address/0x9483FE50F3759Ae4f52050fAde2C1d22114A3DA7) |
+| Groth16Verifier  | 16             | [`0x5B3df957a4d6a802F460136292c6C3C75f2d49BD`](https://sepolia.etherscan.io/address/0x5B3df957a4d6a802F460136292c6C3C75f2d49BD) |
+| Groth16Verifier  | 32             | [`0x4fa879Dd6220d43EDF80de874eFd0F44138A1AAf`](https://sepolia.etherscan.io/address/0x4fa879Dd6220d43EDF80de874eFd0F44138A1AAf) |
+| Groth16Verifier  | 64             | [`0x6411AaDC22fda639905c2e252AD12c620bCc5e58`](https://sepolia.etherscan.io/address/0x6411AaDC22fda639905c2e252AD12c620bCc5e58) |
+
+Submitted batches and their EIP-4844 blobs can additionally be inspected on
+[Blobscan](https://sepolia.blobscan.com/) by filtering on the `from` field
+of the rollup deployer or by following the `BatchSubmitted` event log of the
+rollup contract above. Verifier addresses for the larger batch sizes
+(*N ∈ {128, 256, …, 8192}*) are not pinned in this artefact and are
+regenerated locally on demand via `scripts/deploy_contracts.py`.
+
 ---
 
 ## 5. Repository layout
