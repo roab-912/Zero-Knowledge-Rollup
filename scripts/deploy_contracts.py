@@ -9,6 +9,8 @@ Déploiement automatique sur Sepolia :
 
 Usage :
     python scripts/deploy_contracts.py [--sizes 1,2,4,8,16,32,64]
+    python scripts/deploy_contracts.py --reset          # repart d'un .env propre
+    python scripts/deploy_contracts.py --skip-existing   # ne redéploie que le manquant
 
 Pré-requis dans .env :
     WS_ADDRESS=https://sepolia.infura.io/v3/<key>   (HTTP ou WSS)
@@ -21,6 +23,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -120,6 +123,37 @@ def send_call(w3: Web3, account, contract, fn_name: str, args: tuple, label: str
     wait_receipt(w3, tx_hash, label)
 
 
+def reset_env_addresses() -> None:
+    """
+    Remet à zéro (chaîne vide) toutes les adresses de contrats déjà présentes
+    dans le .env : chaque CIRCUIT_{N}_ADDRESS et ROLLUP_ADDRESS. Permet de
+    repartir d'un environnement propre avant un redéploiement complet.
+
+    Met à jour à la fois le fichier .env et os.environ pour que le reste du
+    script ne voie plus les anciennes adresses.
+    """
+    addr_key_re = re.compile(r"^(CIRCUIT_\d+_ADDRESS|ROLLUP_ADDRESS)$")
+    keys: list[str] = []
+    if ENV_PATH.exists():
+        for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
+                continue
+            key = stripped.split("=", 1)[0].strip()
+            if addr_key_re.match(key):
+                keys.append(key)
+
+    if not keys:
+        print("[deploy] --reset : aucune adresse de contrat à réinitialiser dans .env.")
+        return
+
+    for key in keys:
+        set_key(str(ENV_PATH), key, "")
+        os.environ.pop(key, None)
+    print(f"[deploy] --reset : {len(keys)} adresse(s) réinitialisée(s) dans .env "
+          f"({', '.join(keys)}).")
+
+
 def initial_state_root() -> bytes:
     """
     Reproduit State.hash() sur les balances initiales pour garantir
@@ -146,9 +180,22 @@ def main():
         action="store_true",
         help="Ne redéploie pas un verifier dont CIRCUIT_{N}_ADDRESS est déjà non nul dans .env.",
     )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Vide toutes les adresses de contrats (CIRCUIT_*_ADDRESS et ROLLUP_ADDRESS) "
+             "du .env avant de redéployer, pour repartir d'un environnement propre.",
+    )
     args = parser.parse_args()
 
+    if args.reset and args.skip_existing:
+        sys.exit("[deploy] --reset et --skip-existing sont incompatibles "
+                 "(--reset force un redéploiement complet).")
+
     load_dotenv(ENV_PATH)
+
+    if args.reset:
+        reset_env_addresses()
     rpc_url = os.getenv("WS_ADDRESS")
     wallet_address = os.getenv("WALLET_ADDRESS")
     private_key = os.getenv("WALLET_PRIVATE_KEY")

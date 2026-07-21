@@ -50,7 +50,7 @@ async def main():
     print(f"Transactions par seconde (TPS) : {tps:.2f}")
 
 NUM_ROUNDS = 1
-TRANSACTIONS_PER_ROUND = 64
+TRANSACTIONS_PER_ROUND = 1
 
 if __name__ == "__main__":
     asyncio.run(main())
