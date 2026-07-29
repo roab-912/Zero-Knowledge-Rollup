@@ -1,0 +1,24 @@
+{
+  "timestamp": "20260727_102714",
+  "chain_id": 11155111,
+  "rollup": "0x62fB0742e96DAd1F7bBee6882Ded85714a33CD9B",
+  "verifier": "0x3DC441EE4048bd4b6B4DaC82E2cf2f2a604Fa6E2",
+  "N_b": 64,
+  "repeats_requested": 10,
+  "repeats_success": 10,
+  "mode": "onchain",
+  "G_batch_mean_gas": 236155.8,
+  "G_batch_median_gas": 234447.0,
+  "G_batch_stdev_gas": 5130.401247465933,
+  "G_batch_min_gas": 234435,
+  "G_batch_max_gas": 251547,
+  "blobGasUsed": 131072,
+  "n_blobs": 1,
+  "useful_batch_bytes": 1536,
+  "decomposition": {
+    "gas_verify": 217081,
+    "gas_overhead": 21000,
+    "gas_storage": 13466
+  },
+  "csv": "C:\\Users\\Barbi\\Documents\\Code\\GitHub\\Zero-Knowledge-Rollup\\bench-out\\batch_cost_64_20260727_102714.csv"
+}

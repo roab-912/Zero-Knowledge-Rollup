@@ -1,0 +1,2 @@
+i,N_b,latency_s,inclusion_s,confirmations,gasUsed,block,state_root_updated,tx_hash
+0,2,8.478,7.946,1,234423,11361202,True,171f305c615b1689e41bbae2d12d5cfe14e6852f5bb095d19153104ef197e4fb
