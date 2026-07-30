@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau export challenge pot14_0002.ptau challenge_0003
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/64
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Last Response Hash: 
+		1fc2f58c dac44e6d bc6a3812 edb2fcc1
+		36701422 caaaed82 0165de47 9ead2e00
+		7a4ac853 08e8b19c ad627999 b2013582
+		55eb1bd9 ea504e4a e5b56abe 58162190
+[32;22m[INFO]  [39;1msnarkJS[0m: New Challenge Hash: 
+		3d02f70d 5903c924 17904c34 31221c5c
+		f550b84d 8436a66c a90aa215 9c86fae2
+		5202e3db a7324702 da6590c0 c7efeaf9
+		ad7de960 c109f4a5 9a9bba9f 7a9c0942

@@ -1,0 +1,84 @@
+# cmd : snarkjs powersoftau verify pot10_final.ptau
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/4
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: Next challenge hash: 
+		7fe01310 81314276 ac005cd2 b65a8575
+		dde89820 696ae77b 290fd495 09d126e9
+		5d7f82ea f0dd5ba3 0502d973 3501c8d3
+		cdc62385 9cac09e4 83f3b1fd 4209c658
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #4: Final Beacon
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		7fe01310 81314276 ac005cd2 b65a8575
+		dde89820 696ae77b 290fd495 09d126e9
+		5d7f82ea f0dd5ba3 0502d973 3501c8d3
+		cdc62385 9cac09e4 83f3b1fd 4209c658
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		159385a7 14259bf0 89ea620b 7581c8ae
+		8bea82ad 46cea1ac d84565a4 8febbf34
+		1acb8fe2 53c44e1d 22a3dd4d 4692f772
+		65c3695f 8ef7c536 564cbdea 09f5d5d5
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		124ee75a f3387ce8 44f8876e 5d27824c
+		eef45c64 0f6b4d5e ebd8ed8d dfac7a31
+		65d3d150 a6b1389f 3be16a6a 23969c31
+		bba231c4 aa386aa7 f18e2c00 258da187
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon generator: 0102030405060708090a0b0c0d0e0f101112131015161718191a1b1c1d1e1f
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon iterations Exp: 10
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #3: Third contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		124ee75a f3387ce8 44f8876e 5d27824c
+		eef45c64 0f6b4d5e ebd8ed8d dfac7a31
+		65d3d150 a6b1389f 3be16a6a 23969c31
+		bba231c4 aa386aa7 f18e2c00 258da187
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		12350f3d 1a6a6979 5c39f136 3bfe1c47
+		d5b68e29 20fb0e01 6456f538 252858a4
+		efbc663a 1304b747 31f4cf64 31f03ae8
+		b6a76272 5a0cb159 7d4e3f77 60c51faa
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		ff06bf80 f18864e7 9d802739 5b1aee47
+		5d1fae1b 7e0f86b0 68119748 66634a8e
+		729f8b44 66aa4bd3 c16e5b78 de61ed36
+		638b29c6 cc0e1829 d8674650 7cd48801
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #2: Second contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		ff06bf80 f18864e7 9d802739 5b1aee47
+		5d1fae1b 7e0f86b0 68119748 66634a8e
+		729f8b44 66aa4bd3 c16e5b78 de61ed36
+		638b29c6 cc0e1829 d8674650 7cd48801
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		a91ef03d 3fc27256 6f7716ca 6fee867d
+		aaf85fb8 658e2960 7daf3037 a1fe351f
+		af0bd771 f0f77110 04da19b1 efa421af
+		7d73a2db 94fc641e a58e46f1 a66a4d2f
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		24de545a 224560d7 a86ee10f 1e7874ab
+		49a0b41c fea54674 ae9b2db3 016f412f
+		e8456fe8 7aaf714e c390ef60 bfde647c
+		b9742081 d5e0c75a 83946544 9c526256
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #1: First contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		24de545a 224560d7 a86ee10f 1e7874ab
+		49a0b41c fea54674 ae9b2db3 016f412f
+		e8456fe8 7aaf714e c390ef60 bfde647c
+		b9742081 d5e0c75a 83946544 9c526256
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		99cf5869 b44b4be2 a7e54457 295b5ff5
+		2b9d7d6b 246a93f0 07275014 6934c6e8
+		c23507b6 fd3a02f9 632157d7 6fbba354
+		f324e2cc 4c34c402 d97e6cfb 763d547a
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		95f0b449 9e50f8da 383b0d74 c174c169
+		8bdffe1b 35066754 005889a1 47849bbf
+		8d64ff6c 989bd89a 4736b569 a99a1c83
+		a50dc181 e9fe1d4d 23d1888a 98b3157e
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers of Tau Ok!

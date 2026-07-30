@@ -1,0 +1,38 @@
+# cmd : snarkjs zkey verify circuit.r1cs pot9_final.ptau circuit_0003.zkey
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/2
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		92bcb3b9 2442c028 2e1fc2b5 fd2b2593
+		0071e9e1 83ae00a3 f9bb0cfe 0b5b74c2
+		3701090e 02bd8b7d 4a6f987c 35738401
+		f898a59c 7c0d2723 b8a6dc9e 17872ed3
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		92bcb3b9 2442c028 2e1fc2b5 fd2b2593
+		0071e9e1 83ae00a3 f9bb0cfe 0b5b74c2
+		3701090e 02bd8b7d 4a6f987c 35738401
+		f898a59c 7c0d2723 b8a6dc9e 17872ed3
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #3 Third contribution:
+		2448870b f9cb2909 dade1f42 929b32e8
+		c29d6cd3 fbc39a99 65e8f7fa 47b40e70
+		4f4519b3 8b0a499a 2739c976 d1bd5399
+		96fd2e2c 41d9790c 3039e598 a884a67b
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #2 2nd Contributor:
+		5a283348 76b7b835 b738f1c5 ba7893a1
+		63f03c4d e74e4cec b85c3843 ea7084b2
+		e52afe3f 324c5b34 66427ba4 b0e17534
+		3b12a6ff ccff2427 a846367e 4ac1f4c1
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #1 1st Contributor:
+		fd65a105 d4589914 9daa677d d1b4e33f
+		ebfa1d37 f3723577 74508489 7dfdf703
+		0d734986 8ae7a92e 9607b2cc 7ef5ef89
+		3bf57394 b9e0e775 09488c42 32dc541c
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: ZKey Ok!

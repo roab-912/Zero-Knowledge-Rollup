@@ -1,0 +1,18 @@
+# cmd : snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/16
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Blank Contribution Hash:
+		786a02f7 42015903 c6c6fd85 2552d272
+		912f4740 e1584761 8a86e217 f71f5419
+		d25e1031 afee5853 13896444 934eb04b
+		903a685b 1448b755 d56f701a fe9be2ce
+[32;22m[INFO]  [39;1msnarkJS[0m: First Contribution Hash:
+		9e63a5f6 2b96538d aaed2372 481920d1
+		a40b9195 9ea38ef9 f5f6a303 3b886516
+		0710d067 c09d0961 5f928ea5 17bcdf49
+		ad75abd2 c8340b40 0e3b18e9 68b4ffef

@@ -71,7 +71,7 @@ sleep_between = 5.0
 warmup = True
 
 # ---------- I/O utilitaires ----------
-def make_outdir(root: str = "./bench_out") -> str:
+def make_outdir(root: str = "./bench-out") -> str:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     outdir = os.path.join(root, ts)
     os.makedirs(outdir, exist_ok=True)

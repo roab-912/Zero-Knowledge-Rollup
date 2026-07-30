@@ -1,0 +1,10 @@
+# cmd : snarkjs r1cs info circuit.r1cs
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/8
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Curve: bn-128
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Wires: 1272
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Constraints: 1231
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Private Inputs: 56
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Public Inputs: 0
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Labels: 1582
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Outputs: 1

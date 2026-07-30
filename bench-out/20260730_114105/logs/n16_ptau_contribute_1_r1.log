@@ -1,0 +1,23 @@
+# cmd : snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v -e="some random text"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260730_114105/circuits/16
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/8191
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/4096
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/4096
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/4096
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		3c0b7dce 37e3f241 e12af30f dbf07266
+		81c014fc 43f6e350 8ab1c1c2 eb9008da
+		d8fae15c 7c0864a6 27782f7f 3924f4f1
+		47496a75 7263bd7e 9dfbc29d fa9adcd5
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		7804b2df 719ff6fc b325d969 90865245
+		6437a6a6 05550219 fed4b372 8009619f
+		0981e6a0 ac4961d5 6771cc72 ac378120
+		633fe24d eed2f62e f90a2bc9 c83d0595
