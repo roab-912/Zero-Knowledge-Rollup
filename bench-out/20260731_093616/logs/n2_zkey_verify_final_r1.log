@@ -1,0 +1,46 @@
+# cmd : snarkjs zkey verify circuit.r1cs pot9_final.ptau circuit_final.zkey
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_093616/circuits/2
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		45a80999 e9a8124e 4a4a1eef 333ca8b3
+		31c0fabb 484e70be e0519e40 d188269d
+		634830c9 99c517e4 d7961390 b12be0b6
+		19cc29e0 5cc6f49a 49dea684 d3a09178
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		45a80999 e9a8124e 4a4a1eef 333ca8b3
+		31c0fabb 484e70be e0519e40 d188269d
+		634830c9 99c517e4 d7961390 b12be0b6
+		19cc29e0 5cc6f49a 49dea684 d3a09178
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #4 Final Beacon phase2:
+		84e9dd3f cc370467 82f5d59e 6b3619ab
+		3bf0fffa 3b3d7de0 5ce0bc5e f44f83c4
+		35b1aa63 0512ae24 969465d4 b792c2d8
+		771cf5f4 17645bc8 694b8bba ca1fc1d9
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon generator: 0102030405060708090a0b0c0d0e0f101112131515161718191a1b1c1d1e1f
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon iterations Exp: 10
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #3 Third contribution:
+		7b841a84 b06e6825 1c0fefe7 454702f4
+		18000e54 01de005a 8e484692 28c2e7d5
+		e0359991 d81418f0 55e12179 b8fcdcb2
+		b1d50afa a133475f c708f538 66045486
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #2 2nd Contributor:
+		2ac6d39f a0cf57ef b2c3a165 1f655aaf
+		474053ea 9612644b bbce97b1 bc7107c1
+		8331ef86 7a9bd335 33ed9fad db311e61
+		83ec7f84 bb36133b 48ed7ee5 f5dad8d2
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #1 1st Contributor:
+		39eb482a fbd915eb fd459a8d 9c56bff4
+		7dadb2b5 260762c4 57dedc49 e71aa802
+		732fd340 0f6c0f27 f858eebe 0ce86e29
+		155374c5 79599b5d 6e30a4bb f41b7a10
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: ZKey Ok!

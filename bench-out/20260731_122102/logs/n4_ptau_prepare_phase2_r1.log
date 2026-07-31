@@ -1,0 +1,1399 @@
+# cmd : snarkjs powersoftau prepare phase2 pot10_beacon.ptau pot10_final.ptau -v
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_122102/circuits/4
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Starting section: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 0 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 0 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 1 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 1 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 2 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 2 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 3 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 3 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 4 mix start: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 4 mix start: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 4 mix end: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 4 mix end: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  4  join: 4/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 4 join  4/4  1/1 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix start: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix start: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix start: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix start: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix end: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix end: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix end: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 mix end: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  5  join: 4/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 join  4/5  1/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 join  4/5  2/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  5  join: 5/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 join  5/5  1/1 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 5 join  5/5  1/1 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix start: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 mix end: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  6  join: 4/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  4/6  2/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  4/6  3/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  4/6  1/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  4/6  4/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  6  join: 5/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  5/6  2/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  5/6  1/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  5/6  1/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  5/6  2/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  6  join: 6/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  6/6  1/1 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  6/6  1/1 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  6/6  1/1 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 6 join  6/6  1/1 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  7  join: 4/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  4/7  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  7  join: 5/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  5/7  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  7  join: 6/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  6/7  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  7  join: 7/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 7 join  7/7  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  8  join: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  5/8  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  8  join: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  6/8  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  8  join: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  7/8  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  8  join: 8/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 8 join  8/8  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  9  join: 6/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  6/9  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  9  join: 7/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  7/9  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  9  join: 8/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  8/9  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  9  join: 9/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 9 join  9/9  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  10  join: 7/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  7/10  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  10  join: 8/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  8/10  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  10  join: 9/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  9/10  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  10  join: 10/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 10 join  10/10  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  11  join: 8/11
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  8/11  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  11  join: 9/11
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  9/11  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  11  join: 10/11
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  10/11  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft  11  join: 11/11
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: fft 11 join  11/11  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: Starting section: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 0 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 0 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 1 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 1 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 2 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 2 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 3 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 3 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 4 mix start: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 4 mix start: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 4 mix end: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 4 mix end: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  4  join: 4/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 4 join  4/4  1/1 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix start: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix start: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix start: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix start: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix end: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix end: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix end: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 mix end: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  5  join: 4/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 join  4/5  1/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 join  4/5  2/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  5  join: 5/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 join  5/5  1/1 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 5 join  5/5  1/1 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix start: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 mix end: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  6  join: 4/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  4/6  1/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  4/6  2/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  4/6  3/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  4/6  4/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  6  join: 5/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  5/6  2/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  5/6  1/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  5/6  2/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  5/6  1/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  6  join: 6/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  6/6  1/1 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  6/6  1/1 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  6/6  1/1 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 6 join  6/6  1/1 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  7  join: 4/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  4/7  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  7  join: 5/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  5/7  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  7  join: 6/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  6/7  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  7  join: 7/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 7 join  7/7  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  8  join: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  5/8  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  8  join: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  6/8  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  8  join: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  7/8  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  8  join: 8/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 8 join  8/8  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  9  join: 6/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  6/9  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  9  join: 7/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  7/9  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  9  join: 8/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  8/9  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  9  join: 9/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 9 join  9/9  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  10  join: 7/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  7/10  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  10  join: 8/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  8/10  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  10  join: 9/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  9/10  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft  10  join: 10/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: fft 10 join  10/10  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: Starting section: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 0 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 0 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 1 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 1 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 2 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 2 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 3 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 3 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 4 mix start: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 4 mix start: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 4 mix end: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 4 mix end: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  4  join: 4/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 4 join  4/4  1/1 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix start: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix start: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix start: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix start: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix end: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix end: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix end: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 mix end: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  5  join: 4/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 join  4/5  1/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 join  4/5  2/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  5  join: 5/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 join  5/5  1/1 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 5 join  5/5  1/1 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix start: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 mix end: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  6  join: 4/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  4/6  1/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  4/6  2/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  4/6  3/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  4/6  4/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  6  join: 5/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  5/6  1/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  5/6  2/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  5/6  2/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  5/6  1/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  6  join: 6/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  6/6  1/1 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  6/6  1/1 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  6/6  1/1 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 6 join  6/6  1/1 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  7  join: 4/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  4/7  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  7  join: 5/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  5/7  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  7  join: 6/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  6/7  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  7  join: 7/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 7 join  7/7  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  8  join: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  5/8  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  8  join: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  6/8  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  8  join: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  7/8  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  8  join: 8/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 8 join  8/8  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  9  join: 6/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  6/9  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  9  join: 7/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  7/9  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  9  join: 8/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  8/9  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  9  join: 9/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 9 join  9/9  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  10  join: 7/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  7/10  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  10  join: 8/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  8/10  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  10  join: 9/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  9/10  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft  10  join: 10/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: fft 10 join  10/10  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: Starting section: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 0 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 0 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 1 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 1 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 2 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 2 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 3 mix start: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 3 mix end: 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 4 mix start: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 4 mix start: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 4 mix end: 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 4 mix end: 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  4  join: 4/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 4 join  4/4  1/1 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix start: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix start: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix start: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix start: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix end: 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix end: 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix end: 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 mix end: 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  5  join: 4/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 join  4/5  1/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 join  4/5  2/2 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  5  join: 5/5
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 join  5/5  1/1 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 5 join  5/5  1/1 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix start: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 mix end: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  6  join: 4/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  4/6  1/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  4/6  2/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  4/6  3/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  4/6  4/4 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  6  join: 5/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  5/6  1/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  5/6  2/2 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  5/6  2/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  5/6  1/2 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  6  join: 6/6
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  6/6  1/1 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  6/6  1/1 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  6/6  1/1 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 6 join  6/6  1/1 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  7  join: 4/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  4/7  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  7  join: 5/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  5/7  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  7  join: 6/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  6/7  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  7  join: 7/7
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 7 join  7/7  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  8  join: 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  5/8  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  8  join: 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  6/8  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  8  join: 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  7/8  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  8  join: 8/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 8 join  8/8  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  9  join: 6/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  6/9  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  9  join: 7/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  7/9  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  9  join: 8/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  8/9  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  9  join: 9/9
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 0/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 9 join  9/9  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix start: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 1/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 3/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 4/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 5/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 7/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 8/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 6/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 0/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 2/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 13/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 9/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 15/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 11/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 12/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 10/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 mix end: 14/16
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  10  join: 7/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  2/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  3/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  4/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  5/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  6/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  1/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  7/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  7/10  8/8 0/1
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  10  join: 8/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  2/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  3/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  1/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  1/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  3/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  4/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  2/4 1/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  8/10  4/4 0/2
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  10  join: 9/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  2/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  2/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  1/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  1/2 2/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  1/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  2/2 1/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  2/2 3/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  9/10  1/2 0/4
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft  10  join: 10/10
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 5/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 4/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 3/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 2/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 7/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 6/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 1/8
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: fft 10 join  10/10  1/1 0/8

@@ -12,7 +12,30 @@ zk-SNARK Groth16, pour plusieurs tailles de circuit :
 
 Chaque commande est exécutée en sous-processus et échantillonnée pendant son
 exécution (backend /proc sous Debian, psutil si présent). Les mesures brutes,
-les agrégats et les figures sont écrits dans ./bench-out/YYYYMMDD_HHmmss/.
+les agrégats, les figures et des tables LaTeX prêtes pour l'article sont
+écrits dans ./bench-out/YYYYMMDD_HHmmss/.
+
+Figures produites (une figure = une affirmation, réutilisable comme légende) :
+  01_phase_cost_stacked         coût du cycle de vie complet (setup + preuve + vérif)
+  01b_recurring_cost_stacked    coût récurrent seul, une colonne par prover
+  02_machine_sizing_per_phase   RAM et cœurs par phase (boîtes à moustaches)
+  03_setup_amortization         amortissement du trusted setup one-off
+  04_usd_cost_per_tx            coût marginal de preuve en $/tx (--usd-per-hour)
+
+Tables LaTeX produites (tables/, prêtes à insérer — adapter caption/label) :
+  tab_pipeline_resources  ressources par (N, phase) — vue détaillée
+  tab_prover_comparison   provers face à face à la taille de référence
+  tab_lifecycle           cycle de vie à N fixé : phase, fréquence, x vs verify
+  tab_phase_ratios        T_setup / T_proof / T_ver et leurs ratios selon N
+  tab_amortization        seuils k où le setup passe sous 50 % puis 10 % du coût
+  tab_provisioning        vCPU / RAM / instance / $ par rôle (dimensionnement)
+  tab_proving_io          taille des entrées/sorties de la preuve selon N
+  tab_artifacts           empreinte de stockage des artefacts (preuve constante)
+  tab_cost_usd            coût de preuve en USD (--usd-per-hour)
+
+Les vues latence / débit / coût amorti / efficacité de scaling de l'article
+sont déjà produites par generate_graph_from_bench_out.py et ne sont pas
+dupliquées ici.
 
 Exemples
 --------
@@ -23,12 +46,16 @@ Exemples
     python3 scripts/measure_zk_resources.py --sizes 1,2,4 --skip-setup \
         --circuits-dir circuits --repeat 5
 
-    # comparaison snarkjs / rapidsnark (docker) sur le serveur de test
+    # comparaison snarkjs / rapidsnark (docker) sur le serveur de test.
+    # Le conteneur est démarré s'il est à l'arrêt ; --require-rapidsnark fait
+    # échouer le run tout de suite plutôt que de ne mesurer que snarkjs.
     python3 scripts/measure_zk_resources.py --sizes 1,2,4 --skip-setup \
-        --prover both --rapidsnark-mode docker --docker-container debian_rapidsnark
+        --prover both --rapidsnark-mode docker --docker-container debian_rapidsnark \
+        --require-rapidsnark
 
-    # regénérer uniquement les figures depuis un run existant
-    python3 scripts/measure_zk_resources.py --plot-only bench-out/20260730_101500
+    # regénérer figures + tables depuis un run existant, avec les coûts en USD
+    python3 scripts/measure_zk_resources.py --plot-only bench-out/20260730_101500 \
+        --usd-per-hour 1.84
 """
 
 from __future__ import annotations
@@ -46,11 +73,12 @@ import shutil
 import statistics
 import subprocess
 import sys
+import textwrap
 import threading
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 # --------------------------------------------------------------------------- #
 # Constantes
@@ -64,20 +92,11 @@ except Exception:  # pragma: no cover
 
 PHASES = ("env", "prove", "verify")
 PHASE_LABELS = {
-    "env": "Trusted setup",
+    "env": "Setup",
     "prove": "Proof generation",
     "verify": "Verification",
 }
 PHASE_COLORS = {"env": "#4C72B0", "prove": "#DD8452", "verify": "#55A868"}
-
-# sous-étapes de la phase env, pour le graphe de décomposition
-ENV_GROUPS = ("ptau", "compile", "zkey")
-ENV_GROUP_LABELS = {
-    "ptau": "Powers of Tau (phase 1)",
-    "compile": "Circuit compilation (circom)",
-    "zkey": "Groth16 setup (phase 2)",
-}
-ENV_GROUP_COLORS = {"ptau": "#8172B3", "compile": "#937860", "zkey": "#DA8BC3"}
 
 MB = 1024.0 * 1024.0
 GB = 1024.0 * 1024.0 * 1024.0
@@ -849,6 +868,7 @@ def prepare_circuit_dir(size: int, work_dir: str, template_dir: str) -> str:
 
 
 ARTIFACTS_OF_INTEREST = (
+    "input.json",
     "circuit.r1cs",
     "circuit_final.zkey",
     "witness.wtns",
@@ -953,30 +973,89 @@ NATIVE_PATH_CANDIDATES = (
     "circuits/rapidsnark/build/prover",
     "rapidsnark/package/bin/prover",
 )
+# emplacements usuels d'une compilation locale sous Debian/WSL, hors dépôt
+NATIVE_ABS_CANDIDATES = (
+    "~/rapidsnark/package/bin/prover",
+    "~/rapidsnark/build/prover",
+    "/opt/rapidsnark/package/bin/prover",
+    "/usr/local/bin/prover",
+    "/mnt/projet/rapidsnark/package/bin/prover",
+)
 
 
-def docker_available() -> bool:
+def docker_state() -> Tuple[bool, str]:
+    """(daemon joignable, raison de l'indisponibilité)."""
     if shutil.which("docker") is None:
-        return False
+        return False, "la commande docker est absente du PATH"
     try:
-        return subprocess.run(
-            ["docker", "info"], capture_output=True, timeout=30
-        ).returncode == 0
-    except Exception:
-        return False
+        proc = subprocess.run(["docker", "info"], capture_output=True, text=True, timeout=30)
+    except Exception as exc:
+        return False, f"`docker info` a échoué ({exc})"
+    if proc.returncode == 0:
+        return True, ""
+    # sous WSL, c'est presque toujours le daemon qui n'est pas démarré
+    return False, (
+        "le daemon docker ne répond pas (démarrer Docker Desktop, ou "
+        "`sudo service docker start` dans la distribution WSL)"
+    )
 
 
-def container_running(name: str) -> bool:
+def container_status(name: str) -> str:
+    """'running', 'exited', … ou '' si le conteneur n'existe pas."""
+    if not name:
+        return ""
     try:
         proc = subprocess.run(
-            ["docker", "ps", "--filter", f"name=^{name}$", "--format", "{{.Names}}"],
+            ["docker", "inspect", "-f", "{{.State.Status}}", name],
             capture_output=True,
             text=True,
             timeout=30,
         )
     except Exception:
+        return ""
+    return proc.stdout.strip() if proc.returncode == 0 else ""
+
+
+def container_running(name: str) -> bool:
+    return container_status(name) == "running"
+
+
+def start_container(name: str) -> bool:
+    """Redémarre un conteneur existant mais arrêté (cas courant après reboot)."""
+    try:
+        proc = subprocess.run(
+            ["docker", "start", name], capture_output=True, text=True, timeout=120
+        )
+    except Exception:
         return False
-    return name in proc.stdout.split()
+    if proc.returncode != 0:
+        return False
+    # `docker start` rend la main avant que le conteneur ne soit vraiment prêt
+    for _ in range(10):
+        if container_running(name):
+            return True
+        time.sleep(0.5)
+    return False
+
+
+def find_rapidsnark_image() -> str:
+    """Première image locale dont le nom évoque rapidsnark (repli sans conteneur)."""
+    try:
+        proc = subprocess.run(
+            ["docker", "images", "--format", "{{.Repository}}:{{.Tag}}"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except Exception:
+        return ""
+    if proc.returncode != 0:
+        return ""
+    for line in proc.stdout.splitlines():
+        name = line.strip()
+        if "rapidsnark" in name.lower() and "<none>" not in name:
+            return name
+    return ""
 
 
 def image_available(image: str) -> bool:
@@ -999,6 +1078,21 @@ def container_has_path(container: str, path: str, flag: str = "-e") -> bool:
     except Exception:
         return False
     return proc.returncode == 0
+
+
+def prover_runs(cmd: Sequence[str]) -> bool:
+    """Le prover démarre-t-il réellement ?
+
+    Sans argument, rapidsnark affiche son usage et sort en erreur : ce qui
+    compte est de ne pas retomber sur 126/127 (binaire non exécutable ou
+    introuvable), qui trahit une compilation pour une autre architecture ou une
+    glibc incompatible — un cas qui, sinon, n'apparaît qu'à la première mesure.
+    """
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=60)
+    except Exception:
+        return False
+    return proc.returncode not in (126, 127)
 
 
 def container_resolve(container: str, path: str, flag: str = "-e") -> str:
@@ -1078,21 +1172,42 @@ def detect_rapidsnark(
                     binary = found
                     break
         if not binary:
-            for rel in NATIVE_PATH_CANDIDATES:
-                cand = os.path.join(repo_root, rel)
+            candidates = [os.path.join(repo_root, rel) for rel in NATIVE_PATH_CANDIDATES]
+            candidates += [os.path.expanduser(p) for p in NATIVE_ABS_CANDIDATES]
+            for cand in candidates:
                 if os.path.isfile(cand) and os.access(cand, os.X_OK):
                     binary = os.path.abspath(cand)
                     break
         if binary and (os.path.isfile(binary) or shutil.which(binary)):
-            return RapidsnarkConfig(available=True, mode="native", binary=binary)
+            if prover_runs([binary]):
+                return RapidsnarkConfig(available=True, mode="native", binary=binary)
+            if mode == "native":
+                return RapidsnarkConfig(
+                    reason=f"{binary} présent mais non exécutable ici (architecture ou glibc ?)"
+                )
+            print(f"[attention] {binary} présent mais non exécutable : repli sur docker")
         if mode == "native":
-            return RapidsnarkConfig(reason="aucun binaire rapidsnark trouvé (--rapidsnark-bin)")
+            return RapidsnarkConfig(
+                reason=(
+                    "aucun binaire rapidsnark trouvé — passer --rapidsnark-bin, ou "
+                    "le compiler dans " + os.path.join(repo_root, NATIVE_PATH_CANDIDATES[0])
+                )
+            )
 
     if mode in ("auto", "docker"):
-        if not docker_available():
-            return RapidsnarkConfig(reason="docker indisponible et pas de binaire natif")
+        ok, why = docker_state()
+        if not ok:
+            return RapidsnarkConfig(reason=f"pas de binaire natif et {why}")
         container = args.docker_container
-        if container and container_running(container):
+        status = container_status(container)
+        # cas le plus fréquent après un reboot : le conteneur existe mais est arrêté
+        if container and status and status != "running" and args.docker_autostart:
+            print(f"[info] conteneur {container} à l'arrêt ({status}) : démarrage")
+            if start_container(container):
+                status = "running"
+            else:
+                print(f"[attention] impossible de démarrer {container}")
+        if container and status == "running":
             prefix = args.docker_mount_prefix.rstrip("/")
             mounts = docker_mounts(container)
 
@@ -1105,6 +1220,15 @@ def detect_rapidsnark(
                             f"conteneur {container} actif mais le prover "
                             f"{args.docker_prover_path} y est introuvable "
                             f"(voir --docker-prover-path)"
+                        ),
+                        mounts=mounts,
+                    )
+            elif not prover_runs(["docker", "exec", container, prover]):
+                if not args.docker_image:
+                    return RapidsnarkConfig(
+                        reason=(
+                            f"conteneur {container} actif mais {prover} ne s'exécute pas "
+                            f"(binaire incompatible ?)"
                         ),
                         mounts=mounts,
                     )
@@ -1147,16 +1271,26 @@ def detect_rapidsnark(
                         ),
                         mounts=mounts,
                     )
-        if image_available(args.docker_image):
+        # repli : une image locale suffit, on lancera un conteneur jetable
+        image = args.docker_image or find_rapidsnark_image()
+        if image_available(image):
+            if not args.docker_image:
+                print(f"[info] pas de conteneur exploitable : repli sur l'image {image}")
             return RapidsnarkConfig(
                 available=True,
                 mode="docker-run",
-                image=args.docker_image,
+                image=image,
                 binary=args.docker_prover_path,
             )
         if args.docker_image:
             return RapidsnarkConfig(reason=f"image docker {args.docker_image} absente localement")
-        return RapidsnarkConfig(reason="ni conteneur rapidsnark actif ni --docker-image fourni")
+        detail = f"conteneur {container} : {status or 'inexistant'}" if container else "aucun conteneur demandé"
+        return RapidsnarkConfig(
+            reason=(
+                f"aucun prover rapidsnark utilisable ({detail}, aucune image locale "
+                f"rapidsnark) — vérifier --docker-container / --docker-image"
+            )
+        )
 
     return RapidsnarkConfig(reason="mode 'off'")
 
@@ -1309,14 +1443,52 @@ def setup_style(use_science: bool, big_font: bool) -> None:
 
 NO_TITLES = False  # --no-titles : figures destinées à un article, titre en légende
 
+# Le jeu de figures est volontairement resserré : une figure = une affirmation
+# qui sert directement la section d'évaluation de l'article. Ces phrases sont
+# reprises dans report.md et dans le manifest, pour servir de base aux légendes.
+# Les vues latence / débit / coût amorti par tx / efficacité de scaling sont
+# déjà produites par generate_graph_from_bench_out.py et ne sont pas dupliquées.
+FIGURE_CLAIMS = {
+    "01_phase_cost_stacked": (
+        "End-to-end cost of one batch, split into its three phases: the one-off "
+        "setup dominates the total, while the recurring phases stay small."
+    ),
+    "01b_recurring_cost_stacked": (
+        "Recurring per-batch cost (proving + verification) with one column per "
+        "prover: verification is identical, so the whole gap comes from proving."
+    ),
+    "02_machine_sizing_per_phase": (
+        "Peak RAM and busy cores per phase, as box plots over the repetitions "
+        "(min/max whiskers, median line, mean marker): the one-off setup sets "
+        "the machine requirement; once it has been run, the recurring proving "
+        "and verification phases fit on a smaller machine."
+    ),
+    "03_setup_amortization": (
+        "Per-batch time T_setup/k + T_proof as the number of proved batches k "
+        "grows: the one-off setup rapidly becomes a minority cost, which "
+        "justifies excluding it from the per-batch critical path."
+    ),
+    "04_usd_cost_per_tx": (
+        "Marginal proving cost per transaction in USD at a fixed hourly machine "
+        "rate: the economic counterpart of the amortized proving time."
+    ),
+}
 
-def save_fig(fig, figs_dir: str, name: str, manifest_figs: Dict[str, str]) -> None:
+
+def save_fig(fig, figs_dir: str, name: str, manifest_figs: Dict[str, str], note: str = "") -> None:
     if NO_TITLES:
         for ax in fig.axes:
             ax.set_title("")
+    if note:
+        # réserve de mesure : la note reste sous l'axe grâce à bbox_inches="tight".
+        # Elle est repliée : une ligne unique élargirait la boîte englobante et
+        # donc la figure exportée.
+        width_chars = max(80, int(fig.get_figwidth() * 13))
+        wrapped = "\n".join(textwrap.wrap(note, width=width_chars))
+        fig.text(0.5, -0.02, wrapped, ha="center", va="top", fontsize=8, style="italic")
     for ext in ("png", "svg"):
         path = os.path.join(figs_dir, f"{name}.{ext}")
-        fig.savefig(path, dpi=200 if ext == "png" else None, bbox_inches="tight")
+        fig.savefig(path, dpi=300 if ext == "png" else None, bbox_inches="tight")
     manifest_figs[name] = f"figs/{name}.png"
     import matplotlib.pyplot as plt
 
@@ -1330,16 +1502,9 @@ def _xpos(sizes: Sequence[int]):
     return np.arange(len(sizes))
 
 
-def pct_label(text: str) -> str:
-    """Libellé d'axe en pourcentage, en échappant `%` si LaTeX est actif."""
-    import matplotlib.pyplot as plt
-
-    sign = "\\%" if plt.rcParams.get("text.usetex") else "%"
-    return f"{text} ({sign})"
-
-
 PROVER_SHORT = {"snarkjs": "sjs", "rapidsnark": "rs"}
 PROVER_HATCH = ("", "///", "...")
+PROVER_MARKERS = {"rapidsnark": "o", "snarkjs": "^"}
 
 
 def fig_stacked(
@@ -1354,6 +1519,7 @@ def fig_stacked(
     manifest_figs: Dict[str, str],
     name: str,
     annotate_total: bool = True,
+    phases: Sequence[str] = PHASES,
 ) -> None:
     """Barres verticales empilées env / prove / verify.
 
@@ -1369,8 +1535,9 @@ def fig_stacked(
     n_prov = len(provers)
     x = _xpos(sizes)
     width = 0.68 / n_prov
+    # largeur bornée : au-delà, la figure s'aplatit et devient illisible en colonne d'article
     fig, ax = plt.subplots(
-        figsize=(max(7.0, (1.15 * n_prov) * len(sizes) + 4.0), 5.5)
+        figsize=(min(13.0, max(9.0, 0.75 * n_prov * len(sizes) + 3.5)), 6.0)
     )
 
     any_data = False
@@ -1383,7 +1550,7 @@ def fig_stacked(
         offset = (j - (n_prov - 1) / 2) * width
         pos = x + offset
         bottoms = np.zeros(len(sizes))
-        for phase in PHASES:
+        for phase in phases:
             vals = np.array(
                 [table.get((n, phase), {}).get(f"{metric}_mean", 0.0) / scale for n in sizes],
                 dtype=float,
@@ -1444,7 +1611,8 @@ def fig_stacked(
                 linewidth=0.4,
                 label=f"{prover} ({PROVER_SHORT.get(prover, prover)})",
             )
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
+    # text.usetex = False : le croisillon est du texte brut, pas une macro LaTeX
+    ax.set_xlabel("Batch size $N$ (# transactions per proof)")
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     # marge en haut pour que la légende ne recouvre aucune barre
@@ -1456,439 +1624,374 @@ def fig_stacked(
     save_fig(fig, figs_dir, name, manifest_figs)
 
 
-def fig_stacked_log(
+# --------------------------------------------------------------------------- #
+# Dimensionnement machine et amortissement (analyses transverses)
+# --------------------------------------------------------------------------- #
+
+
+def _human(b: float) -> str:
+    return f"{b / GB:.2f} GiB" if b >= GB else f"{b / MB:.0f} MiB"
+
+
+def sizing_summary(agg: Dict[str, Any], sizes: Sequence[int], provers: Sequence[str]) -> Optional[Dict[str, Any]]:
+    """Chiffres du claim « downsizing » à la plus grande taille mesurée :
+    RSS max et cœurs occupés du setup vs des phases récurrentes."""
+    provers = [p for p in provers if p] or [""]
+    main = provers[0]
+    tmain = phase_lookup(agg["phases"], main)
+    for n in reversed(list(sizes)):
+        env = tmain.get((n, "env"), {})
+        e_rss = env.get("rss_peak_bytes_mean", 0.0)
+        p_rss = 0.0
+        p_cores = 0.0
+        for p in provers:
+            row = phase_lookup(agg["phases"], p).get((n, "prove"))
+            if not row:
+                continue
+            p_rss = max(p_rss, row.get("rss_peak_bytes_mean", 0.0))
+            if row.get("wall_s_mean", 0.0) > 0:
+                p_cores = max(p_cores, row["cpu_total_s_mean"] / row["wall_s_mean"])
+        if e_rss <= 0 or p_rss <= 0:
+            continue
+        v_row = tmain.get((n, "verify"))
+        e_wall = env.get("wall_s_mean", 0.0)
+        return {
+            "n": n,
+            "env_rss": e_rss,
+            "prove_rss": p_rss,
+            "verify_rss": v_row.get("rss_peak_bytes_mean", 0.0) if v_row else 0.0,
+            "env_cores": (env.get("cpu_total_s_mean", 0.0) / e_wall) if e_wall > 0 else 0.0,
+            "prove_cores": p_cores,
+            "ram_ratio": e_rss / p_rss,
+        }
+    return None
+
+
+def _sizing_note(agg: Dict[str, Any], sizes: Sequence[int], provers: Sequence[str]) -> str:
+    s = sizing_summary(agg, sizes, provers)
+    if not s:
+        return ""
+    note = (
+        f"Peak RAM at N={s['n']}: setup {_human(s['env_rss'])}, "
+        f"proving {_human(s['prove_rss'])}, verification {_human(s['verify_rss'])}."
+    )
+    if s["ram_ratio"] >= 1.2:
+        note += f" A proving-only node needs ~{s['ram_ratio']:.1f}x less RAM than the setup machine."
+    return note
+
+
+def rep_distributions(
+    steps: Sequence[Dict[str, Any]], size: int, phase: str, prover: str
+) -> Tuple[List[float], List[float]]:
+    """(RSS max, cœurs occupés) par répétition, pour une (taille, phase, prover).
+
+    Même reconstruction que `aggregate` : une répétition est l'ensemble des
+    steps qui la composent — RSS pris au maximum, temps CPU et temps écoulé
+    sommés — ce qui donne un échantillon par répétition, base des boîtes.
+    """
+    rss: Dict[int, float] = {}
+    cpu: Dict[int, float] = {}
+    wall: Dict[int, float] = {}
+    for s in steps:
+        if s["size"] != size or s["phase"] != phase:
+            continue
+        if prover and s.get("prover") and s["prover"] != prover:
+            continue
+        rep = s.get("rep", 1)
+        rss[rep] = max(rss.get(rep, 0.0), float(s.get("rss_peak_bytes", 0.0)))
+        cpu[rep] = cpu.get(rep, 0.0) + float(s.get("cpu_total_s", 0.0))
+        wall[rep] = wall.get(rep, 0.0) + float(s.get("wall_s", 0.0))
+    rss_vals = [v for v in rss.values() if v > 0]
+    core_vals = [cpu[r] / wall[r] for r in wall if wall[r] > 0 and cpu.get(r, 0.0) > 0]
+    return rss_vals, core_vals
+
+
+def _box_series(ax, series, positions, width, color, hatch: str = ""):
+    """Boîte à moustaches min/médiane/max + moyenne, aux couleurs de la phase."""
+    if not series:
+        return
+    bp = ax.boxplot(
+        series,
+        positions=positions,
+        widths=width,
+        whis=(0, 100),  # moustaches = min et max observés
+        showmeans=True,
+        # marqueur de moyenne à la couleur de la série : quand la dispersion est
+        # nulle (setup mesuré une fois) la boîte s'aplatit, et c'est lui qui
+        # porte l'identification de la phase
+        meanprops={"marker": "o", "markerfacecolor": color,
+                   "markeredgecolor": "black", "markersize": 5},
+        medianprops={"color": "black", "lw": 1.2},
+        boxprops={"facecolor": color, "alpha": 0.75, "lw": 0.6, "hatch": hatch},
+        whiskerprops={"lw": 0.8},
+        capprops={"lw": 0.8},
+        patch_artist=True,
+        manage_ticks=False,
+    )
+    return bp
+
+
+def fig_machine_sizing(
+    agg: Dict[str, Any],
+    steps: Sequence[Dict[str, Any]],
+    sizes: Sequence[int],
+    provers: Sequence[str],
+    ncpu: int,
+    figs_dir: str,
+    manifest_figs: Dict[str, str],
+    cpu_note: str = "",
+) -> None:
+    """RAM de pointe et cœurs occupés par phase : dimensionnement du serveur.
+
+    Porte l'affirmation « downsizing » : le setup, one-off, fixe la taille de
+    la machine ; les phases récurrentes (preuve, vérification) tiennent ensuite
+    sur une configuration plus modeste. Chaque série est une boîte à
+    moustaches sur les répétitions : min et max aux moustaches, médiane au
+    trait, moyenne au marqueur blanc.
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as mticker
+    import numpy as np
+    from matplotlib.patches import Patch
+
+    provers = [p for p in provers if p] or [""]
+
+    # une série = une phase ; la preuve est déclinée par prover, distinguée par
+    # une hachure (même convention que la figure des barres empilées)
+    series: List[Tuple[str, str, str, str, str]] = [
+        ("env", "", PHASE_LABELS["env"] + " (one-off)", PHASE_COLORS["env"], "")
+    ]
+    for j, p in enumerate(provers):
+        label = PHASE_LABELS["prove"] + (f" — {p}" if len(provers) > 1 else "")
+        series.append(("prove", p, label, PHASE_COLORS["prove"], PROVER_HATCH[j % len(PROVER_HATCH)]))
+    series.append(("verify", provers[0], PHASE_LABELS["verify"], PHASE_COLORS["verify"], ""))
+
+    # collecte : {index de série -> {index de taille -> échantillons}}
+    rss_data: Dict[int, Dict[int, List[float]]] = {}
+    core_data: Dict[int, Dict[int, List[float]]] = {}
+    for j, (phase, prover, _lbl, _c, _h) in enumerate(series):
+        for i, n in enumerate(sizes):
+            rss_vals, core_vals = rep_distributions(steps, n, phase, prover)
+            if rss_vals:
+                rss_data.setdefault(j, {})[i] = rss_vals
+            if core_vals:
+                core_data.setdefault(j, {})[i] = core_vals
+    if not rss_data:
+        return
+
+    all_rss = [v for per_size in rss_data.values() for vals in per_size.values() for v in vals]
+    peak_rss, low_rss = max(all_rss), min(all_rss)
+    # bascule en GiB seulement quand les valeurs y restent lisibles (au-delà de
+    # 4 GiB de pic) : sinon les petites phases tomberaient à « 0,06 GiB »
+    unit_div, unit_name = (GB, "GiB") if peak_rss >= 4 * GB else (MB, "MiB")
+
+    n_series = len(series)
+    width = 0.8 / n_series
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1, figsize=(min(13.0, max(9.5, 0.9 * len(sizes) + 3.5)), 8.4), sharex=True
+    )
+
+    for j, (_phase, _prover, _lbl, color, hatch) in enumerate(series):
+        offset = (j - (n_series - 1) / 2) * width
+        for ax, data, div in ((ax1, rss_data, unit_div), (ax2, core_data, 1.0)):
+            per_size = data.get(j, {})
+            if not per_size:
+                continue
+            idx = sorted(per_size)
+            _box_series(
+                ax,
+                [[v / div for v in per_size[i]] for i in idx],
+                [i + offset for i in idx],
+                width * 0.85,
+                color,
+                hatch,
+            )
+
+    # --- panneau 1 : RSS max (la ressource qui dimensionne la RAM) -------- #
+    # échelle log seulement si l'amplitude le justifie ; sinon l'axe linéaire
+    # se lit directement en MiB/GiB
+    log_ram = peak_rss / max(low_rss, 1.0) >= 20
+    if log_ram:
+        ax1.set_yscale("log")
+        # valeurs en clair (512, 1024…) plutôt que 10^2, 6x10^2
+        fmt = mticker.FuncFormatter(lambda v, _pos: f"{v:g}" if v > 0 else "")
+        ax1.yaxis.set_major_formatter(fmt)
+        ax1.yaxis.set_minor_formatter(fmt)
+        ax1.tick_params(axis="y", which="minor", labelsize=7)
+    else:
+        ax1.set_ylim(0, peak_rss / unit_div * 1.30)
+        ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _pos: f"{v:g}"))
+    ax1.set_ylabel(f"Peak resident set size ({unit_name})")
+    handles = [
+        Patch(facecolor=c, alpha=0.75, hatch=h, edgecolor="black", lw=0.6, label=lbl)
+        for _p, _pr, lbl, c, h in series
+    ]
+    handles.append(
+        plt.Line2D([], [], marker="o", color="black", markerfacecolor="lightgrey",
+                   ls="none", ms=5, label="mean (median = line, whiskers = min/max)")
+    )
+    ax1.legend(handles=handles, fontsize=8, ncol=2)
+    ax1.grid(True, which="both" if log_ram else "major", axis="y", ls="--", lw=0.5, alpha=0.6)
+
+    # --- panneau 2 : cœurs occupés (temps CPU / temps écoulé) ------------- #
+    ax2.axhline(1.0, color="black", ls=":", lw=1.0, label="one saturated core")
+    tops = [v for per_size in core_data.values() for vals in per_size.values() for v in vals]
+    top = max(tops + [1.0])
+    if 1 < ncpu <= top * 3:
+        ax2.axhline(float(ncpu), color="grey", ls="--", lw=1.0, label=f"{ncpu} cores (machine)")
+        top = max(top, float(ncpu))
+    ax2.set_ylim(0, top * 1.25)
+    ax2.set_xticks(np.arange(len(sizes)))
+    ax2.set_xticklabels([str(n) for n in sizes])
+    ax2.set_xlim(-0.6, len(sizes) - 0.4)
+    ax2.set_xlabel("Batch size $N$ (# transactions per proof)")
+    ax2.set_ylabel("Cores busy")
+    ax2.legend(fontsize=8)
+    ax2.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
+
+    note = _sizing_note(agg, sizes, provers)
+    note = (
+        note + " Boxes span the repetitions of each phase (whiskers: min/max, "
+        "line: median, marker: mean); the setup is measured once per size."
+    ).strip()
+    if cpu_note:
+        note = (note + " " + cpu_note).strip()
+    save_fig(fig, figs_dir, "02_machine_sizing_per_phase", manifest_figs, note=note)
+
+
+def fig_setup_amortization(
     agg: Dict[str, Any],
     sizes: Sequence[int],
-    prover: str,
+    provers: Sequence[str],
     figs_dir: str,
     manifest_figs: Dict[str, str],
 ) -> None:
-    """Même graphe empilé que le principal, mais en échelle log (setup >> verify)."""
+    """Temps par lot T_setup/k + T_proof en fonction du nombre de lots k.
+
+    Chiffre l'exclusion du trusted setup du chemin critique : c'est un coût
+    fixe, amorti sur tous les lots prouvés avec le même circuit — l'analogue,
+    côté infrastructure, de la loi d'amortissement C0/N du modèle.
+    """
     import matplotlib.pyplot as plt
     import numpy as np
 
-    table = phase_lookup(agg["phases"], prover)
-    x = _xpos(sizes)
-    width = 0.26
-    fig, ax = plt.subplots(figsize=(max(7.0, 1.2 * len(sizes) + 4.0), 5.5))
-    for i, phase in enumerate(PHASES):
-        vals = [table.get((n, phase), {}).get("wall_s_mean", 0.0) for n in sizes]
-        if not any(vals):
-            continue
-        ax.bar(
-            x + (i - 1) * width,
-            vals,
-            width=width,
-            label=PHASE_LABELS[phase],
-            color=PHASE_COLORS[phase],
-            edgecolor="black",
-            linewidth=0.4,
+    provers = [p for p in provers if p]
+    if not provers:
+        return
+    tmain = phase_lookup(agg["phases"], provers[0])
+    n_ref, setup = None, 0.0
+    for n in reversed(list(sizes)):
+        s = tmain.get((n, "env"), {}).get("wall_s_mean", 0.0)
+        if s > 0 and any(
+            phase_lookup(agg["phases"], p).get((n, "prove"), {}).get("wall_s_mean", 0.0) > 0
+            for p in provers
+        ):
+            n_ref, setup = n, s
+            break
+    if n_ref is None:
+        return
+
+    proves = {}
+    kmax = 10
+    for p in provers:
+        t = phase_lookup(agg["phases"], p).get((n_ref, "prove"), {}).get("wall_s_mean", 0.0)
+        if t > 0:
+            proves[p] = t
+            kmax = max(kmax, int(setup / t * 40) + 10)
+    if not proves:
+        return
+    ks = np.unique(np.logspace(0, math.log10(kmax), 240).astype(int))
+    ks = ks[ks >= 1]
+
+    fig, ax = plt.subplots(figsize=(9.0, 5.6))
+    for p, prove in proves.items():
+        (line,) = ax.plot(
+            ks, setup / ks + prove,
+            marker=PROVER_MARKERS.get(p, ""), markevery=0.15, ms=4,
+            label=f"{p} ($T_{{proof}}$ = {prove:.2f} s)",
         )
+        # asymptote : le coût par lot tend vers le seul temps de preuve
+        ax.axhline(prove, color=line.get_color(), ls=":", lw=0.9)
+        k50 = setup / prove  # part du setup dans le coût du lot = 50 %
+        ax.axvline(k50, color=line.get_color(), ls="--", lw=0.8, alpha=0.7)
+        ax.annotate(
+            f"k = {k50:,.0f}\n(setup share = 50%)",
+            (k50, setup / k50 + prove),
+            textcoords="offset points", xytext=(6, 8),
+            fontsize=8, color=line.get_color(),
+        )
+    ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Wall-clock time (s, log scale)")
-    ax.set_title("Per-phase wall-clock time (logarithmic scale)")
-    ax.legend()
-    ax.grid(True, axis="y", which="both", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "05_duree_par_phase_log", manifest_figs)
-
-
-def fig_share(
-    agg: Dict[str, Any], sizes: Sequence[int], prover: str, figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Part relative (%) de chaque phase dans la durée totale."""
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    table = phase_lookup(agg["phases"], prover)
-    x = _xpos(sizes)
-    totals = np.array(
-        [sum(table.get((n, p), {}).get("wall_s_mean", 0.0) for p in PHASES) for n in sizes], dtype=float
+    ax.set_xlabel("Batches proved with the same circuit, $k$")
+    ax.set_ylabel("Amortized time per batch (s): $T_{setup}/k + T_{proof}$")
+    ax.set_title(
+        f"Amortization of the one-off trusted setup "
+        f"($N = {n_ref}$, $T_{{setup}}$ = {setup:.0f} s)"
     )
-    if not totals.any():
-        return
-    bottoms = np.zeros(len(sizes))
-    fig, ax = plt.subplots(figsize=(max(7.0, 1.15 * len(sizes) + 4.0), 5.5))
-    with np.errstate(divide="ignore", invalid="ignore"):
-        for phase in PHASES:
-            vals = np.array([table.get((n, phase), {}).get("wall_s_mean", 0.0) for n in sizes], dtype=float)
-            pct = np.where(totals > 0, vals / totals * 100.0, 0.0)
-            ax.bar(
-                x,
-                pct,
-                bottom=bottoms,
-                label=PHASE_LABELS[phase],
-                color=PHASE_COLORS[phase],
-                edgecolor="black",
-                linewidth=0.4,
-                width=0.68,
-            )
-            bottoms += pct
-    ax.set_ylim(0, 100)
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel(pct_label("Share of total wall-clock time"))
-    ax.set_title("Relative time distribution across pipeline phases")
-    ax.legend(loc="lower right")
-    save_fig(fig, figs_dir, "06_repartition_relative", manifest_figs)
+    ax.legend(fontsize=9)
+    ax.grid(True, which="both", ls="--", lw=0.5, alpha=0.6)
+    save_fig(
+        fig, figs_dir, "03_setup_amortization", manifest_figs,
+        note="Keys are produced once per circuit and reused for every batch; "
+        "witness computation can be pipelined with sequencing.",
+    )
 
 
-def fig_env_breakdown(
-    agg: Dict[str, Any], sizes: Sequence[int], figs_dir: str, manifest_figs: Dict[str, str]
+def fig_usd_cost(
+    agg: Dict[str, Any],
+    sizes: Sequence[int],
+    provers: Sequence[str],
+    usd_per_hour: float,
+    figs_dir: str,
+    manifest_figs: Dict[str, str],
 ) -> None:
-    """Décomposition de la phase environnement en ptau / compilation / zkey."""
-    import matplotlib.pyplot as plt
-    import numpy as np
+    """Coût marginal de preuve par transaction, en USD, à tarif horaire donné.
 
-    table = {(r["n"], r["group"]): r for r in agg["env_groups"]}
-    if not table:
-        return
-    x = _xpos(sizes)
-    bottoms = np.zeros(len(sizes))
-    fig, ax = plt.subplots(figsize=(max(7.0, 1.15 * len(sizes) + 4.0), 5.5))
-    any_data = False
-    for group in ENV_GROUPS:
-        vals = np.array([table.get((n, group), {}).get("wall_s_sum", 0.0) for n in sizes], dtype=float)
-        if not vals.any():
-            continue
-        any_data = True
-        ax.bar(
-            x,
-            vals,
-            bottom=bottoms,
-            label=ENV_GROUP_LABELS[group],
-            color=ENV_GROUP_COLORS[group],
-            edgecolor="black",
-            linewidth=0.4,
-            width=0.68,
-        )
-        bottoms += vals
-    if not any_data:
-        plt.close(fig)
-        return
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Wall-clock time (s)")
-    ax.set_title("Breakdown of the trusted-setup phase")
-    ax.legend()
-    ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "07_decomposition_environnement", manifest_figs)
-
-
-def fig_rss_grouped(
-    agg: Dict[str, Any], sizes: Sequence[int], prover: str, figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Pic de RSS par phase (barres groupées : un pic ne s'additionne pas)."""
+    Reprend la métrique « USD per Proving a Transaction » de Chaliasos et al.
+    (AFT'24) : temps de preuve × tarif horaire machine / taille du lot. Le
+    setup, one-off, en est exclu (voir la figure d'amortissement).
+    """
     import matplotlib.pyplot as plt
 
-    table = phase_lookup(agg["phases"], prover)
-    x = _xpos(sizes)
-    width = 0.26
-    fig, ax = plt.subplots(figsize=(max(7.0, 1.2 * len(sizes) + 4.0), 5.5))
-    any_data = False
-    for i, phase in enumerate(PHASES):
-        vals = [table.get((n, phase), {}).get("rss_peak_bytes_mean", 0.0) / MB for n in sizes]
-        if not any(vals):
-            continue
-        any_data = True
-        ax.bar(
-            x + (i - 1) * width,
-            vals,
-            width=width,
-            label=PHASE_LABELS[phase],
-            color=PHASE_COLORS[phase],
-            edgecolor="black",
-            linewidth=0.4,
-        )
-    if not any_data:
-        plt.close(fig)
+    provers = [p for p in provers if p]
+    if usd_per_hour <= 0 or not provers:
         return
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Peak resident set size (MiB)")
-    ax.set_title("Peak memory footprint per phase")
-    ax.legend()
-    ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "03_memoire_pic_par_phase", manifest_figs)
+    order = {"rapidsnark": 0, "snarkjs": 1}
+    provers = sorted(provers, key=lambda p: order.get(p, 9))
 
-
-def fig_io(
-    agg: Dict[str, Any], sizes: Sequence[int], prover: str, figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Volumes I/O disque lus / écrits, empilés par phase."""
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    table = phase_lookup(agg["phases"], prover)
-    x = _xpos(sizes)
-    width = 0.38
-    fig, ax = plt.subplots(figsize=(max(7.5, 1.25 * len(sizes) + 4.0), 5.5))
+    fig, ax = plt.subplots(figsize=(9.0, 5.6))
     any_data = False
-    hatches = {"env": "", "prove": "//", "verify": ".."}
-    for offset, metric, label_suffix in ((-0.5, "io_read_bytes_mean", "read"), (0.5, "io_write_bytes_mean", "write")):
-        bottoms = np.zeros(len(sizes))
-        for phase in PHASES:
-            vals = np.array([table.get((n, phase), {}).get(metric, 0.0) / MB for n in sizes], dtype=float)
-            if not vals.any():
-                continue
-            any_data = True
-            ax.bar(
-                x + offset * width,
-                vals,
-                bottom=bottoms,
-                width=width,
-                color=PHASE_COLORS[phase],
-                hatch=hatches[phase],
-                edgecolor="black",
-                linewidth=0.4,
-                label=f"{PHASE_LABELS[phase]} — {label_suffix}",
-            )
-            bottoms += vals
-    if not any_data:
-        plt.close(fig)
-        return
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)\n(left bar: read, right bar: write)")
-    ax.set_ylabel("Disk I/O volume (MiB)")
-    ax.set_title("Disk I/O load per phase")
-    ax.legend(fontsize=8, ncol=2)
-    ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "04_io_par_phase", manifest_figs)
-
-
-def fig_scaling(
-    agg: Dict[str, Any], sizes: Sequence[int], prover: str, figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Passage à l'échelle : durée par phase en log-log."""
-    import matplotlib.pyplot as plt
-
-    table = phase_lookup(agg["phases"], prover)
-    if len(sizes) < 2:
-        return
-    fig, ax = plt.subplots(figsize=(8.0, 5.5))
-    markers = {"env": "o", "prove": "^", "verify": "s"}
-    any_data = False
-    for phase in PHASES:
-        pts = [(n, table[(n, phase)]["wall_s_mean"]) for n in sizes if (n, phase) in table]
-        pts = [(n, v) for n, v in pts if v > 0]
+    for p in provers:
+        table = {r["n"]: r for r in agg["phases"] if r["phase"] == "prove" and r["prover"] == p}
+        pts = [
+            (n, table[n]["wall_s_mean"] * usd_per_hour / 3600.0 / n)
+            for n in sizes
+            if n in table and table[n]["wall_s_mean"] > 0
+        ]
         if not pts:
             continue
         any_data = True
         ax.plot(
-            [p[0] for p in pts],
-            [p[1] for p in pts],
-            marker=markers[phase],
-            color=PHASE_COLORS[phase],
-            label=PHASE_LABELS[phase],
+            [q[0] for q in pts],
+            [q[1] for q in pts],
+            marker=PROVER_MARKERS.get(p, "s"),
+            label=p,
         )
     if not any_data:
         plt.close(fig)
         return
     ax.set_xscale("log", base=2)
     ax.set_yscale("log")
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Wall-clock time (s)")
-    ax.set_title("Scaling of pipeline phases with batch size")
+    # text.usetex = False : le croisillon est du texte brut, pas une macro LaTeX
+    ax.set_xlabel("Batch size $N$ (# transactions per proof)")
+    ax.set_ylabel("Proving cost per transaction (USD)")
+    ax.set_title(f"Marginal proving cost per transaction at \\${usd_per_hour:.2f}/h")
     ax.legend()
     ax.grid(True, which="both", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "08_passage_echelle", manifest_figs)
-
-
-def fig_cpu_efficiency(
-    agg: Dict[str, Any], sizes: Sequence[int], prover: str, ncpu: int, figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Parallélisme effectif : temps CPU / temps écoulé (1 = un cœur saturé)."""
-    import matplotlib.pyplot as plt
-
-    table = phase_lookup(agg["phases"], prover)
-    fig, ax = plt.subplots(figsize=(8.0, 5.5))
-    x = _xpos(sizes)
-    width = 0.26
-    any_data = False
-    for i, phase in enumerate(PHASES):
-        vals = []
-        for n in sizes:
-            row = table.get((n, phase))
-            wall = row["wall_s_mean"] if row else 0.0
-            vals.append((row["cpu_total_s_mean"] / wall) if (row and wall > 0) else 0.0)
-        if not any(vals):
-            continue
-        any_data = True
-        ax.bar(
-            x + (i - 1) * width,
-            vals,
-            width=width,
-            label=PHASE_LABELS[phase],
-            color=PHASE_COLORS[phase],
-            edgecolor="black",
-            linewidth=0.4,
-        )
-    if not any_data:
-        plt.close(fig)
-        return
-    ax.axhline(1.0, color="black", ls=":", lw=1.0, label="one saturated core")
-    if ncpu > 1:
-        ax.axhline(float(ncpu), color="grey", ls="--", lw=1.0, label=f"{ncpu} cores (machine)")
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Mean cores busy (CPU time / wall-clock time)")
-    ax.set_title("Effective parallelism per phase")
-    ax.legend(fontsize=9)
-    ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "09_parallelisme_effectif", manifest_figs)
-
-
-def fig_prover_comparison(
-    agg: Dict[str, Any], sizes: Sequence[int], figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """snarkjs vs rapidsnark sur la phase de preuve, si les deux sont mesurés."""
-    import matplotlib.pyplot as plt
-
-    provers = sorted({r["prover"] for r in agg["phases"] if r["phase"] == "prove" and r["prover"]})
-    if len(provers) < 2:
-        return
-    fig, ax = plt.subplots(figsize=(8.0, 5.5))
-    x = _xpos(sizes)
-    width = 0.8 / len(provers)
-    colors = ["#DD8452", "#4C72B0", "#55A868"]
-    for i, prover in enumerate(provers):
-        table = {r["n"]: r for r in agg["phases"] if r["phase"] == "prove" and r["prover"] == prover}
-        vals = [table.get(n, {}).get("wall_s_mean", 0.0) for n in sizes]
-        ax.bar(
-            x + (i - (len(provers) - 1) / 2) * width,
-            vals,
-            width=width,
-            label=prover,
-            color=colors[i % len(colors)],
-            edgecolor="black",
-            linewidth=0.4,
-        )
-    ax.set_xticks(x)
-    ax.set_xticklabels([str(n) for n in sizes])
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("Proof generation time (s)")
-    ax.set_title("Prover comparison: proof generation time")
-    ax.legend()
-    ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "10_comparaison_provers", manifest_figs)
-
-
-def fig_timeline(
-    outdir: str,
-    steps: List[Dict[str, Any]],
-    size: int,
-    ncpu: int,
-    figs_dir: str,
-    manifest_figs: Dict[str, str],
-) -> None:
-    """Chronogramme CPU% / RSS d'un run complet pour une taille donnée."""
-    import matplotlib.pyplot as plt
-
-    rows = [s for s in steps if s["size"] == size and s.get("samples_file")]
-    rows = [s for s in rows if os.path.isfile(os.path.join(outdir, s["samples_file"]))]
-    if not rows:
-        return
-
-    t_cursor = 0.0
-    cpu_x: List[float] = []
-    cpu_y: List[float] = []
-    rss_x: List[float] = []
-    rss_y: List[float] = []
-    spans: List[Tuple[float, float, str]] = []
-
-    for s in rows:
-        path = os.path.join(outdir, s["samples_file"])
-        t_start = t_cursor
-        try:
-            with open(path, newline="", encoding="utf-8") as f:
-                for rec in csv.DictReader(f):
-                    t = t_cursor + float(rec["t_s"])
-                    cpu_x.append(t)
-                    cpu_y.append(float(rec["proc_cpu_pct"]) / max(1, ncpu))
-                    rss_x.append(t)
-                    rss_y.append(float(rec["proc_rss_bytes"]) / MB)
-        except (OSError, KeyError, ValueError):
-            continue
-        t_cursor = t_start + max(float(s.get("wall_s", 0.0)), (cpu_x[-1] - t_start) if cpu_x else 0.0)
-        spans.append((t_start, t_cursor, s["phase"]))
-
-    if not cpu_x:
-        return
-
-    def smooth(values: List[float], window: int = 5) -> List[float]:
-        """Moyenne glissante : le CPU instantané est quantifié par les ticks
-        d'horloge, la courbe brute est donc très bruitée."""
-        if len(values) < window:
-            return values
-        half = window // 2
-        out = []
-        for i in range(len(values)):
-            lo = max(0, i - half)
-            hi = min(len(values), i + half + 1)
-            out.append(sum(values[lo:hi]) / (hi - lo))
-        return out
-
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11.0, 7.0), sharex=True)
-    seen = set()
-    for start, end, phase in spans:
-        label = PHASE_LABELS[phase] if phase not in seen else None
-        seen.add(phase)
-        for ax in (ax1, ax2):
-            ax.axvspan(start, end, color=PHASE_COLORS[phase], alpha=0.16, label=label if ax is ax1 else None)
-
-    ax1.plot(cpu_x, cpu_y, lw=0.5, color="#999999", alpha=0.7, label="raw")
-    ax1.plot(cpu_x, smooth(cpu_y), lw=1.2, color="#333333", label="5-point moving average")
-    ax1.set_ylabel(pct_label("CPU utilisation, machine-wide"))
-    ax1.set_title(f"Resource timeline for a batch of $N = {size}$ transactions")
-    ax1.legend(fontsize=9, loc="upper right")
-    ax1.grid(True, ls="--", lw=0.5, alpha=0.6)
-
-    ax2.plot(rss_x, rss_y, lw=0.9, color="#B22222")
-    ax2.set_ylabel("Resident set size (MiB)")
-    ax2.set_xlabel("Time since start of run (s)")
-    ax2.grid(True, ls="--", lw=0.5, alpha=0.6)
-
-    save_fig(fig, figs_dir, f"11_chronogramme_n{size}", manifest_figs)
-
-
-def fig_artifacts(
-    circuits_info: Dict[str, Any], sizes: Sequence[int], figs_dir: str, manifest_figs: Dict[str, str]
-) -> None:
-    """Taille des artefacts produits (zkey, r1cs, preuve...)."""
-    import matplotlib.pyplot as plt
-
-    keys = ["ptau_total", "circuit.r1cs", "circuit_final.zkey", "witness.wtns", "proof.json"]
-    present = [
-        k for k in keys if any(circuits_info.get(str(n), {}).get("artifacts", {}).get(k) for n in sizes)
-    ]
-    if not present:
-        return
-    fig, ax = plt.subplots(figsize=(8.0, 5.5))
-    markers = ["o", "^", "s", "D", "v"]
-    for i, k in enumerate(present):
-        pts = [
-            (n, circuits_info[str(n)]["artifacts"][k] / MB)
-            for n in sizes
-            if circuits_info.get(str(n), {}).get("artifacts", {}).get(k)
-        ]
-        if not pts:
-            continue
-        ax.plot([p[0] for p in pts], [p[1] for p in pts], marker=markers[i % len(markers)], label=k)
-    ax.set_xscale("log", base=2)
-    ax.set_yscale("log")
-    ax.set_xlabel("Batch size $N$ (transactions per proof)")
-    ax.set_ylabel("File size (MiB)")
-    ax.set_title("Size of generated artefacts")
-    ax.legend(fontsize=9)
-    ax.grid(True, which="both", ls="--", lw=0.5, alpha=0.6)
-    save_fig(fig, figs_dir, "12_taille_artefacts", manifest_figs)
+    save_fig(
+        fig, figs_dir, "04_usd_cost_per_tx", manifest_figs,
+        note="Wall-clock proving time x hourly machine rate; the one-off setup is excluded.",
+    )
 
 
 def build_figures(outdir: str, manifest: Dict[str, Any], args: argparse.Namespace) -> None:
@@ -1912,55 +2015,66 @@ def build_figures(outdir: str, manifest: Dict[str, Any], args: argparse.Namespac
 
     print("\n>>> Génération des figures")
 
-    # le graphe demandé : barres verticales empilées env/prove/verify,
-    # une colonne par prover mesuré
-    stacked_provers = provers if len(provers) > 1 else [main_prover]
-    title_suffix = (
-        f" ({main_prover})" if len(stacked_provers) == 1 and main_prover else ""
-    )
+    # 01 : le cycle de vie complet — une seule colonne par taille, sans détail
+    # par prover : la figure porte le poids relatif des trois phases, pas la
+    # comparaison des provers (objet de la figure 01b)
     fig_stacked(
         agg,
         sizes,
-        stacked_provers,
+        [main_prover],
         "wall_s",
         1.0,
-        "Wall-clock time (s)",
-        f"Wall-clock cost per pipeline phase{title_suffix}",
+        "Time (s)",
+        "",
         figs_dir,
         manifest_figs,
-        "01_duree_par_phase_empilee",
+        "01_phase_cost_stacked",
     )
+
+    # 01b : coût récurrent seul (preuve + vérification), avec le détail par
+    # prover — le setup, one-off, en est exclu
     fig_stacked(
         agg,
         sizes,
-        stacked_provers,
-        "cpu_total_s",
+        provers if len(provers) > 1 else [main_prover],
+        "wall_s",
         1.0,
-        "CPU time (s)",
-        "CPU time per pipeline phase",
+        "Time (s)",
+        "",
         figs_dir,
         manifest_figs,
-        "02_cpu_par_phase_empilee",
+        "01b_recurring_cost_stacked",
+        phases=("prove", "verify"),
     )
-    fig_rss_grouped(agg, sizes, main_prover, figs_dir, manifest_figs)
-    fig_io(agg, sizes, main_prover, figs_dir, manifest_figs)
-    fig_stacked_log(agg, sizes, main_prover, figs_dir, manifest_figs)
-    fig_share(agg, sizes, main_prover, figs_dir, manifest_figs)
-    fig_env_breakdown(agg, sizes, figs_dir, manifest_figs)
-    fig_scaling(agg, sizes, main_prover, figs_dir, manifest_figs)
-    fig_cpu_efficiency(agg, sizes, main_prover, ncpu, figs_dir, manifest_figs)
-    fig_prover_comparison(agg, sizes, figs_dir, manifest_figs)
-    fig_artifacts(manifest.get("circuits", {}), sizes, figs_dir, manifest_figs)
 
-    timeline_sizes = sizes if args.timeline_all else (sizes[-1:] if sizes else [])
-    for n in timeline_sizes:
-        fig_timeline(outdir, steps, n, ncpu, figs_dir, manifest_figs)
+    # un prover mesuré dans un conteneur n'est vu qu'à travers les compteurs
+    # système : la note l'indique sur les figures qui reposent sur le temps CPU
+    container_provers = sorted(
+        {
+            s["prover"]
+            for s in steps
+            if s["phase"] == "prove" and s.get("scope") == "system" and s["prover"]
+        }
+    )
+    cpu_note = (
+        f"CPU time for {', '.join(container_provers)} is derived from system-wide counters "
+        f"(container execution) and includes launcher overhead."
+        if container_provers
+        else ""
+    )
+
+    # 02 : dimensionnement machine — RAM et cœurs par phase (claim « downsizing »)
+    fig_machine_sizing(agg, steps, sizes, provers or [main_prover], ncpu, figs_dir, manifest_figs, cpu_note)
+    # 03 : amortissement du setup one-off (justifie son exclusion du chemin critique)
+    fig_setup_amortization(agg, sizes, provers, figs_dir, manifest_figs)
+    # 04 : coût marginal en USD par transaction (si un tarif horaire est fourni)
+    fig_usd_cost(agg, sizes, provers, getattr(args, "usd_per_hour", 0.0), figs_dir, manifest_figs)
 
     manifest.setdefault("artifacts", {})["figures"] = manifest_figs
 
 
 # --------------------------------------------------------------------------- #
-# Sorties tabulaires et rapport
+# Sorties tabulaires, tables LaTeX et rapport
 # --------------------------------------------------------------------------- #
 
 
@@ -2006,7 +2120,644 @@ def print_summary(agg: Dict[str, Any], sizes: Sequence[int], prover: str) -> Non
     print("=" * 104)
 
 
-def write_report(outdir: str, manifest: Dict[str, Any], prover: str) -> None:
+def _tex_sci(v: float) -> str:
+    """Nombre pour LaTeX : notation scientifique hors de [1e-2, 1e3]."""
+    if v == 0:
+        return "0"
+    e = int(math.floor(math.log10(abs(v))))
+    if -2 <= e <= 3:
+        return f"{v:.4g}"
+    m = v / (10 ** e)
+    return f"${m:.2f}\\times10^{{{e}}}$"
+
+
+def _tex_bytes(b: float) -> str:
+    if b <= 0:
+        return "--"
+    if b >= GB:
+        return f"{b / GB:.2f}\\,GiB"
+    return f"{b / MB:.0f}\\,MiB"
+
+
+TEX_HEADER = "% Généré par measure_zk_resources.py — adapter caption/label avant insertion."
+
+
+def _tex_table(caption: str, label: str, colspec: str, header: str, rows: List[str],
+               comments: Sequence[str] = ()) -> List[str]:
+    """Squelette commun des tables de l'article (arraystretch + resizebox)."""
+    return [
+        TEX_HEADER,
+        *[f"% {c}" for c in comments],
+        "\\begin{table}[t]",
+        "\\centering",
+        f"\\caption{{{caption}}}",
+        f"\\label{{{label}}}",
+        "\\renewcommand{\\arraystretch}{1.2}",
+        "\\resizebox{\\columnwidth}{!}{",
+        f"\\begin{{tabular}}{{{colspec}}}",
+        "\\hline",
+        header,
+        "\\hline",
+        *rows,
+        "\\hline",
+        "\\end{tabular}}",
+        "\\end{table}",
+    ]
+
+
+def _cores(row: Optional[Dict[str, Any]]) -> float:
+    if not row or row.get("wall_s_mean", 0.0) <= 0:
+        return 0.0
+    return row["cpu_total_s_mean"] / row["wall_s_mean"]
+
+
+def _ratio(a: float, b: float) -> str:
+    """Rapport a/b en notation compacte (2 400x, 2,9x, --)."""
+    if b <= 0 or a <= 0:
+        return "--"
+    r = a / b
+    if r >= 100:
+        return f"{r:,.0f}$\\times$".replace(",", "\\,")
+    return f"{r:.1f}$\\times$" if r >= 10 else f"{r:.2f}$\\times$"
+
+
+# ------------------------- tables « analyse » ------------------------------ #
+
+
+def tab_lifecycle(tmain, lookups, n_ref: int, provers: Sequence[str]) -> List[str]:
+    """Cycle de vie à N fixé : une ligne par phase, avec fréquence et ratio
+    explicite par rapport à la vérification (la phase de référence, on-chain)."""
+    ver = tmain.get((n_ref, "verify"))
+    t_ver = ver["wall_s_mean"] if ver else 0.0
+    rows: List[str] = []
+
+    def row(label: str, freq: str, r: Optional[Dict[str, Any]]) -> None:
+        if not r:
+            return
+        rows.append(
+            f"{label} & {freq} & {r['wall_s_mean']:.2f} & {r['cpu_total_s_mean']:.2f} & "
+            f"{_cores(r):.1f} & {_tex_bytes(r['rss_peak_bytes_mean'])} & "
+            f"{_ratio(r['wall_s_mean'], t_ver)} \\\\"
+        )
+
+    row("Trusted setup", "$1\\times$ per circuit", tmain.get((n_ref, "env")))
+    for p in provers:
+        label = "Proof generation" + (f" ({p})" if len(provers) > 1 else "")
+        row(label, "$1\\times$ per batch", lookups[p].get((n_ref, "prove")))
+    row("Verification", "$1\\times$ per batch", ver)
+    if not rows:
+        return []
+    env = tmain.get((n_ref, "env"))
+    gap = (
+        f"The setup costs {_ratio(env['wall_s_mean'], t_ver)} the verification time, but it is"
+        if env and t_ver > 0
+        else "The setup is"
+    )
+    return _tex_table(
+        caption=(
+            f"Life cycle of the Groth16 pipeline at $N_b = {n_ref}$. {gap} "
+            "paid only once per circuit, whereas proving and verification are paid on every "
+            "batch -- the frequency column is what makes the gap irrelevant in steady state."
+        ),
+        label="tab:zk_lifecycle",
+        colspec="|l|l|r|r|r|r|r|",
+        header=(
+            "\\textbf{Phase} & \\textbf{Frequency} & \\textbf{Wall (s)} & \\textbf{CPU (s)} & "
+            "\\textbf{Cores} & \\textbf{Peak RSS} & \\textbf{$\\times$ vs verify} \\\\"
+        ),
+        rows=rows,
+    )
+
+
+def tab_phase_ratios(tmain, lookups, sizes: Sequence[int], main_prover: str) -> List[str]:
+    """Asymétrie setup / preuve / vérification en fonction de N : le setup croît
+    avec la taille du circuit, la vérification reste constante."""
+    rows: List[str] = []
+    for n in sizes:
+        env = tmain.get((n, "env"))
+        prove = lookups.get(main_prover, tmain).get((n, "prove"))
+        ver = tmain.get((n, "verify"))
+        if not (env and prove and ver):
+            continue
+        t_s, t_p, t_v = env["wall_s_mean"], prove["wall_s_mean"], ver["wall_s_mean"]
+        rows.append(
+            f"{n} & {t_s:.1f} & {t_p:.2f} & {t_v:.2f} & "
+            f"{_ratio(t_s, t_p)} & {_ratio(t_p, t_v)} \\\\"
+        )
+    if not rows:
+        return []
+    suffix = f" (proving times measured with {main_prover})" if main_prover else ""
+    return _tex_table(
+        caption=(
+            "Phase-time ratios as a function of the batch size $N_b$" + suffix + ". "
+            "The one-off setup grows super-linearly with the circuit size while verification "
+            "stays constant, so the asymmetry widens with $N_b$."
+        ),
+        label="tab:zk_phase_ratios",
+        colspec="|r|r|r|r|r|r|",
+        header=(
+            "$N_b$ & $T_{\\mathit{setup}}$ (s) & $T_{\\mathit{proof}}$ (s) & "
+            "$T_{\\mathit{ver}}$ (s) & $T_{\\mathit{setup}}/T_{\\mathit{proof}}$ & "
+            "$T_{\\mathit{proof}}/T_{\\mathit{ver}}$ \\\\"
+        ),
+        rows=rows,
+    )
+
+
+def tab_amortization(tmain, lookups, n_ref: int, provers: Sequence[str],
+                     batch_period_s: float) -> List[str]:
+    """Seuils d'amortissement du setup : nombre de lots k au-delà duquel le
+    setup pèse moins de 50 %, puis moins de 10 % du coût cumulé par lot.
+
+    Part du setup dans le coût par lot : (T_setup/k) / (T_setup/k + T_proof).
+    = 50 % pour k = T_setup/T_proof ; = 10 % pour k = 9 T_setup/T_proof.
+    """
+    env = tmain.get((n_ref, "env"))
+    if not env:
+        return []
+    t_setup = env["wall_s_mean"]
+    rows: List[str] = []
+    for p in provers:
+        r = lookups[p].get((n_ref, "prove"))
+        if not r or r["wall_s_mean"] <= 0 or t_setup <= 0:
+            continue
+        t_proof = r["wall_s_mean"]
+        k50 = t_setup / t_proof
+        k10 = 9.0 * k50
+        hours = k10 * batch_period_s / 3600.0
+        horizon = f"{hours:.1f}\\,h" if hours < 48 else f"{hours / 24:.1f}\\,d"
+        # séparateur de milliers typographique, sans toucher aux macros LaTeX
+        fk = lambda k: f"{k:,.0f}".replace(",", "\\,")
+        rows.append(
+            f"{p} & {t_setup:.1f} & {t_proof:.2f} & {fk(k50)} & {fk(k10)} & "
+            f"$\\approx${horizon} \\\\"
+        )
+    if not rows:
+        return []
+    return _tex_table(
+        caption=(
+            f"Amortization thresholds of the one-off trusted setup at $N_b = {n_ref}$: "
+            "number of batches $k$ after which the setup accounts for less than 50\\,\\% and "
+            "less than 10\\,\\% of the cumulated per-batch time "
+            "$T_{\\mathit{setup}}/k + T_{\\mathit{proof}}$. The last column converts the "
+            f"10\\,\\% threshold into operating time at one batch every {batch_period_s:.0f}\\,s."
+        ),
+        label="tab:zk_amortization",
+        colspec="|l|r|r|r|r|r|",
+        header=(
+            "\\textbf{Prover} & $T_{\\mathit{setup}}$ (s) & $T_{\\mathit{proof}}$ (s) & "
+            "$k$ (setup $=50\\,\\%$) & $k$ ($10\\,\\%$) & \\textbf{Horizon} \\\\"
+        ),
+        rows=rows,
+        comments=[
+            "Seuils : k_50 = T_setup/T_proof, k_10 = 9 T_setup/T_proof "
+            "(part du setup dans T_setup/k + T_proof).",
+        ],
+    )
+
+
+# Catalogue indicatif (AWS on-demand, us-east-1) : sert uniquement à traduire
+# un besoin (vCPU, RAM) en une instance et un tarif ; les prix évoluent.
+CLOUD_CATALOG: Tuple[Tuple[str, int, float, float], ...] = (
+    ("c7i.large", 2, 4.0, 0.0893),
+    ("m7i.large", 2, 8.0, 0.1008),
+    ("c7i.xlarge", 4, 8.0, 0.1785),
+    ("m7i.xlarge", 4, 16.0, 0.2016),
+    ("c7i.2xlarge", 8, 16.0, 0.3570),
+    ("m7i.2xlarge", 8, 32.0, 0.4032),
+    ("c7i.4xlarge", 16, 32.0, 0.7140),
+    ("m7i.4xlarge", 16, 64.0, 0.8064),
+    ("c7i.8xlarge", 32, 64.0, 1.4280),
+    ("m7i.8xlarge", 32, 128.0, 1.6128),
+)
+
+
+def _pick_instance(vcpu: int, ram_gib: float) -> Optional[Tuple[str, int, float, float]]:
+    fits = [i for i in CLOUD_CATALOG if i[1] >= vcpu and i[2] >= ram_gib]
+    return min(fits, key=lambda i: i[3]) if fits else None
+
+
+def tab_provisioning(tmain, lookups, sizes: Sequence[int],
+                     provers: Sequence[str], headroom: float = 1.5) -> List[str]:
+    """Dimensionnement opérationnel par phase : la figure 02 traduite en
+    décision de provisioning (vCPU, RAM, instance, tarif)."""
+
+    def need(rows: List[Dict[str, Any]]) -> Optional[Tuple[int, float]]:
+        rows = [r for r in rows if r and r.get("wall_s_mean", 0.0) > 0]
+        if not rows:
+            return None
+        vcpu = max(1, math.ceil(max(_cores(r) for r in rows)))
+        ram_b = max(r["rss_peak_bytes_mean"] for r in rows) * headroom
+        # arrondi au demi-GiB supérieur : assez fin pour distinguer les phases
+        ram = max(0.5, math.ceil(ram_b / GB * 2.0) / 2.0)
+        return vcpu, ram
+
+    entries: List[Tuple[str, str, Optional[Tuple[int, float]]]] = [
+        ("Setup machine", "Trusted setup (one-off)",
+         need([tmain.get((n, "env")) for n in sizes])),
+    ]
+    for p in provers:
+        label = "Proving node" + (f" ({p})" if len(provers) > 1 else "")
+        entries.append((label, "Proof generation (per batch)",
+                        need([lookups[p].get((n, "prove")) for n in sizes])))
+    entries.append(("Verifier node", "Verification (per batch)",
+                    need([tmain.get((n, "verify")) for n in sizes])))
+
+    rows: List[str] = []
+    for role, phase, req in entries:
+        if not req:
+            continue
+        vcpu, ram = req
+        inst = _pick_instance(vcpu, ram)
+        inst_name = inst[0] if inst else "--"
+        price = f"{inst[3]:.3f}" if inst else "--"
+        rows.append(
+            f"{role} & {phase} & {vcpu} & {ram:g}\\,GiB & \\texttt{{{inst_name}}} & {price} \\\\"
+        )
+    if not rows:
+        return []
+    n_max = max(sizes) if sizes else 0
+    return _tex_table(
+        caption=(
+            f"Provisioning derived from the measured footprint (worst case over $N_b \\leq {n_max}$, "
+            f"with a {headroom:g}$\\times$ memory headroom and RAM rounded up to the next power of two). "
+            "Once the setup has been run, the recurring nodes fit on a markedly smaller instance. "
+            "Instance types and rates are indicative AWS on-demand prices (us-east-1)."
+        ),
+        label="tab:zk_provisioning",
+        colspec="|l|l|r|r|l|r|",
+        header=(
+            "\\textbf{Role} & \\textbf{Phase} & \\textbf{vCPU} & \\textbf{RAM} & "
+            "\\textbf{Instance} & \\textbf{USD/h} \\\\"
+        ),
+        rows=rows,
+        comments=["Tarifs indicatifs : vérifier avant publication."],
+    )
+
+
+# artefact -> (libellé, phase productrice, fréquence)
+ARTIFACT_ROLES: Tuple[Tuple[str, str, str, str], ...] = (
+    ("input.json", "Batch input (witness input)", "Sequencer", "$1\\times$ per batch"),
+    ("ptau_total", "Powers of Tau (phase 1)", "Setup", "$1\\times$ per circuit size"),
+    ("circuit.r1cs", "R1CS constraint system", "Setup (circom)", "$1\\times$ per circuit"),
+    ("circuit_final.zkey", "Proving key", "Setup (phase 2)", "$1\\times$ per circuit"),
+    ("verification_key.json", "Verification key", "Setup (phase 2)", "$1\\times$ per circuit"),
+    ("verifier.sol", "On-chain verifier", "Setup (export)", "$1\\times$ per circuit (deployed)"),
+    ("witness.wtns", "Witness", "Proving", "$1\\times$ per batch (ephemeral)"),
+    ("proof.json", "Groth16 proof", "Proving", "$1\\times$ per batch (on-chain)"),
+    ("public.json", "Public inputs", "Proving", "$1\\times$ per batch (on-chain)"),
+)
+
+
+def _size_cell(b: float) -> str:
+    if b <= 0:
+        return "--"
+    if b >= MB:
+        return f"{b / MB:.1f}\\,MiB"
+    if b >= 1024:
+        return f"{b / 1024:.1f}\\,KiB"
+    return f"{b:.0f}\\,B"
+
+
+def circuit_artifacts(manifest: Dict[str, Any], outdir: str, n: int) -> Dict[str, float]:
+    """Tailles des artefacts d'un circuit : celles du manifest, complétées au
+    besoin par une lecture disque (manifests antérieurs à un nouvel artefact)."""
+    entry = (manifest.get("circuits") or {}).get(str(n)) or {}
+    out: Dict[str, float] = dict(entry.get("artifacts") or {})
+    rel = entry.get("dir")
+    if rel:
+        base = rel if os.path.isabs(rel) else os.path.join(outdir, rel)
+        for name in ARTIFACTS_OF_INTEREST:
+            if name not in out:
+                path = os.path.join(base, name)
+                if os.path.isfile(path):
+                    out[name] = float(os.path.getsize(path))
+    return out
+
+
+# artefacts manipulés par la génération de preuve : entrées, clé, sorties
+PROVING_IO: Tuple[Tuple[str, str, str], ...] = (
+    ("input.json", "Batch input", "in"),
+    ("circuit_final.zkey", "Proving key", "in"),
+    ("witness.wtns", "Witness", "tmp"),
+    ("public.json", "Public inputs", "out"),
+    ("proof.json", "Proof", "out"),
+)
+
+
+def tab_proving_io(manifest: Dict[str, Any], outdir: str, sizes: Sequence[int]) -> List[str]:
+    """Taille des éléments manipulés par la génération de preuve, par $N_b$ :
+    entrées (input, clé de preuve), témoin intermédiaire, sorties (public,
+    preuve). Rend visible que seules les sorties restent de taille constante."""
+    per_n = {n: circuit_artifacts(manifest, outdir, n) for n in sizes}
+    per_n = {n: a for n, a in per_n.items() if a}
+    if not per_n:
+        return []
+    cols = [c for c in PROVING_IO if any(a.get(c[0], 0) > 0 for a in per_n.values())]
+    if not cols:
+        return []
+
+    rows = [
+        f"{n} & " + " & ".join(_size_cell(per_n[n].get(key, 0)) for key, _l, _d in cols) + " \\\\"
+        for n in sorted(per_n)
+    ]
+    tag = {"in": "input", "tmp": "intermediate", "out": "output"}
+    header = "$N_b$ & " + " & ".join(
+        f"\\textbf{{{label}}}\\,\\footnotesize({tag[d]})" for _k, label, d in cols
+    ) + " \\\\"
+    biggest = max(per_n)
+    proof_b = per_n[biggest].get("proof.json", 0)
+    cap = (
+        "Size of the data handled by proof generation, as a function of the batch size "
+        f"$N_b$: inputs, intermediate witness and outputs."
+    )
+    if proof_b:
+        cap += (
+            f" Inputs and witness grow linearly with $N_b$, while the proof stays at "
+            f"{proof_b:.0f}\\,B and the public inputs stay constant -- the on-chain payload "
+            "does not depend on how many transactions the batch contains."
+        )
+    return _tex_table(
+        caption=cap,
+        label="tab:zk_proving_io",
+        colspec="|r|" + "r|" * len(cols),
+        header=header,
+        rows=rows,
+    )
+
+
+def tab_artifacts(manifest: Dict[str, Any], outdir: str, sizes: Sequence[int]) -> List[str]:
+    """Empreinte de stockage par artefact : les clés du setup grossissent avec
+    le circuit, la preuve reste de taille constante — d'où un coût de
+    vérification on-chain indépendant de $N_b$."""
+    circuits = manifest.get("circuits") or {}
+    avail = [n for n in sizes if str(n) in circuits and circuits[str(n)].get("artifacts")]
+    if not avail:
+        return []
+    n_lo, n_hi = avail[0], avail[-1]
+    a_lo = circuit_artifacts(manifest, outdir, n_lo)
+    a_hi = circuit_artifacts(manifest, outdir, n_hi)
+
+    size_cell = _size_cell
+    rows: List[str] = []
+    for key, label, produced, freq in ARTIFACT_ROLES:
+        lo, hi = a_lo.get(key, 0), a_hi.get(key, 0)
+        if lo <= 0 and hi <= 0:
+            continue
+        rows.append(
+            f"{label} & {size_cell(lo)} & {size_cell(hi)} & {produced} & {freq} \\\\"
+        )
+    if not rows:
+        return []
+    proof_hi = a_hi.get("proof.json", 0)
+    cap = (
+        f"Storage footprint of the pipeline artefacts, from $N_b = {n_lo}$ to $N_b = {n_hi}$. "
+        "Setup artefacts (Powers of Tau, proving key) grow with the circuit, whereas the "
+    )
+    if proof_hi:
+        cap += (
+            f"proof stays at {proof_hi}\\,B regardless of $N_b$ -- the reason why the on-chain "
+            "verification cost per batch is constant."
+        )
+    else:
+        cap += "proof stays constant in size regardless of $N_b$."
+    return _tex_table(
+        caption=cap,
+        label="tab:zk_artifacts",
+        colspec="|l|r|r|l|l|",
+        header=(
+            f"\\textbf{{Artefact}} & $N_b = {n_lo}$ & $N_b = {n_hi}$ & "
+            "\\textbf{Produced by} & \\textbf{Frequency} \\\\"
+        ),
+        rows=rows,
+    )
+
+
+def write_latex_tables(
+    outdir: str,
+    manifest: Dict[str, Any],
+    provers: Sequence[str],
+    main_prover: str,
+    usd_per_hour: float,
+) -> None:
+    """Tables LaTeX prêtes à coller dans l'article (style tabulaire du papier :
+    \\renewcommand{\\arraystretch}{1.2} + \\resizebox{\\columnwidth})."""
+    agg = manifest["aggregates"]
+    sizes = manifest["params"]["sizes"]
+    if not agg.get("phases"):
+        return
+    tables_dir = os.path.join(outdir, "tables")
+    os.makedirs(tables_dir, exist_ok=True)
+    provers = [p for p in provers if p] or ([main_prover] if main_prover else [""])
+    written: Dict[str, str] = {}
+
+    def emit(name: str, lines: List[str]) -> None:
+        path = os.path.join(tables_dir, name)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+        written[name] = f"tables/{name}"
+        print(f"    table  : tables/{name}")
+
+    tmain = phase_lookup(agg["phases"], main_prover)
+
+    # --- table 1 : ressources par (taille, phase) ------------------------- #
+    lines = [
+        "% Généré par measure_zk_resources.py — adapter caption/label avant insertion.",
+        "\\begin{table}[t]",
+        "\\centering",
+        "\\caption{Resource footprint of the Groth16 pipeline as a function of the"
+        " batch size $N_b$ (mean over repetitions; I/O measured at the"
+        " read()/write() syscall level).}",
+        "\\label{tab:zk_resources}",
+        "\\renewcommand{\\arraystretch}{1.2}",
+        "\\resizebox{\\columnwidth}{!}{",
+        "\\begin{tabular}{|r|l|r|r|r|r|r|}",
+        "\\hline",
+        "$N_b$ & \\textbf{Phase} & \\textbf{Wall (s)} & \\textbf{CPU (s)} & "
+        "\\textbf{Cores} & \\textbf{Peak RSS} & \\textbf{I/O R / W} \\\\",
+        "\\hline",
+    ]
+
+    def resource_row(table, n: int, phase: str, label: str) -> Optional[str]:
+        r = table.get((n, phase))
+        if not r:
+            return None
+        wall = r["wall_s_mean"]
+        cores = r["cpu_total_s_mean"] / wall if wall > 0 else 0.0
+        io = f"{_tex_bytes(r['io_rchar_bytes_mean'])} / {_tex_bytes(r['io_wchar_bytes_mean'])}"
+        return (
+            f"{n} & {label} & {wall:.2f} & {r['cpu_total_s_mean']:.2f} & "
+            f"{cores:.1f} & {_tex_bytes(r['rss_peak_bytes_mean'])} & {io} \\\\"
+        )
+
+    for n in sizes:
+        block: List[str] = []
+        r = resource_row(tmain, n, "env", "Trusted setup (one-off)")
+        if r:
+            block.append(r)
+        for p in provers:
+            label = "Proof generation" + (f" ({p})" if len(provers) > 1 else "")
+            r = resource_row(phase_lookup(agg["phases"], p), n, "prove", label)
+            if r:
+                block.append(r)
+        r = resource_row(tmain, n, "verify", "Verification")
+        if r:
+            block.append(r)
+        if block:
+            lines.extend(block)
+            lines.append("\\hline")
+    lines += ["\\end{tabular}}", "\\end{table}"]
+    emit("tab_pipeline_resources.tex", lines)
+
+    # --- table 2 : provers face à face à la taille de référence ----------- #
+    lookups = {p: phase_lookup(agg["phases"], p) for p in provers}
+    n_ref = None
+    for n in reversed(list(sizes)):
+        if all(lookups[p].get((n, "prove")) for p in provers):
+            n_ref = n
+            break
+    if n_ref is not None:
+        env = tmain.get((n_ref, "env"))
+        ver = tmain.get((n_ref, "verify"))
+
+        def metric_row(label: str, fn, fmt: str = "{:.2f}") -> str:
+            cells = []
+            for p in provers:
+                v = fn(lookups[p][(n_ref, "prove")])
+                cells.append(v if isinstance(v, str) else fmt.format(v))
+            return f"{label} & " + " & ".join(cells) + " \\\\"
+
+        cap = (
+            f"Prover comparison for the same Groth16 circuit at $N_b = {n_ref}$."
+        )
+        if env:
+            cap += (
+                f" The one-off trusted setup took {env['wall_s_mean']:.0f}\\,s"
+                f" (peak {_tex_bytes(env['rss_peak_bytes_mean'])}) and is shared by all provers."
+            )
+        if ver:
+            cap += f" Verification takes {ver['wall_s_mean']:.2f}\\,s, independently of the prover."
+        if usd_per_hour > 0:
+            cap += f" USD figures assume a machine rate of \\${usd_per_hour:.2f}/h."
+
+        rows = [
+            metric_row("Wall-clock per proof (s)", lambda r: r["wall_s_mean"]),
+            metric_row("CPU time per proof (s)", lambda r: r["cpu_total_s_mean"]),
+            metric_row(
+                "Mean busy cores",
+                lambda r: (r["cpu_total_s_mean"] / r["wall_s_mean"]) if r["wall_s_mean"] > 0 else 0.0,
+                "{:.1f}",
+            ),
+            metric_row("Peak RSS", lambda r: _tex_bytes(r["rss_peak_bytes_mean"])),
+            metric_row(
+                "Proving throughput (tx/s)",
+                lambda r: (n_ref / r["wall_s_mean"]) if r["wall_s_mean"] > 0 else 0.0,
+                "{:.1f}",
+            ),
+            metric_row("CPU time per tx (ms)", lambda r: r["cpu_total_s_mean"] / n_ref * 1000.0),
+        ]
+        if usd_per_hour > 0:
+            rows.append(
+                metric_row("USD per proof", lambda r: _tex_sci(r["wall_s_mean"] * usd_per_hour / 3600.0))
+            )
+            rows.append(
+                metric_row(
+                    "USD per transaction",
+                    lambda r: _tex_sci(r["wall_s_mean"] * usd_per_hour / 3600.0 / n_ref),
+                )
+            )
+        lines = [
+            "% Généré par measure_zk_resources.py — adapter caption/label avant insertion.",
+            "\\begin{table}[t]",
+            "\\centering",
+            f"\\caption{{{cap}}}",
+            "\\label{tab:zk_prover_comparison}",
+            "\\renewcommand{\\arraystretch}{1.2}",
+            "\\resizebox{\\columnwidth}{!}{",
+            "\\begin{tabular}{|l|" + "r|" * len(provers) + "}",
+            "\\hline",
+            "\\textbf{Metric} & " + " & ".join(f"\\textbf{{{p}}}" for p in provers) + " \\\\",
+            "\\hline",
+            *rows,
+            "\\hline",
+            "\\end{tabular}}",
+            "\\end{table}",
+        ]
+        emit("tab_prover_comparison.tex", lines)
+
+    # --- table 3 + CSV : coûts en USD (métriques de Chaliasos et al.) ----- #
+    if usd_per_hour > 0:
+        cost_rows: List[Dict[str, Any]] = []
+        for r in sorted(
+            (r for r in agg["phases"] if r["phase"] == "prove" and r["prover"]),
+            key=lambda r: (r["n"], r["prover"]),
+        ):
+            wall = r["wall_s_mean"]
+            if wall <= 0:
+                continue
+            usd = wall * usd_per_hour / 3600.0
+            cost_rows.append(
+                {
+                    "n": r["n"],
+                    "prover": r["prover"],
+                    "seconds_per_proof": round(wall, 4),
+                    "usd_per_proof": usd,
+                    "usd_per_tx": usd / r["n"],
+                }
+            )
+        if cost_rows:
+            save_csv(os.path.join(tables_dir, "cost_usd.csv"), cost_rows)
+            written["cost_usd.csv"] = "tables/cost_usd.csv"
+            lines = [
+                "% Généré par measure_zk_resources.py — adapter caption/label avant insertion.",
+                "% Métriques reprises de Chaliasos et al., AFT'24 (\\cite{...}) :",
+                "% Seconds per Proof, USD per Proof, USD per Proving a Transaction.",
+                "\\begin{table}[t]",
+                "\\centering",
+                f"\\caption{{Off-chain proving cost of one batch, at a machine rate of"
+                f" \\${usd_per_hour:.2f}/h (one-off setup excluded).}}",
+                "\\label{tab:zk_cost_usd}",
+                "\\renewcommand{\\arraystretch}{1.2}",
+                "\\resizebox{\\columnwidth}{!}{",
+                "\\begin{tabular}{|r|l|r|r|r|}",
+                "\\hline",
+                "$N_b$ & \\textbf{Prover} & \\textbf{s / proof} & "
+                "\\textbf{USD / proof} & \\textbf{USD / tx} \\\\",
+                "\\hline",
+            ]
+            for c in cost_rows:
+                lines.append(
+                    f"{c['n']} & {c['prover']} & {c['seconds_per_proof']:.2f} & "
+                    f"{_tex_sci(c['usd_per_proof'])} & {_tex_sci(c['usd_per_tx'])} \\\\"
+                )
+            lines += ["\\hline", "\\end{tabular}}", "\\end{table}"]
+            emit("tab_cost_usd.tex", lines)
+
+    # --- tables d'analyse : cycle de vie, ratios, amortissement, ---------- #
+    # --- dimensionnement, stockage --------------------------------------- #
+    batch_period = float(manifest["params"].get("batch_period_s") or 12.0)
+    n_life = n_ref if n_ref is not None else (sizes[-1] if sizes else None)
+    if n_life is not None:
+        for name, tex in (
+            ("tab_lifecycle.tex", tab_lifecycle(tmain, lookups, n_life, provers)),
+            ("tab_amortization.tex", tab_amortization(tmain, lookups, n_life, provers, batch_period)),
+        ):
+            if tex:
+                emit(name, tex)
+    for name, tex in (
+        ("tab_phase_ratios.tex", tab_phase_ratios(tmain, lookups, sizes, main_prover)),
+        ("tab_provisioning.tex", tab_provisioning(tmain, lookups, sizes, provers)),
+        ("tab_proving_io.tex", tab_proving_io(manifest, outdir, sizes)),
+        ("tab_artifacts.tex", tab_artifacts(manifest, outdir, sizes)),
+    ):
+        if tex:
+            emit(name, tex)
+
+    if written:
+        manifest.setdefault("artifacts", {})["tables"] = written
+
+
+def write_report(outdir: str, manifest: Dict[str, Any], prover: str, usd_per_hour: float = 0.0) -> None:
     agg = manifest["aggregates"]
     sizes = manifest["params"]["sizes"]
     table = phase_lookup(agg["phases"], prover)
@@ -2035,10 +2786,51 @@ def write_report(outdir: str, manifest: Dict[str, Any], prover: str) -> None:
                 f"{row['rss_peak_bytes_mean'] / MB:.1f} | {row['io_read_bytes_mean'] / MB:.1f} | "
                 f"{row['io_write_bytes_mean'] / MB:.1f} |"
             )
+
+    # --- dimensionnement machine (claim « downsizing ») ------------------- #
+    s = sizing_summary(agg, sizes, manifest["params"].get("provers") or [prover])
+    if s:
+        lines.append("\n## Dimensionnement machine\n")
+        lines.append(
+            f"À N={s['n']} : RSS max du setup {_human(s['env_rss'])} "
+            f"({s['env_cores']:.1f} cœurs occupés), de la preuve {_human(s['prove_rss'])} "
+            f"({s['prove_cores']:.1f} cœurs), de la vérification {_human(s['verify_rss'])}."
+        )
+        if s["ram_ratio"] >= 1.2:
+            lines.append(
+                f"Une fois le setup exécuté (one-off), un nœud dédié à la preuve peut donc être "
+                f"provisionné avec ~{s['ram_ratio']:.1f}× moins de RAM que la machine de setup."
+            )
+
+    # --- coûts en USD ------------------------------------------------------ #
+    if usd_per_hour > 0:
+        rows = sorted(
+            (r for r in agg["phases"] if r["phase"] == "prove" and r["prover"] and r["wall_s_mean"] > 0),
+            key=lambda r: (r["n"], r["prover"]),
+        )
+        if rows:
+            lines.append(f"\n## Coût en USD (tarif machine {usd_per_hour:.2f} $/h, setup exclu)\n")
+            lines.append("| n | prover | s / preuve | $ / preuve | $ / transaction |")
+            lines.append("|---|--------|------------|------------|-----------------|")
+            for r in rows:
+                usd = r["wall_s_mean"] * usd_per_hour / 3600.0
+                lines.append(
+                    f"| {r['n']} | {r['prover']} | {r['wall_s_mean']:.3f} | "
+                    f"{usd:.6f} | {usd / r['n']:.3e} |"
+                )
+
     figs = manifest.get("artifacts", {}).get("figures", {})
     if figs:
         lines.append("\n## Figures\n")
+        lines.append("Chaque figure porte une affirmation unique, réutilisable comme légende :\n")
         for name, rel in sorted(figs.items()):
+            claim = FIGURE_CLAIMS.get(name, "")
+            lines.append(f"- `{rel}`" + (f" — {claim}" if claim else ""))
+    tables = manifest.get("artifacts", {}).get("tables", {})
+    if tables:
+        lines.append("\n## Tables LaTeX\n")
+        lines.append("Prêtes à insérer dans l'article (adapter caption/label) :\n")
+        for name, rel in sorted(tables.items()):
             lines.append(f"- `{rel}`")
     failed = [s for s in manifest["steps"] if not s.get("ok", True)]
     if failed:
@@ -2134,8 +2926,17 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
     rs_cfg = RapidsnarkConfig(reason="désactivé")
     if args.prover in ("rapidsnark", "both", "auto") and args.rapidsnark_mode != "off":
         rs_cfg = detect_rapidsnark(args, repo_root, sizes, work_dir)
-        if not rs_cfg.available and args.prover == "rapidsnark":
-            raise SystemExit(f"[erreur] rapidsnark demandé mais {rs_cfg.describe()}")
+        if not rs_cfg.available and (args.prover == "rapidsnark" or args.require_rapidsnark):
+            raise SystemExit(
+                f"[erreur] rapidsnark demandé mais {rs_cfg.describe()}\n"
+                f"          (relancer sans --require-rapidsnark pour mesurer snarkjs seul)"
+            )
+        if not rs_cfg.available and args.prover in ("both", "auto"):
+            # sans ce garde-fou, un run de plusieurs heures se termine sans la
+            # colonne rapidsnark et doit être refait
+            print(f"[attention] rapidsnark indisponible : {rs_cfg.reason}")
+            print("            le run ne mesurera que snarkjs "
+                  "(--require-rapidsnark pour échouer immédiatement).")
 
     provers: List[str] = []
     if args.prover in ("snarkjs", "both", "auto"):
@@ -2274,6 +3075,7 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
             "skip_setup": args.skip_setup,
             "work_dir": work_dir,
             "ptau_offset": args.ptau_offset,
+            "batch_period_s": args.batch_period_s,
             "provers": provers,
             "rapidsnark_status": rs_cfg.describe(),
             "rapidsnark_mode": rs_cfg.mode,
@@ -2335,6 +3137,10 @@ def main() -> None:
     g.add_argument("--rapidsnark-mode", choices=["auto", "native", "docker", "off"], default="auto")
     g.add_argument("--rapidsnark-bin", type=str, default="", help="chemin du binaire prover natif")
     g.add_argument("--docker-container", type=str, default="debian_rapidsnark", help="conteneur déjà lancé")
+    g.add_argument("--no-docker-autostart", dest="docker_autostart", action="store_false",
+                   help="ne pas démarrer automatiquement le conteneur s'il est arrêté")
+    g.add_argument("--require-rapidsnark", action="store_true",
+                   help="échouer si rapidsnark n'est pas disponible, au lieu de mesurer snarkjs seul")
     g.add_argument("--docker-mount-prefix", type=str, default="mnt/projet",
                    help="chemin des circuits vu depuis le conteneur")
     g.add_argument("--docker-image", type=str, default="", help="image à utiliser via docker run (fallback)")
@@ -2343,10 +3149,14 @@ def main() -> None:
 
     g = p.add_argument_group("mesure et sorties")
     g.add_argument("--sample-interval", type=float, default=0.1, help="période d'échantillonnage (s)")
+    g.add_argument("--batch-period-s", type=float, default=12.0,
+                   help="période de production d'un lot pour l'horizon d'amortissement (défaut : slot Ethereum, 12 s)")
+    g.add_argument("--usd-per-hour", type=float, default=0.0,
+                   help="tarif horaire de la machine en USD : active la figure et les tables "
+                        "de coût ($/preuve, $/tx) ; 0 = désactivé")
     g.add_argument("--no-plots", action="store_true", help="ne pas générer les figures")
     g.add_argument("--plot-only", type=str, default="",
-                   help="régénérer les figures d'un run existant, ex. bench-out/20260730_101500")
-    g.add_argument("--timeline-all", action="store_true", help="un chronogramme par taille (sinon la plus grande)")
+                   help="régénérer figures + tables d'un run existant, ex. bench-out/20260730_101500")
     g.add_argument("--no-science-style", action="store_true", help="ne pas utiliser scienceplots")
     g.add_argument("--no-titles", action="store_true",
                    help="figures sans titre (le titre devient la légende de l'article)")
@@ -2356,7 +3166,7 @@ def main() -> None:
 
     args = p.parse_args()
 
-    # --- régénération de figures uniquement --- #
+    # --- régénération de figures et tables uniquement --- #
     if args.plot_only:
         outdir = os.path.abspath(args.plot_only)
         manifest_path = os.path.join(outdir, "manifest.json")
@@ -2364,12 +3174,17 @@ def main() -> None:
             raise SystemExit(f"[erreur] {manifest_path} introuvable")
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
+        # les tables d'analyse dépendent de ce paramètre : il suit la CLI de
+        # régénération, y compris pour les manifests antérieurs
+        manifest.setdefault("params", {})["batch_period_s"] = args.batch_period_s
         build_figures(outdir, manifest, args)
-        save_json(manifest_path, manifest)
         provers = sorted({r["prover"] for r in manifest["aggregates"]["phases"] if r["phase"] == "prove" and r["prover"]})
         main_prover = args.main_prover if args.main_prover in provers else (provers[0] if provers else "")
-        write_report(outdir, manifest, main_prover)
+        write_latex_tables(outdir, manifest, provers, main_prover, args.usd_per_hour)
+        save_json(manifest_path, manifest)
+        write_report(outdir, manifest, main_prover, args.usd_per_hour)
         print(f"\n>>> Figures régénérées dans {os.path.join(outdir, 'figs')}")
+        print(f">>> Tables LaTeX dans {os.path.join(outdir, 'tables')}")
         return
 
     if args.repeat < 1:
@@ -2398,7 +3213,8 @@ def main() -> None:
         except Exception as exc:
             print(f"[attention] génération des figures interrompue : {exc}")
 
-    write_report(outdir, manifest, main_prover)
+    write_latex_tables(outdir, manifest, provers, main_prover, args.usd_per_hour)
+    write_report(outdir, manifest, main_prover, args.usd_per_hour)
     save_json(os.path.join(outdir, "manifest.json"), manifest)
 
     failed = [s for s in manifest["steps"] if not s.get("ok", True)]
@@ -2406,6 +3222,7 @@ def main() -> None:
     print("    - mesures brutes  : raw/steps.jsonl, raw/samples/*.csv")
     print("    - agrégats        : steps.csv, phases.csv, env_breakdown.csv")
     print("    - figures         : figs/*.png, figs/*.svg")
+    print("    - tables LaTeX    : tables/*.tex (+ tables/cost_usd.csv)")
     print("    - synthèse        : report.md, manifest.json")
     if failed:
         print(f"    [!] {len(failed)} étape(s) en échec — voir report.md et logs/")

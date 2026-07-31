@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau import response pot8_0002.ptau response_0003 pot8_0003.ptau -n="Third contribution"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_122622/circuits/1
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		dfb319a0 b5641fad f35bc337 c3484ac2
+		21991d72 8bc18292 1075e141 ff181de6
+		786b66ab 8eca0160 b3945c16 00e1ea31
+		dc66981d 3c29d376 fe9366b7 7cce86c5
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		5b7a3baf 8b024572 3f70a085 8f333f4d
+		4af82f19 16dd5a59 8a2f6b04 e0ee1fb3
+		81b79a93 f2dc605c 63f3207f 247b42f5
+		6ac99a51 14c99b53 f4544078 bbd698bd

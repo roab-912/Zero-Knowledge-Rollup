@@ -1,0 +1,19 @@
+% Généré par measure_zk_resources.py — adapter caption/label avant insertion.
+% Tarifs indicatifs : vérifier avant publication.
+\begin{table}[t]
+\centering
+\caption{Provisioning derived from the measured footprint (worst case over $N_b \leq 4$, with a 1.5$\times$ memory headroom and RAM rounded up to the next power of two). Once the setup has been run, the recurring nodes fit on a markedly smaller instance. Instance types and rates are indicative AWS on-demand prices (us-east-1).}
+\label{tab:zk_provisioning}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|r|r|l|r|}
+\hline
+\textbf{Role} & \textbf{Phase} & \textbf{vCPU} & \textbf{RAM} & \textbf{Instance} & \textbf{USD/h} \\
+\hline
+Setup machine & Trusted setup (one-off) & 2 & 0.5\,GiB & \texttt{c7i.large} & 0.089 \\
+Proving node (snarkjs) & Proof generation (per batch) & 1 & 0.5\,GiB & \texttt{c7i.large} & 0.089 \\
+Proving node (rapidsnark) & Proof generation (per batch) & 1 & 0.5\,GiB & \texttt{c7i.large} & 0.089 \\
+Verifier node & Verification (per batch) & 1 & 0.5\,GiB & \texttt{c7i.large} & 0.089 \\
+\hline
+\end{tabular}}
+\end{table}

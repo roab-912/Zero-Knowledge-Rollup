@@ -1,0 +1,23 @@
+% Généré par measure_zk_resources.py — adapter caption/label avant insertion.
+\begin{table}[t]
+\centering
+\caption{Resource footprint of the Groth16 pipeline as a function of the batch size $N_b$ (mean over repetitions; I/O measured at the read()/write() syscall level).}
+\label{tab:zk_resources}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|r|l|r|r|r|r|r|}
+\hline
+$N_b$ & \textbf{Phase} & \textbf{Wall (s)} & \textbf{CPU (s)} & \textbf{Cores} & \textbf{Peak RSS} & \textbf{I/O R / W} \\
+\hline
+1 & Trusted setup (one-off) & 57.93 & 41.49 & 0.7 & 286\,MiB & 94\,MiB / 1\,MiB \\
+1 & Proof generation (rapidsnark) & 2.40 & 0.73 & 0.3 & 64\,MiB & 3\,MiB / 0\,MiB \\
+1 & Proof generation (snarkjs) & 3.28 & 1.72 & 0.5 & 208\,MiB & 4\,MiB / 0\,MiB \\
+1 & Verification & 2.36 & 1.38 & 0.6 & 207\,MiB & 4\,MiB / 0\,MiB \\
+\hline
+2 & Trusted setup (one-off) & 59.09 & 52.13 & 0.9 & 288\,MiB & 98\,MiB / 3\,MiB \\
+2 & Proof generation (rapidsnark) & 2.21 & 0.55 & 0.3 & 65\,MiB & 3\,MiB / 0\,MiB \\
+2 & Proof generation (snarkjs) & 3.06 & 1.62 & 0.5 & 219\,MiB & 4\,MiB / 0\,MiB \\
+2 & Verification & 2.29 & 1.32 & 0.6 & 199\,MiB & 4\,MiB / 0\,MiB \\
+\hline
+\end{tabular}}
+\end{table}

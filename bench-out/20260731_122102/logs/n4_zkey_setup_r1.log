@@ -1,0 +1,13 @@
+# cmd : snarkjs groth16 setup circuit.r1cs pot10_final.ptau circuit_0000.zkey
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_122102/circuits/4
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		e14c05d0 eb41a132 6b090b56 fc01d514
+		fc98f781 4532ec09 c2680931 1dceeced
+		b5606c4a dd85404a d265e7d2 3d696411
+		e0a8442a 6645cd2a 8b8c8acd c52cfa9b
