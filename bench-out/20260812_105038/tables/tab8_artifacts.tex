@@ -1,0 +1,24 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+% Setup artefacts (Powers of Tau, proving key) grow with the circuit, whereas the proof stays at 805 B regardless of N_b -- the reason why the on-chain verification cost per batch is constant.
+\begin{table}[t]
+\centering
+\caption{Storage footprint of the pipeline artefacts, from $N_b = 1$ to $N_b = 128$.}
+\label{tab:zk_artifacts}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|r|r|l|l|}
+\hline
+\textbf{Artefact} & $N_b = 1$ & $N_b = 128$ & \textbf{Produced by} & \textbf{Frequency} \\
+\hline
+Batch input (witness input) & 293\,B & 14.8\,KiB & Sequencer & $1\times$ per batch \\
+Powers of Tau (phase 1) & 789.8\,KiB & 96.0\,MiB & Setup & $1\times$ per circuit size \\
+R1CS constraint system & 23.7\,KiB & 3.0\,MiB & Setup (circom) & $1\times$ per circuit \\
+Proving key & 85.9\,KiB & 10.4\,MiB & Setup (phase 2) & $1\times$ per circuit \\
+Verification key & 2.9\,KiB & 2.9\,KiB & Setup (phase 2) & $1\times$ per circuit \\
+On-chain verifier & 6.9\,KiB & 6.9\,KiB & Setup (export) & $1\times$ per circuit (deployed) \\
+Witness & 5.0\,KiB & 636.1\,KiB & Proving & $1\times$ per batch (ephemeral) \\
+Groth16 proof & 806\,B & 805\,B & Proving & $1\times$ per batch (on-chain) \\
+Public inputs & 8\,B & 8\,B & Proving & $1\times$ per batch (on-chain) \\
+\hline
+\end{tabular}}
+\end{table}

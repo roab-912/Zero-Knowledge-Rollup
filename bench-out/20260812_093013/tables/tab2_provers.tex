@@ -1,0 +1,19 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+\begin{table}[t]
+\centering
+\caption{Prover comparison for the same Groth16 circuit at $N_b = 64$. The one-off trusted setup took 154\,s (peak 813\,MiB) and is shared by all provers. Verification takes 2.48\,s, independently of the prover.}
+\label{tab:zk_provers}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Metric} & \textbf{rapidsnark} & \textbf{snarkjs} \\
+\hline
+Time per proof (s) & 2.39 & 4.32 \\
+Mean busy cores & 0.4 & 0.8 \\
+Peak RAM & 64\,MiB & 620\,MiB \\
+Proving throughput (tx/s) & 26.8 & 14.8 \\
+CPU time per tx (ms) & 13.79 & 54.45 \\
+\hline
+\end{tabular}}
+\end{table}

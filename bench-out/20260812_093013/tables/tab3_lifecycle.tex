@@ -1,0 +1,18 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+\begin{table}[t]
+\centering
+\caption{Life cycle of the Groth16 pipeline at $N_b = 64$. The setup costs 62.0$\times$ the verification time, but it is paid only once per circuit, whereas proving and verification are paid on every batch -- the frequency column is what makes the gap irrelevant in steady state.}
+\label{tab:zk_lifecycle}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|r|r|r|r|}
+\hline
+\textbf{Phase} & \textbf{Frequency} & \textbf{Time (s)} & \textbf{Cores} & \textbf{Peak RAM} & \textbf{$\times$ vs verify} \\
+\hline
+Trusted setup & $1\times$ per circuit & 153.87 & 6.1 & 813\,MiB & 62.0$\times$ \\
+Proof generation (rapidsnark) & $1\times$ per batch & 2.39 & 0.4 & 64\,MiB & 0.96$\times$ \\
+Proof generation (snarkjs) & $1\times$ per batch & 4.32 & 0.8 & 620\,MiB & 1.74$\times$ \\
+Verification & $1\times$ per batch & 2.48 & 0.6 & 190\,MiB & 1.00$\times$ \\
+\hline
+\end{tabular}}
+\end{table}

@@ -1,0 +1,53 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+\begin{table}[t]
+\centering
+\caption{Resource footprint of the Groth16 pipeline as a function of the batch size $N_b$ (mean over repetitions). Time is wall-clock, Cores is the mean number of busy cores (CPU time / wall-clock), Artefacts is the total size of the files the phase leaves on disk, and I/O is the volume read / written at the read()/write() syscall level. Cost prices the wall-clock time at the on-demand rate of the cheapest instance that fits the measured footprint, following the same sizing rule as Table~\ref{tab:zk_provisioning}.}
+\label{tab:zk_resources}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|r|l|r|r|r|r|r|r|}
+\hline
+$N_b$ & \textbf{Phase} & \textbf{Time (s)} & \textbf{Cores} & \textbf{Peak RAM} & \textbf{Artefacts} & \textbf{I/O (R/W)} & \textbf{Cost ($10^{-3}$\,USD)} \\
+\hline
+1 & Trusted setup (one-off) & 59.21 & 0.7 & 288\,MiB & 909.2\,KiB & 95\,MiB / 2\,MiB & 1.47 \\
+1 & Proof generation (snarkjs) & 3.15 & 0.5 & 210\,MiB & 5.8\,KiB & 4\,MiB / 0\,MiB & 0.078 \\
+1 & Proof generation (rapidsnark) & 2.30 & 0.2 & 64\,MiB & 5.8\,KiB & 3\,MiB / 0\,MiB & 0.057 \\
+1 & Verification & 2.37 & 0.6 & 176\,MiB & -- & 4\,MiB / 0\,MiB & 0.059 \\
+\hline
+2 & Trusted setup (one-off) & 59.42 & 0.9 & 300\,MiB & 1.7\,MiB & 98\,MiB / 3\,MiB & 1.47 \\
+2 & Proof generation (snarkjs) & 3.16 & 0.5 & 217\,MiB & 10.8\,KiB & 4\,MiB / 0\,MiB & 0.078 \\
+2 & Proof generation (rapidsnark) & 2.25 & 0.2 & 64\,MiB & 10.8\,KiB & 3\,MiB / 0\,MiB & 0.056 \\
+2 & Verification & 2.35 & 0.6 & 175\,MiB & -- & 4\,MiB / 0\,MiB & 0.058 \\
+\hline
+4 & Trusted setup (one-off) & 63.51 & 1.2 & 311\,MiB & 3.5\,MiB & 105\,MiB / 6\,MiB & 1.58 \\
+4 & Proof generation (snarkjs) & 3.06 & 0.5 & 234\,MiB & 20.7\,KiB & 5\,MiB / 0\,MiB & 0.076 \\
+4 & Proof generation (rapidsnark) & 2.28 & 0.3 & 65\,MiB & 20.7\,KiB & 3\,MiB / 0\,MiB & 0.057 \\
+4 & Verification & 2.38 & 0.6 & 201\,MiB & -- & 4\,MiB / 0\,MiB & 0.059 \\
+\hline
+8 & Trusted setup (one-off) & 68.67 & 1.8 & 368\,MiB & 6.9\,MiB & 114\,MiB / 11\,MiB & 1.70 \\
+8 & Proof generation (snarkjs) & 3.11 & 0.6 & 271\,MiB & 40.6\,KiB & 5\,MiB / 0\,MiB & 0.077 \\
+8 & Proof generation (rapidsnark) & 2.21 & 0.3 & 64\,MiB & 40.6\,KiB & 3\,MiB / 0\,MiB & 0.055 \\
+8 & Verification & 2.32 & 0.6 & 157\,MiB & -- & 4\,MiB / 0\,MiB & 0.058 \\
+\hline
+16 & Trusted setup (one-off) & 77.88 & 2.8 & 464\,MiB & 13.7\,MiB & 141\,MiB / 23\,MiB & 3.86 \\
+16 & Proof generation (snarkjs) & 3.20 & 0.6 & 330\,MiB & 80.4\,KiB & 6\,MiB / 0\,MiB & 0.079 \\
+16 & Proof generation (rapidsnark) & 2.31 & 0.3 & 64\,MiB & 80.4\,KiB & 3\,MiB / 0\,MiB & 0.057 \\
+16 & Verification & 2.37 & 0.6 & 203\,MiB & -- & 4\,MiB / 0\,MiB & 0.059 \\
+\hline
+32 & Trusted setup (one-off) & 101.35 & 4.4 & 603\,MiB & 27.4\,MiB & 195\,MiB / 60\,MiB & 10.1 \\
+32 & Proof generation (snarkjs) & 3.27 & 0.7 & 428\,MiB & 159.9\,KiB & 7\,MiB / 0\,MiB & 0.081 \\
+32 & Proof generation (rapidsnark) & 2.31 & 0.3 & 64\,MiB & 159.9\,KiB & 3\,MiB / 0\,MiB & 0.057 \\
+32 & Verification & 2.39 & 0.6 & 198\,MiB & -- & 4\,MiB / 0\,MiB & 0.059 \\
+\hline
+64 & Trusted setup (one-off) & 148.59 & 6.2 & 831\,MiB & 54.7\,MiB & 409\,MiB / 130\,MiB & 14.7 \\
+64 & Proof generation (snarkjs) & 3.48 & 0.9 & 615\,MiB & 318.9\,KiB & 9\,MiB / 0\,MiB & 0.086 \\
+64 & Proof generation (rapidsnark) & 2.29 & 0.3 & 64\,MiB & 318.9\,KiB & 3\,MiB / 0\,MiB & 0.057 \\
+64 & Verification & 2.44 & 0.6 & 197\,MiB & -- & 4\,MiB / 0\,MiB & 0.061 \\
+\hline
+128 & Trusted setup (one-off) & 231.61 & 7.9 & 966\,MiB & 109.4\,MiB & 723\,MiB / 255\,MiB & 23.0 \\
+128 & Proof generation (snarkjs) & 3.69 & 1.1 & 781\,MiB & 636.9\,KiB & 15\,MiB / 0\,MiB & 0.092 \\
+128 & Proof generation (rapidsnark) & 2.27 & 0.2 & 64\,MiB & 636.9\,KiB & 3\,MiB / 0\,MiB & 0.056 \\
+128 & Verification & 2.38 & 0.6 & 200\,MiB & -- & 4\,MiB / 0\,MiB & 0.059 \\
+\hline
+\end{tabular}}
+\end{table}

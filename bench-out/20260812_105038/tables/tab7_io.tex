@@ -1,0 +1,26 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+% Proof size at the largest batch : 805 B.
+% Inputs and witness grow linearly with N_b, while the proof and the public inputs
+% stay constant -- the on-chain payload does not depend on how many transactions
+% the batch contains.
+\begin{table}[t]
+\centering
+\caption{Size of the data handled by proof generation, as a function of the batch size $N_b$.}
+\label{tab:zk_io}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|r|r|r|r|r|r|}
+\hline
+$N_b$ & \textbf{Batch input}\,\footnotesize(input) & \textbf{Proving key}\,\footnotesize(input) & \textbf{Witness}\,\footnotesize(intermediate) & \textbf{Public inputs}\,\footnotesize(output) & \textbf{Proof}\,\footnotesize(output) \\
+\hline
+1 & 293\,B & 85.9\,KiB & 5.0\,KiB & 8\,B & 806\,B \\
+2 & 407\,B & 169.3\,KiB & 10.0\,KiB & 8\,B & 806\,B \\
+4 & 635\,B & 336.0\,KiB & 19.9\,KiB & 8\,B & 804\,B \\
+8 & 1.1\,KiB & 669.6\,KiB & 39.8\,KiB & 8\,B & 804\,B \\
+16 & 2.0\,KiB & 1.3\,MiB & 79.6\,KiB & 8\,B & 804\,B \\
+32 & 3.8\,KiB & 2.6\,MiB & 159.1\,KiB & 8\,B & 805\,B \\
+64 & 7.4\,KiB & 5.2\,MiB & 318.1\,KiB & 8\,B & 807\,B \\
+128 & 14.8\,KiB & 10.4\,MiB & 636.1\,KiB & 8\,B & 805\,B \\
+\hline
+\end{tabular}}
+\end{table}
