@@ -1,0 +1,15 @@
+# cmd : snarkjs zkey contribute circuit_0000.zkey circuit_0001.zkey --name="1st Contributor" -v -e="some random text"
+# cwd : /work/bench-out/20260813_101257/circuits/16
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 0/2542
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 0/4096
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		97071f58 1ae19669 249cf08d 7318314d
+		51459442 f447d0b6 84b6c77a f2200890
+		64ee1ff5 be0e1cde d4f81082 d230ce93
+		f465478e 7c9c1865 f0b3789d 77b1b3b0
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		a22bcaf3 93f8ebad ee3a9c79 610df9ac
+		a501201a 45ea834b b8894bad 1b0c0482
+		ff329a17 09d09928 f4506df1 6b006b97
+		d7b82f51 46a0ce1b 6fc99784 55b7792b

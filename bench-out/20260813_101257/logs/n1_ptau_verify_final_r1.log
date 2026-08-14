@@ -1,0 +1,84 @@
+# cmd : snarkjs powersoftau verify pot8_final.ptau
+# cwd : /work/bench-out/20260813_101257/circuits/1
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: Next challenge hash: 
+		c9c932fc f4c7779e 281c20f3 4676004b
+		55969b5b 28721c31 fb3e0720 e7b15aaa
+		50c9dbbe 129d461a 9e4b105b 9ddb49d8
+		ab8df602 b9758b62 f2fd2cd2 f7eef2b0
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #4: Final Beacon
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		c9c932fc f4c7779e 281c20f3 4676004b
+		55969b5b 28721c31 fb3e0720 e7b15aaa
+		50c9dbbe 129d461a 9e4b105b 9ddb49d8
+		ab8df602 b9758b62 f2fd2cd2 f7eef2b0
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		907b0fdc 4d92991f c640cdb5 942d15b4
+		d7b4c17f 663a98c5 ccd56ff9 e96651e7
+		946969d1 6542a6b3 9999cbf1 37a7409b
+		dbd7edc6 37487674 e5298ae9 fb9eea13
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		87950522 8f4c83a7 af362f11 d84a7aa4
+		b33d6f64 9a32374e 122f640a 12ed203d
+		79f2eccd 3de1a5c7 78ce3177 09055b38
+		26a36865 b5d75da9 ca3ca051 2ecf6b3e
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon generator: 0102030405060708090a0b0c0d0e0f101112131015161718191a1b1c1d1e1f
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon iterations Exp: 10
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #3: Third contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		87950522 8f4c83a7 af362f11 d84a7aa4
+		b33d6f64 9a32374e 122f640a 12ed203d
+		79f2eccd 3de1a5c7 78ce3177 09055b38
+		26a36865 b5d75da9 ca3ca051 2ecf6b3e
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		11b6d956 2485b618 9948c59d 1882201f
+		0b12c76a 0e5801ea 728a6b39 61d50230
+		1e86681b 75b6b8bd e0836e4c 6b116d9c
+		78be83a8 6b3edbc8 07b36b33 1fa9612e
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		f96f29ea 8b083f80 a6f4c0ec d9aee1d9
+		4a0cc98c 110340e7 34af071a e4fbbaef
+		beb942b2 4c4338c7 229f6ae6 c0a7707f
+		5ead119c cc7b0fc3 b6450af3 7a9ccac7
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #2: Second contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		f96f29ea 8b083f80 a6f4c0ec d9aee1d9
+		4a0cc98c 110340e7 34af071a e4fbbaef
+		beb942b2 4c4338c7 229f6ae6 c0a7707f
+		5ead119c cc7b0fc3 b6450af3 7a9ccac7
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		0f96f7df 8444b295 75530254 144fba84
+		59fb4eeb e68ba95d bb1d1db1 63eb75ed
+		e36fc774 75ea3c1d e3756ca2 d44e7126
+		5eba956e 1fde1546 5b10740f e5278e36
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		69bc24cf 8043ce3b 9d1cc950 97283a43
+		f45c95e2 7ed03b58 982e3169 c3589e6e
+		dfe1e501 b92bd5a3 4d88a198 a4e14f28
+		169169c6 31d4fb2e 147a800f 5ea32060
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #1: First contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		69bc24cf 8043ce3b 9d1cc950 97283a43
+		f45c95e2 7ed03b58 982e3169 c3589e6e
+		dfe1e501 b92bd5a3 4d88a198 a4e14f28
+		169169c6 31d4fb2e 147a800f 5ea32060
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		4b4f35ff b682d774 f739387c 0ee44bd9
+		9018cca9 c8306292 3dfeb70c 1cf1abf3
+		c0120d38 817a4e40 6c50cce6 bf82dbf0
+		74bb9c1d 0954a38f af28defa 91372c5f
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		219cd1f3 eab9d2a7 0ebec1e8 9ce41ade
+		8d761eb3 9fd6702a cda57762 83026ac8
+		81746bea c81c214b 887e9102 e84c8341
+		824fd983 f4e7df84 4d150ddf 5fd2fe48
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers of Tau Ok!

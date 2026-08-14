@@ -1,0 +1,10 @@
+# cmd : snarkjs r1cs info circuit.r1cs
+# cwd : /work/bench-out/20260813_101257/circuits/4
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Curve: bn-128
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Wires: 636
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Constraints: 615
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Private Inputs: 28
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Public Inputs: 0
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Labels: 786
+[32;22m[INFO]  [39;1msnarkJS[0m: # of Outputs: 1

@@ -1,0 +1,20 @@
+# cmd : snarkjs powersoftau contribute pot14_0001.ptau pot14_0002.ptau --name="Second contribution" -v -e="some random text"
+# cwd : /work/bench-out/20260813_101257/circuits/64
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/32767
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 16384/32767
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/16384
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 8192/16384
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/16384
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/16384
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		95e3dc6e 380d522f 068c00cd 8613143a
+		f419d3aa d8af1788 e07c0b88 b655dbb5
+		78e6f059 9e420afe bfaa7bbf 03ababeb
+		2e667d9e 75588e90 b98024ed 11434e10
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		e1f68cd0 07351ea8 7f5a7b61 73aed2bb
+		6eed1566 4d5a7b5e cb662e66 6301d056
+		8cc95673 d169c9f2 5eb01fbd c134d0b5
+		38e913ee 59ce92a6 2304a937 ca07e79b

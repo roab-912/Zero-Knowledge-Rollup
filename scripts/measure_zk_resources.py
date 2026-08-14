@@ -6,7 +6,7 @@ measure_zk_resources.py
 Benchmark ressources (CPU, RAM, I/O) et durée des trois phases d'un pipeline
 zk-SNARK Groth16, pour plusieurs tailles de circuit :
 
-  1. env    : trusted setup (powersoftau phase 1, compilation circom, phase 2 zkey)
+  1. env    : setup (powersoftau phase 1, compilation circom, phase 2 zkey)
   2. prove  : calcul du témoin + génération de la preuve (snarkjs et/ou rapidsnark)
   3. verify : vérification de la preuve
 
@@ -19,20 +19,18 @@ Figures produites (une figure = une affirmation, réutilisable comme légende) :
   01_phase_cost_stacked         coût du cycle de vie complet (setup + preuve + vérif)
   01b_recurring_cost_stacked    coût récurrent seul, une colonne par prover
   02_machine_sizing_per_phase   RAM et cœurs par phase (boîtes à moustaches)
-  03_setup_amortization         amortissement du trusted setup one-off
+  03_setup_amortization         amortissement du setup one-off
   04_usd_cost_per_tx            coût marginal de preuve en $/tx (--usd-per-hour)
 
 Tables LaTeX produites (tables/, prêtes à insérer — adapter caption au besoin).
 Le nom du fichier, le label LaTeX et l'ordre d'insertion dans l'article sont
-alignés : tabK_<sujet>.tex porte le label tab:zk_<sujet>.
-  tab1_resources     ressources par (N, phase) — vue détaillée
-  tab2_provers       provers face à face à la taille de référence
-  tab3_lifecycle     cycle de vie à N fixé : phase, fréquence, x vs verify
-  tab4_ratios        T_setup / T_proof / T_ver et leurs ratios selon N
-  tab6_provisioning  vCPU / RAM / instance / $ par rôle (dimensionnement)
-  tab7_io            taille des entrées/sorties de la preuve selon N
-  tab8_artifacts     empreinte de stockage des artefacts (preuve constante)
-  tab9_cost          coût de preuve en USD (--usd-per-hour)
+alignés : tabK_<sujet>.tex porte le label tab:zk_<sujet>. Deux tables, et deux
+seulement :
+  tab1_resources     ressources par (N_b, phase) : durée, cœurs, RAM, I/O ;
+                     le setup y est détaillé en phase 1 (powers of tau),
+                     compilation circom et phase 2 (zkey)
+  tab2_artifacts     artefacts du pipeline et taille des données manipulées par
+                     la génération de preuve, une colonne par N_b
 
 Les vues latence / débit / coût amorti / efficacité de scaling de l'article
 sont déjà produites par generate_graph_from_bench_out.py et ne sont pas
@@ -98,6 +96,20 @@ PHASE_LABELS = {
     "verify": "Verification",
 }
 PHASE_COLORS = {"env": "#4C72B0", "prove": "#DD8452", "verify": "#55A868"}
+# Étiquettes courtes, pour les cellules trop étroites pour le libellé complet.
+PHASE_SHORT_LABELS = {"env": "Setup", "prove": "Proof", "verify": "Verify"}
+
+# Sous-postes du setup : nuances d'une même teinte (celle de la phase Setup),
+# du plus foncé au plus clair. Trois teintes catégorielles de plus les feraient
+# lire comme des phases supplémentaires, alors que ce sont des subdivisions.
+SETUP_GROUP_COLORS = {"ptau": "#2F4B7C", "compile": "#4C72B0", "zkey": "#93B0DC"}
+SETUP_GROUP_TITLES = {
+    "ptau": "Phase 1 (powers of tau)",
+    "compile": "Compilation (circom)",
+    "zkey": "Phase 2 (zkey)",
+}
+SETUP_GROUP_SHORT = {"ptau": "Phase 1", "compile": "circom", "zkey": "Phase 2"}
+SETUP_GROUP_ORDER = ("ptau", "compile", "zkey")
 
 MB = 1024.0 * 1024.0
 GB = 1024.0 * 1024.0 * 1024.0
@@ -1473,6 +1485,18 @@ FIGURE_CLAIMS = {
         "Marginal proving cost per transaction in USD at a fixed hourly machine "
         "rate: the economic counterpart of the amortized proving time."
     ),
+    "05_phase_time_treemap": (
+        "Wall-clock time as area at the largest batch size, one cell per phase: "
+        "setup, proving and verification are put in area ratio rather than in "
+        "bar height, which keeps a two-orders-of-magnitude minority phase "
+        "readable."
+    ),
+    "06_setup_time_treemap": (
+        "Same decomposition with the one-off setup split into its three steps: "
+        "the universal Powers of Tau, the circom compilation and the "
+        "circuit-specific zkey, showing which part of the setup a change of "
+        "circuit actually forces to be redone."
+    ),
 }
 
 
@@ -1869,7 +1893,7 @@ def fig_setup_amortization(
 ) -> None:
     """Temps par lot T_setup/k + T_proof en fonction du nombre de lots k.
 
-    Chiffre l'exclusion du trusted setup du chemin critique : c'est un coût
+    Chiffre l'exclusion du setup du chemin critique : c'est un coût
     fixe, amorti sur tous les lots prouvés avec le même circuit — l'analogue,
     côté infrastructure, de la loi d'amortissement C0/N du modèle.
     """
@@ -1926,7 +1950,7 @@ def fig_setup_amortization(
     ax.set_xlabel("Batches proved with the same circuit, $k$")
     ax.set_ylabel("Amortized time per batch (s): $T_{setup}/k + T_{proof}$")
     ax.set_title(
-        f"Amortization of the one-off trusted setup "
+        f"Amortization of the one-off setup "
         f"($N = {n_ref}$, $T_{{setup}}$ = {setup:.0f} s)"
     )
     ax.legend(fontsize=9)
@@ -1991,6 +2015,422 @@ def fig_usd_cost(
         fig, figs_dir, "04_usd_cost_per_tx", manifest_figs,
         note="Wall-clock proving time x hourly machine rate; the one-off setup is excluded.",
     )
+
+
+# --------------------------------------------------------------------------- #
+# Treemaps : répartition du temps par phase
+# --------------------------------------------------------------------------- #
+
+
+def _layout_strip(
+    areas: Sequence[float], x: float, y: float, dx: float, dy: float, vertical: bool
+) -> List[Tuple[float, float, float, float]]:
+    """Pose une bande de rectangles le long du côté court du rectangle libre."""
+    covered = sum(areas)
+    rects: List[Tuple[float, float, float, float]] = []
+    if vertical:  # colonne de largeur w, cellules empilées vers le haut
+        w = covered / dy if dy > 0 else 0.0
+        for a in areas:
+            h = a / w if w > 0 else 0.0
+            rects.append((x, y, w, h))
+            y += h
+    else:  # ligne de hauteur h, cellules côte à côte
+        h = covered / dx if dx > 0 else 0.0
+        for a in areas:
+            w = a / h if h > 0 else 0.0
+            rects.append((x, y, w, h))
+            x += w
+    return rects
+
+
+def _worst_ratio(areas: Sequence[float], x: float, y: float, dx: float, dy: float) -> float:
+    """Pire rapport d'aspect de la bande : le critère que l'algorithme minimise."""
+    worst = 1.0
+    for _, _, w, h in _layout_strip(areas, x, y, dx, dy, dx >= dy):
+        if w <= 0 or h <= 0:
+            return math.inf
+        worst = max(worst, w / h, h / w)
+    return worst
+
+
+def squarified_treemap(
+    values: Sequence[float], x: float, y: float, dx: float, dy: float
+) -> List[Tuple[float, float, float, float]]:
+    """Découpe un rectangle en cellules d'aires proportionnelles à `values`.
+
+    Algorithme « squarified » de Bruls, Huizing et van Wijk (2000) : il préfère
+    des cellules proches du carré, parce qu'un rectangle très allongé fausse la
+    comparaison visuelle des aires — or l'aire est ici le seul encodage de la
+    durée.
+
+    `values` doit être strictement positif et trié par ordre décroissant ; les
+    coordonnées sont dans les mêmes unités en x et en y, sans quoi le critère
+    d'aspect n'a pas de sens (les appelants travaillent en pouces).
+    """
+    if not values or dx <= 0 or dy <= 0:
+        return []
+    scale = dx * dy / sum(values)
+    areas = [v * scale for v in values]
+    out: List[Tuple[float, float, float, float]] = []
+    while areas:
+        # on allonge la bande tant que cela améliore le pire rapport d'aspect
+        i = 1
+        while i < len(areas) and _worst_ratio(areas[:i], x, y, dx, dy) >= _worst_ratio(
+            areas[: i + 1], x, y, dx, dy
+        ):
+            i += 1
+        strip, areas = areas[:i], areas[i:]
+        vertical = dx >= dy
+        out.extend(_layout_strip(strip, x, y, dx, dy, vertical))
+        covered = sum(strip)
+        if vertical:
+            w = covered / dy
+            x, dx = x + w, dx - w
+        else:
+            h = covered / dx
+            y, dy = y + h, dy - h
+        if dx <= 1e-9 or dy <= 1e-9:
+            break
+    return out
+
+
+def _ink_on(fill: str) -> str:
+    """Encre lisible sur un aplat donné (luminance relative sRGB, WCAG)."""
+
+    def channel(c: float) -> float:
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (channel(int(fill[i : i + 2], 16) / 255.0) for i in (1, 3, 5))
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return "#FFFFFF" if lum < 0.36 else "#1A1A1A"
+
+
+def _fmt_secs(v: float) -> str:
+    """Durée en secondes, unité unique : dans un treemap l'aire encode déjà la
+    grandeur, un changement d'unité entre cellules la contredirait."""
+    if v >= 100:
+        return f"{v:.0f} s"
+    if v >= 10:
+        return f"{v:.1f} s"
+    if v >= 1:
+        return f"{v:.2f} s"
+    return f"{v:.3f} s"
+
+
+def _cell_lines(w_pt: float, h_pt: float, long_label: str, short_label: str,
+                value_line: str, fs: float) -> List[str]:
+    """Étiquettes tenant dans la cellule, du plus complet au plus court.
+
+    Largeur estimée à ~0,58 em par caractère : suffisant pour décider, la
+    vérification finale se fait à l'œil sur la figure rendue.
+    """
+    def fits(text: str) -> bool:
+        return 0.58 * fs * len(text) <= w_pt - 8.0
+
+    if h_pt >= 2.7 * fs:
+        for label in (long_label, short_label):
+            if fits(label) and fits(value_line):
+                return [label, value_line]
+    if h_pt >= 1.6 * fs and fits(short_label):
+        return [short_label]
+    return []
+
+
+Cell = Tuple[str, str, float, str]  # libellé long, libellé court, durée, couleur
+Rect = Tuple[float, float, float, float]  # x, y, largeur, hauteur, en pouces
+Group = Tuple[int, List[Cell], float]  # taille de lot, cellules, durée totale
+# lot posé : n, total, cadre intérieur, hauteur du bandeau, cellules placées
+Placed = Tuple[int, float, Rect, float, List[Tuple[Cell, Rect]]]
+
+CELL_FS = 9.0  # corps des étiquettes intérieures
+CALLOUT_FS = 8.5  # corps des rappels extérieurs
+CALLOUT_GUTTER = 1.70  # colonne réservée aux rappels, en pouces
+
+
+def treemap_layout(
+    groups: Sequence[Group], box_w: float, box_h: float,
+    gap: float = 0.055,  # ~4 pt de fond entre deux lots : sépare sans dessiner de trait
+    header: float = 0.30,  # bandeau du libellé de lot, en pouces
+) -> List[Placed]:
+    """Pose les lots dans `box_w` x `box_h`, puis les phases dans chaque lot.
+
+    Séparé du tracé parce que la figure pose deux fois : une première pour
+    savoir quelles cellules sont trop petites pour porter leur étiquette, une
+    seconde dans une boîte rétrécie si un rappel extérieur doit être logé.
+    """
+    out: List[Placed] = []
+    for (n, cells, total), (gx, gy, gw, gh) in zip(
+        groups, squarified_treemap([g[2] for g in groups], 0, 0, box_w, box_h)
+    ):
+        ix, iy = gx + gap, gy + gap
+        iw, ih = gw - 2 * gap, gh - 2 * gap
+        if iw <= 0 or ih <= 0:
+            continue
+        head = min(header, 0.34 * ih)
+        body_h = ih - head
+        if body_h <= 0:
+            continue
+        placed = list(
+            zip(cells, squarified_treemap([c[2] for c in cells], ix, iy, iw, body_h))
+        )
+        out.append((n, total, (ix, iy, iw, ih), head, placed))
+    return out
+
+
+def _fmt_share(frac: float) -> str:
+    """Part du lot : une décimale sous 1 %, sans quoi une phase minoritaire de
+    deux ordres de grandeur s'afficherait « 0 % »."""
+    return f"{frac:.0%}" if frac >= 0.01 else f"{frac:.1%}"
+
+
+def cell_value_line(value: float, total: float) -> str:
+    return f"{_fmt_secs(value)} · {_fmt_share(value / total)}"
+
+
+def cell_label(cell: Cell, rect: Rect, total: float) -> List[str]:
+    """Lignes d'étiquette d'une cellule, vide si elle n'a pas la place."""
+    long_label, short_label, value, _color = cell
+    _x, _y, w, h = rect
+    return _cell_lines(
+        w * 72.0, h * 72.0, long_label, short_label,
+        cell_value_line(value, total), fs=CELL_FS,
+    )
+
+
+def mute_cells(layout: Sequence[Placed]) -> List[Tuple[Cell, Rect, float]]:
+    """Cellules trop petites pour porter leur étiquette, avec le total du lot."""
+    return [
+        (cell, rect, total)
+        for _n, total, _box, _head, placed in layout
+        for cell, rect in placed
+        if not cell_label(cell, rect, total)
+    ]
+
+
+def _stack_labels(anchors: Sequence[float], top: float, pitch: float) -> List[float]:
+    """Ordonnées des rappels : au plus près de leur cellule, sans chevauchement.
+
+    Les rappels sont posés du haut vers le bas, chacun au moins `pitch` sous le
+    précédent ; `anchors` doit donc être trié par ordonnée décroissante.
+    """
+    out: List[float] = []
+    y_max = top
+    for a in anchors:
+        y = min(a, y_max)
+        out.append(y)
+        y_max = y - pitch
+    return out
+
+
+def draw_callouts(
+    ax, callouts: Sequence[Tuple[Cell, Rect, float]], layout: Sequence[Placed],
+    box_w: float, box_h: float,
+) -> None:
+    """Étiquettes déportées des cellules muettes, reliées par un filet.
+
+    Une cellule de 2 % de l'aire ne peut pas porter son nom : sans rappel, elle
+    n'est décodable que par la légende, qui ne donne ni sa durée ni sa part. Le
+    filet évite l'ambiguïté quand deux rappels voisins pointent des bandes
+    voisines.
+    """
+    from matplotlib.patches import Rectangle
+
+    if not callouts:
+        return
+    gutter_x = max(box[0] + box[2] for _n, _t, box, _h, _p in layout) + 0.12
+    # du haut vers le bas, dans l'ordre vertical des cellules pointées : les
+    # filets ne se croisent pas
+    callouts = sorted(callouts, key=lambda c: -(c[1][1] + c[1][3] / 2))
+    pitch = 0.46  # deux lignes à 8,5 pt plus une respiration
+    ys = _stack_labels(
+        [rect[1] + rect[3] / 2 for _c, rect, _t in callouts],
+        top=box_h - 0.22,
+        pitch=pitch,
+    )
+    for ((long_label, _short, value, color), (cx, cy, cw, ch), total), y in zip(
+        callouts, ys
+    ):
+        ax.annotate(
+            "",
+            xy=(cx + cw, cy + ch / 2), xytext=(gutter_x, y),
+            arrowprops=dict(arrowstyle="-", lw=0.8, color="#9A9A9A",
+                            shrinkA=1.0, shrinkB=0.0),
+        )
+        ax.add_patch(
+            Rectangle(
+                (gutter_x + 0.04, y - 0.045), 0.09, 0.09,
+                facecolor=color, edgecolor="none",
+            )
+        )
+        ax.text(
+            gutter_x + 0.20, y,
+            f"{long_label}\n{cell_value_line(value, total)}",
+            ha="left", va="center", fontsize=CALLOUT_FS,
+            color="#3A3A3A", linespacing=1.35,
+        )
+
+
+def treemap_cells(
+    agg: Dict[str, Any], n: int, prover: str, split_setup: bool
+) -> List[Cell]:
+    """Cellules (libellé long, libellé court, durée, couleur) d'une taille de lot."""
+    table = phase_lookup(agg["phases"], prover)
+    cells: List[Tuple[str, str, float, str]] = []
+
+    if split_setup:
+        groups = env_group_lookup(agg)
+        for g in SETUP_GROUP_ORDER:
+            v = groups.get((n, g), {}).get("wall_s_sum", 0.0)
+            if v > 0:
+                cells.append((SETUP_GROUP_TITLES[g], SETUP_GROUP_SHORT[g], v, SETUP_GROUP_COLORS[g]))
+    else:
+        v = table.get((n, "env"), {}).get("wall_s_mean", 0.0)
+        if v > 0:
+            cells.append((PHASE_LABELS["env"], PHASE_SHORT_LABELS["env"], v, PHASE_COLORS["env"]))
+
+    for phase in ("prove", "verify"):
+        v = table.get((n, phase), {}).get("wall_s_mean", 0.0)
+        if v > 0:
+            cells.append(
+                (PHASE_LABELS[phase], PHASE_SHORT_LABELS[phase], v, PHASE_COLORS[phase])
+            )
+    return cells
+
+
+def fig_time_treemap(
+    agg: Dict[str, Any],
+    sizes: Sequence[int],
+    prover: str,
+    figs_dir: str,
+    manifest_figs: Dict[str, str],
+    name: str,
+    title: str,
+    note: str,
+    split_setup: bool = False,
+) -> None:
+    """Treemap du temps d'horloge : aire proportionnelle à la durée.
+
+    Une cellule externe par taille de lot (son aire est le temps total à cette
+    taille), subdivisée en phases. Le treemap complète les barres empilées de la
+    figure 01 sur un point précis — il met les phases en rapport d'aire plutôt
+    qu'en rapport de hauteur, ce qui rend lisible un poste minoritaire de deux
+    ordres de grandeur.
+
+    `sizes` ne contient en pratique que la plus grande taille de lot (cf.
+    `build_figures`) : c'est le seul point de fonctionnement qui décide du
+    dimensionnement, et lui consacrer toute la surface donne des cellules assez
+    grandes pour porter leur étiquette. La fonction reste écrite pour plusieurs
+    tailles, auquel cas toutes les cellules partagent la même échelle et se
+    comparent d'un lot à l'autre.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+
+    groups: List[Group] = []
+    for n in sizes:
+        cells = treemap_cells(agg, n, prover, split_setup)
+        total = sum(c[2] for c in cells)
+        if total > 0:
+            # ordre décroissant : requis par l'algorithme, et met le poste
+            # dominant en haut à gauche, là où la lecture commence
+            cells.sort(key=lambda c: -c[2])
+            groups.append((n, cells, total))
+    if not groups:
+        return
+    if split_setup and not any(
+        c[3] in SETUP_GROUP_COLORS.values() for _, cells, _ in groups for c in cells
+    ):
+        # pas de détail de setup mesuré (--skip-setup) : la figure ferait double
+        # emploi avec la version non détaillée
+        return
+
+    groups.sort(key=lambda g: -g[2])
+
+    # Les coordonnées sont en pouces et l'axe occupe exactement la boîte
+    # correspondante : le critère d'aspect de l'algorithme reste valide à
+    # l'écran, et une cellule carrée en données l'est aussi en sortie.
+    fig_w, fig_h = 11.0, 6.9
+    left, right, bottom, top = 0.012, 0.988, 0.085, 0.925
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.subplots_adjust(left=left, right=right, bottom=bottom, top=top)
+    box_w = fig_w * (right - left)
+    box_h = fig_h * (top - bottom)
+    ax.set_xlim(0, box_w)
+    ax.set_ylim(0, box_h)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    grand_total = sum(g[2] for g in groups)
+
+    # Une phase minoritaire de deux ordres de grandeur occupe une cellule trop
+    # étroite pour son étiquette : on lui réserve une colonne de rappels à
+    # droite. La première pose sert uniquement à savoir si cette colonne est
+    # nécessaire ; le rétrécissement ne peut que faire grossir l'ensemble des
+    # cellules muettes, la seconde pose est donc la bonne.
+    layout = treemap_layout(groups, box_w, box_h)
+    callouts = mute_cells(layout)
+    if callouts:
+        layout = treemap_layout(groups, box_w - CALLOUT_GUTTER, box_h)
+        callouts = mute_cells(layout)
+
+    for n, total, (ix, iy, iw, ih), head, placed in layout:
+        ax.text(
+            ix, iy + ih - head * 0.42,
+            f"$N$ = {n}",
+            ha="left", va="center", fontsize=11, fontweight="bold", color="#1A1A1A",
+        )
+        # part du total : elle situe le lot dans la figure, donc n'a de sens que
+        # s'il y a plusieurs lots à situer
+        subtitle = (
+            f"{_fmt_secs(total)} total"
+            if len(layout) == 1
+            else f"{_fmt_secs(total)} · {total / grand_total:.0%} of all measured time"
+        )
+        ax.text(
+            ix + iw, iy + ih - head * 0.42,
+            subtitle,
+            ha="right", va="center", fontsize=CALLOUT_FS, color="#5A5A5A",
+        )
+
+        for cell, (cx, cy, cw, ch) in placed:
+            color = cell[3]
+            ax.add_patch(
+                Rectangle(
+                    (cx, cy), cw, ch,
+                    facecolor=color,
+                    # liseré blanc = l'écart de fond de 2 px entre deux aplats
+                    edgecolor="white", linewidth=1.4,
+                )
+            )
+            lines = cell_label(cell, (cx, cy, cw, ch), total)
+            if lines:
+                ax.text(
+                    cx + cw / 2, cy + ch / 2,
+                    "\n".join(lines),
+                    ha="center", va="center",
+                    fontsize=CELL_FS, color=_ink_on(color), linespacing=1.35,
+                )
+
+    draw_callouts(ax, callouts, layout, box_w, box_h)
+
+    # Légende : les cellules trop petites pour porter leur nom restent décodables
+    used: List[Tuple[str, str]] = []
+    for _, cells, _ in groups:
+        for long_label, _short, _v, color in cells:
+            if (long_label, color) not in used:
+                used.append((long_label, color))
+    order = list(SETUP_GROUP_TITLES.values()) + [PHASE_LABELS[p] for p in PHASES]
+    used.sort(key=lambda e: order.index(e[0]) if e[0] in order else len(order))
+    fig.legend(
+        handles=[
+            Rectangle((0, 0), 1, 1, facecolor=c, edgecolor="white", linewidth=1.0, label=lab)
+            for lab, c in used
+        ],
+        loc="lower center", ncol=min(5, len(used)), frameon=False,
+        bbox_to_anchor=(0.5, 0.005), fontsize=9.5,
+    )
+    ax.set_title(title, pad=12)
+    save_fig(fig, figs_dir, name, manifest_figs, note=note)
 
 
 def ordered_provers(manifest: Dict[str, Any]) -> List[str]:
@@ -2082,6 +2522,38 @@ def build_figures(outdir: str, manifest: Dict[str, Any], args: argparse.Namespac
     # 04 : coût marginal en USD par transaction (si un tarif horaire est fourni)
     fig_usd_cost(agg, sizes, provers, getattr(args, "usd_per_hour", 0.0), figs_dir, manifest_figs)
 
+    # 05 / 06 : répartition du temps en aires. Même donnée que la figure 01,
+    # mais en rapport d'aire : un poste minoritaire de deux ordres de grandeur
+    # y garde une cellule identifiable, là où une barre empilée l'écrase.
+    # Le découpage ne varie plus qu'à la marge avec la taille de lot : la figure
+    # ne montre que la plus grande, le point de fonctionnement dimensionnant, et
+    # lui laisse toute la surface plutôt que d'en donner un quart à chaque lot.
+    # L'évolution avec la taille de lot reste portée par les figures 01 et 03.
+    prover_note = f" Proving times are those of {main_prover}." if main_prover else ""
+    largest = [max(sizes)] if sizes else []
+    size_note = (
+        f" Batch size N = {largest[0]}, the largest measured." if largest else ""
+    )
+    fig_time_treemap(
+        agg, largest, main_prover, figs_dir, manifest_figs,
+        "05_phase_time_treemap",
+        "Where the wall-clock time goes, at the largest batch size",
+        note=(
+            "Area is proportional to wall-clock time." + size_note + prover_note
+        ),
+    )
+    fig_time_treemap(
+        agg, largest, main_prover, figs_dir, manifest_figs,
+        "06_setup_time_treemap",
+        "Where the wall-clock time goes, with the setup broken down",
+        note=(
+            "Same encoding as the previous figure, with the setup split into Powers of Tau, "
+            "circom compilation and zkey generation (shades of the setup hue)."
+            + size_note + prover_note
+        ),
+        split_setup=True,
+    )
+
     manifest.setdefault("artifacts", {})["figures"] = manifest_figs
 
 
@@ -2132,17 +2604,6 @@ def print_summary(agg: Dict[str, Any], sizes: Sequence[int], prover: str) -> Non
     print("=" * 104)
 
 
-def _tex_sci(v: float) -> str:
-    """Nombre pour LaTeX : notation scientifique hors de [1e-2, 1e3]."""
-    if v == 0:
-        return "0"
-    e = int(math.floor(math.log10(abs(v))))
-    if -2 <= e <= 3:
-        return f"{v:.4g}"
-    m = v / (10 ** e)
-    return f"${m:.2f}\\times10^{{{e}}}$"
-
-
 def _tex_bytes(b: float) -> str:
     if b <= 0:
         return "--"
@@ -2156,7 +2617,12 @@ TEX_HEADER = "% Généré par measure_zk_resources.py — le label est définiti
 
 def _tex_table(caption: str, label: str, colspec: str, header: str, rows: List[str],
                comments: Sequence[str] = ()) -> List[str]:
-    """Squelette commun des tables de l'article (arraystretch + resizebox)."""
+    """Squelette commun des tables de l'article (arraystretch + resizebox).
+
+    Les deux tables sont dimensionnées pour une colonne (`table` / `\\columnwidth`)
+    d'un article en deux colonnes : c'est ce qui borne le nombre de colonnes de
+    tailles de lot que la table des artefacts peut porter.
+    """
     return [
         TEX_HEADER,
         *[f"% {c}" for c in comments],
@@ -2177,318 +2643,19 @@ def _tex_table(caption: str, label: str, colspec: str, header: str, rows: List[s
     ]
 
 
-def _cores(row: Optional[Dict[str, Any]]) -> float:
-    if not row or row.get("wall_s_mean", 0.0) <= 0:
-        return 0.0
-    return row["cpu_total_s_mean"] / row["wall_s_mean"]
-
-
-def _ratio(a: float, b: float) -> str:
-    """Rapport a/b en notation compacte (2 400x, 2,9x, --)."""
-    if b <= 0 or a <= 0:
-        return "--"
-    r = a / b
-    if r >= 100:
-        return f"{r:,.0f}$\\times$".replace(",", "\\,")
-    return f"{r:.1f}$\\times$" if r >= 10 else f"{r:.2f}$\\times$"
-
-
-# ------------------------- tables « analyse » ------------------------------ #
-
-
-def tab_lifecycle(tmain, lookups, n_ref: int, provers: Sequence[str]) -> List[str]:
-    """Cycle de vie à N fixé : une ligne par phase, avec fréquence et ratio
-    explicite par rapport à la vérification (la phase de référence, on-chain)."""
-    ver = tmain.get((n_ref, "verify"))
-    t_ver = ver["wall_s_mean"] if ver else 0.0
-    rows: List[str] = []
-
-    def row(label: str, freq: str, r: Optional[Dict[str, Any]]) -> None:
-        if not r:
-            return
-        rows.append(
-            f"{label} & {freq} & {r['wall_s_mean']:.2f} & {_cores(r):.1f} & "
-            f"{_tex_bytes(r['rss_peak_bytes_mean'])} & "
-            f"{_ratio(r['wall_s_mean'], t_ver)} \\\\"
-        )
-
-    row("Trusted setup", "$1\\times$ per circuit", tmain.get((n_ref, "env")))
-    for p in provers:
-        label = "Proof generation" + (f" ({p})" if len(provers) > 1 else "")
-        row(label, "$1\\times$ per batch", lookups[p].get((n_ref, "prove")))
-    row("Verification", "$1\\times$ per batch", ver)
-    if not rows:
-        return []
-    env = tmain.get((n_ref, "env"))
-    gap = (
-        f"The setup costs {env['wall_s_mean'] / t_ver:.0f}x the verification time, but it is"
-        if env and t_ver > 0
-        else "The setup is"
-    )
-    return _tex_table(
-        caption=f"Life cycle of the Groth16 pipeline at $N_b = {n_ref}$.",
-        label="tab:zk_lifecycle",
-        colspec="|l|l|r|r|r|r|",
-        header=(
-            "\\textbf{Phase} & \\textbf{Frequency} & \\textbf{Time (s)} & "
-            "\\textbf{Cores} & \\textbf{Peak RAM} & \\textbf{$\\times$ vs verify} \\\\"
-        ),
-        rows=rows,
-        comments=[
-            f"{gap} paid only once per circuit, whereas proving and verification are paid",
-            "on every batch -- the frequency column is what makes the gap irrelevant in",
-            "steady state.",
-        ],
-    )
-
-
-def tab_phase_ratios(tmain, lookups, sizes: Sequence[int], provers: Sequence[str],
-                     main_prover: str) -> List[str]:
-    """Asymétrie setup / preuve / vérification en fonction de N : le setup croît
-    avec la taille du circuit, la vérification reste constante.
-
-    Avec plusieurs provers, T_proof et les deux ratios sont déclinés par prover
-    (en-tête sur deux niveaux) plutôt que de ne montrer que le prover principal.
-    """
-    provers = [p for p in provers if p in lookups] or ([main_prover] if main_prover else [])
-    if not provers:
-        return []
-    k = len(provers)
-
-    rows: List[str] = []
-    for n in sizes:
-        env = tmain.get((n, "env"))
-        ver = tmain.get((n, "verify"))
-        proofs = {p: lookups[p].get((n, "prove")) for p in provers}
-        if not (env and ver) or not all(proofs.values()):
-            continue
-        t_s, t_v = env["wall_s_mean"], ver["wall_s_mean"]
-        t_p = {p: proofs[p]["wall_s_mean"] for p in provers}
-        cells = [str(n), f"{t_s:.1f}"]
-        cells += [f"{t_p[p]:.2f}" for p in provers]
-        cells.append(f"{t_v:.2f}")
-        cells += [_ratio(t_s, t_p[p]) for p in provers]
-        cells += [_ratio(t_p[p], t_v) for p in provers]
-        rows.append(" & ".join(cells) + " \\\\")
-    if not rows:
-        return []
-
-    t_setup = "$T_{\\mathit{setup}}$"
-    t_proof = "$T_{\\mathit{proof}}$"
-    t_ver = "$T_{\\mathit{ver}}$"
-    if k == 1:
-        suffix = f" (proving times measured with {provers[0]})" if provers[0] else ""
-        header = (
-            f"$N_b$ & {t_setup} (s) & {t_proof} (s) & {t_ver} (s) & "
-            "$T_{\\mathit{setup}}/T_{\\mathit{proof}}$ & "
-            "$T_{\\mathit{proof}}/T_{\\mathit{ver}}$ \\\\"
-        )
-    else:
-        # en-tête à deux niveaux : les colonnes qui dépendent du prover sont
-        # regroupées sous un \multicolumn, sans dépendre du paquet multirow.
-        suffix = ""
-        group = lambda title: f"\\multicolumn{{{k}}}{{c|}}{{{title}}}"
-        first_proof = 3                      # 1: N_b, 2: T_setup
-        first_sp = first_proof + k + 1       # après T_ver
-        first_pv = first_sp + k
-        header = "\n".join(
-            [
-                " & & "
-                + group(f"{t_proof} (s)")
-                + " & & "
-                + group("$T_{\\mathit{setup}}/T_{\\mathit{proof}}$")
-                + " & "
-                + group("$T_{\\mathit{proof}}/T_{\\mathit{ver}}$")
-                + " \\\\",
-                f"\\cline{{{first_proof}-{first_proof + k - 1}}}"
-                f"\\cline{{{first_sp}-{first_pv + k - 1}}}",
-                f"$N_b$ & {t_setup} (s) & "
-                + " & ".join(f"\\textbf{{{p}}}" for p in provers)
-                + f" & {t_ver} (s) & "
-                + " & ".join(f"\\textbf{{{p}}}" for p in provers * 2)
-                + " \\\\",
-            ]
-        )
-    return _tex_table(
-        caption="Phase-time ratios as a function of the batch size $N_b$" + suffix + ".",
-        label="tab:zk_ratios",
-        colspec="|" + "r|" * (3 * k + 3),
-        header=header,
-        rows=rows,
-        comments=[
-            "The one-off setup grows super-linearly with the circuit size while",
-            "verification stays constant, so the asymmetry widens with N_b.",
-        ],
-    )
-
-
-def tab_amortization(tmain, lookups, n_ref: int, provers: Sequence[str],
-                     batch_period_s: float) -> List[str]:
-    """Seuils d'amortissement du setup : nombre de lots k au-delà duquel le
-    setup pèse moins de 50 %, puis moins de 10 % du coût cumulé par lot.
-
-    Part du setup dans le coût par lot : (T_setup/k) / (T_setup/k + T_proof).
-    = 50 % pour k = T_setup/T_proof ; = 10 % pour k = 9 T_setup/T_proof.
-    """
-    env = tmain.get((n_ref, "env"))
-    if not env:
-        return []
-    t_setup = env["wall_s_mean"]
-    rows: List[str] = []
-    for p in provers:
-        r = lookups[p].get((n_ref, "prove"))
-        if not r or r["wall_s_mean"] <= 0 or t_setup <= 0:
-            continue
-        t_proof = r["wall_s_mean"]
-        k50 = t_setup / t_proof
-        k10 = 9.0 * k50
-        hours = k10 * batch_period_s / 3600.0
-        horizon = f"{hours:.1f}\\,h" if hours < 48 else f"{hours / 24:.1f}\\,d"
-        # séparateur de milliers typographique, sans toucher aux macros LaTeX
-        fk = lambda k: f"{k:,.0f}".replace(",", "\\,")
-        rows.append(
-            f"{p} & {t_setup:.1f} & {t_proof:.2f} & {fk(k50)} & {fk(k10)} & "
-            f"$\\approx${horizon} \\\\"
-        )
-    if not rows:
-        return []
-    return _tex_table(
-        caption=(
-            f"Amortization thresholds of the one-off trusted setup at $N_b = {n_ref}$: "
-            "number of batches $k$ after which the setup accounts for less than 50\\,\\% and "
-            "less than 10\\,\\% of the cumulated per-batch time "
-            "$T_{\\mathit{setup}}/k + T_{\\mathit{proof}}$. The last column converts the "
-            f"10\\,\\% threshold into operating time at one batch every {batch_period_s:.0f}\\,s."
-        ),
-        label="tab:zk_amortization",
-        colspec="|l|r|r|r|r|r|",
-        header=(
-            "\\textbf{Prover} & $T_{\\mathit{setup}}$ (s) & $T_{\\mathit{proof}}$ (s) & "
-            "$k$ (setup $=50\\,\\%$) & $k$ ($10\\,\\%$) & \\textbf{Operating time} \\\\"
-        ),
-        rows=rows,
-        comments=[
-            "Seuils : k_50 = T_setup/T_proof, k_10 = 9 T_setup/T_proof "
-            "(part du setup dans T_setup/k + T_proof).",
-        ],
-    )
-
-
-# Catalogue indicatif (AWS on-demand, us-east-1) : sert uniquement à traduire
-# un besoin (vCPU, RAM) en une instance et un tarif ; les prix évoluent.
-CLOUD_CATALOG: Tuple[Tuple[str, int, float, float], ...] = (
-    ("c7i.large", 2, 4.0, 0.0893),
-    ("m7i.large", 2, 8.0, 0.1008),
-    ("c7i.xlarge", 4, 8.0, 0.1785),
-    ("m7i.xlarge", 4, 16.0, 0.2016),
-    ("c7i.2xlarge", 8, 16.0, 0.3570),
-    ("m7i.2xlarge", 8, 32.0, 0.4032),
-    ("c7i.4xlarge", 16, 32.0, 0.7140),
-    ("m7i.4xlarge", 16, 64.0, 0.8064),
-    ("c7i.8xlarge", 32, 64.0, 1.4280),
-    ("m7i.8xlarge", 32, 128.0, 1.6128),
-)
-
-
-def _pick_instance(vcpu: int, ram_gib: float) -> Optional[Tuple[str, int, float, float]]:
-    fits = [i for i in CLOUD_CATALOG if i[1] >= vcpu and i[2] >= ram_gib]
-    return min(fits, key=lambda i: i[3]) if fits else None
-
-
-# marge mémoire appliquée au pic mesuré avant de choisir une instance
-PROVISION_HEADROOM = 1.5
-
-
-def _sizing(cores: float, rss_bytes: float, headroom: float = PROVISION_HEADROOM) -> Tuple[int, float]:
-    """(vCPU, RAM en GiB) déduits d'un pic mesuré : cœurs arrondis au supérieur,
-    mémoire majorée de `headroom` puis arrondie au demi-GiB supérieur."""
-    vcpu = max(1, math.ceil(cores))
-    # arrondi au demi-GiB supérieur : assez fin pour distinguer les phases
-    ram = max(0.5, math.ceil(rss_bytes * headroom / GB * 2.0) / 2.0)
-    return vcpu, ram
-
-
-def phase_cost_usd(r: Optional[Dict[str, Any]], headroom: float = PROVISION_HEADROOM) -> float:
-    """Coût d'une exécution de la phase : sa durée facturée au tarif horaire de
-    l'instance la moins chère qui absorbe son propre pic (même règle de
-    dimensionnement que tab_provisioning, appliquée ligne à ligne)."""
-    if not r or r.get("wall_s_mean", 0.0) <= 0:
-        return 0.0
-    inst = _pick_instance(*_sizing(_cores(r), r["rss_peak_bytes_mean"], headroom))
-    return inst[3] * r["wall_s_mean"] / 3600.0 if inst else 0.0
-
-
-def tab_provisioning(tmain, lookups, sizes: Sequence[int],
-                     provers: Sequence[str], headroom: float = PROVISION_HEADROOM) -> List[str]:
-    """Dimensionnement opérationnel par phase : la figure 02 traduite en
-    décision de provisioning (vCPU, RAM, instance, tarif)."""
-
-    def need(rows: List[Dict[str, Any]]) -> Optional[Tuple[int, float]]:
-        rows = [r for r in rows if r and r.get("wall_s_mean", 0.0) > 0]
-        if not rows:
-            return None
-        # pire cas sur toutes les tailles mesurées, contrairement au coût
-        # ligne à ligne de tab1_resources
-        return _sizing(
-            max(_cores(r) for r in rows),
-            max(r["rss_peak_bytes_mean"] for r in rows),
-            headroom,
-        )
-
-    entries: List[Tuple[str, str, Optional[Tuple[int, float]]]] = [
-        ("Setup machine", "Trusted setup (one-off)",
-         need([tmain.get((n, "env")) for n in sizes])),
-    ]
-    for p in provers:
-        label = "Proving node" + (f" ({p})" if len(provers) > 1 else "")
-        entries.append((label, "Proof generation (per batch)",
-                        need([lookups[p].get((n, "prove")) for n in sizes])))
-    entries.append(("Verifier node", "Verification (per batch)",
-                    need([tmain.get((n, "verify")) for n in sizes])))
-
-    rows: List[str] = []
-    for role, phase, req in entries:
-        if not req:
-            continue
-        vcpu, ram = req
-        inst = _pick_instance(vcpu, ram)
-        inst_name = inst[0] if inst else "--"
-        price = f"{inst[3]:.3f}" if inst else "--"
-        rows.append(
-            f"{role} & {phase} & {vcpu} & {ram:g}\\,GiB & \\texttt{{{inst_name}}} & {price} \\\\"
-        )
-    if not rows:
-        return []
-    n_max = max(sizes) if sizes else 0
-    return _tex_table(
-        caption="Provisioning derived from the measured footprint.",
-        label="tab:zk_provisioning",
-        colspec="|l|l|r|r|l|r|",
-        header=(
-            "\\textbf{Role} & \\textbf{Phase} & \\textbf{vCPU} & \\textbf{RAM} & "
-            "\\textbf{Instance} & \\textbf{USD/h} \\\\"
-        ),
-        rows=rows,
-        comments=[
-            f"Worst case over N_b <= {n_max}, with a {headroom:g}x memory headroom and RAM",
-            "rounded up to the next half-GiB. Once the setup has been run, the recurring",
-            "nodes fit on a markedly smaller instance.",
-            "Types et tarifs AWS on-demand (us-east-1) indicatifs : vérifier avant publication.",
-        ],
-    )
-
-
-# artefact -> (libellé, phase productrice, fréquence)
+# artefact -> (libellé, phase productrice, fréquence). La fréquence complète le
+# titre de colonne « Produced once per » : le « $1\times$ » commun à toutes les
+# lignes y est factorisé, la table devant tenir dans une colonne d'article.
 ARTIFACT_ROLES: Tuple[Tuple[str, str, str, str], ...] = (
-    ("input.json", "Batch input (witness input)", "Sequencer", "$1\\times$ per batch"),
-    ("ptau_total", "Powers of Tau (phase 1)", "Setup", "$1\\times$ per circuit size"),
-    ("circuit.r1cs", "R1CS constraint system", "Setup (circom)", "$1\\times$ per circuit"),
-    ("circuit_final.zkey", "Proving key", "Setup (phase 2)", "$1\\times$ per circuit"),
-    ("verification_key.json", "Verification key", "Setup (phase 2)", "$1\\times$ per circuit"),
-    ("verifier.sol", "On-chain verifier", "Setup (export)", "$1\\times$ per circuit (deployed)"),
-    ("witness.wtns", "Witness", "Proving", "$1\\times$ per batch (ephemeral)"),
-    ("proof.json", "Groth16 proof", "Proving", "$1\\times$ per batch (on-chain)"),
-    ("public.json", "Public inputs", "Proving", "$1\\times$ per batch (on-chain)"),
+    ("input.json", "Batch input", "Sequencer", "batch"),
+    ("ptau_total", "Powers of Tau", "Setup (phase 1)", "circuit size"),
+    ("circuit.r1cs", "R1CS system", "Setup (circom)", "circuit"),
+    ("circuit_final.zkey", "Proving key", "Setup (phase 2)", "circuit"),
+    ("verification_key.json", "Verification key", "Setup (phase 2)", "circuit"),
+    ("verifier.sol", "On-chain verifier", "Setup (export)", "circuit (deployed)"),
+    ("witness.wtns", "Witness", "Proving", "batch (ephemeral)"),
+    ("proof.json", "Groth16 proof", "Proving", "batch (on-chain)"),
+    ("public.json", "Public inputs", "Proving", "batch (on-chain)"),
 )
 
 
@@ -2518,135 +2685,141 @@ def circuit_artifacts(manifest: Dict[str, Any], outdir: str, n: int) -> Dict[str
     return out
 
 
-# artefacts *produits* par chaque phase, pour l'empreinte disque laissée derrière
-# elle (input.json vient du séquenceur, pas d'une phase ; la vérification ne
-# produit rien, elle ne fait que lire la preuve et la clé de vérification)
-PHASE_ARTIFACTS: Dict[str, Tuple[str, ...]] = {
-    "env": (
-        "ptau_total",
-        "circuit.r1cs",
-        "circuit_final.zkey",
-        "verification_key.json",
-        "verifier.sol",
-    ),
-    "prove": ("witness.wtns", "proof.json", "public.json"),
-    "verify": (),
+# rôle de chaque artefact dans la génération de preuve : c'est ce qu'apportait
+# la table « size of the data handled by proof generation », fusionnée ici dans
+# la table des artefacts sous forme d'étiquette de la première colonne.
+PROVING_ROLES: Dict[str, str] = {
+    "input.json": "input",
+    "circuit_final.zkey": "input",
+    "witness.wtns": "intermediate",
+    "proof.json": "output",
+    "public.json": "output",
 }
 
 
-def phase_artifact_bytes(manifest: Dict[str, Any], outdir: str, n: int, phase: str) -> float:
-    """Taille cumulée des fichiers produits par `phase` pour le circuit `n`.
+def _artefact_label(key: str, label: str) -> str:
+    role = PROVING_ROLES.get(key)
+    return f"{label}\\,\\footnotesize({role})" if role else label
 
-    Renvoie 0 si le run a été élagué (--prune) ou si le manifest ne porte pas
-    encore les tailles : la cellule affiche alors « -- » plutôt qu'un faux zéro.
+
+def pick_size_columns(sizes: Sequence[int], max_cols: int = 4) -> List[int]:
+    """Premier, dernier et un ou deux intermédiaires régulièrement espacés.
+
+    Les tailles de lot forment une progression géométrique : les colonnes
+    intermédiaires sont donc choisies par leur rang, ce qui conserve un pas
+    constant en $\\log_2 N_b$. Toutes les tailles mesurées ne tiendraient pas
+    dans une colonne d'article, et les colonnes omises n'apportent qu'un point
+    de plus sur une croissance déjà lisible sur trois ou quatre points.
     """
-    keys = PHASE_ARTIFACTS.get(phase, ())
-    if not keys:
-        return 0.0
-    sizes = circuit_artifacts(manifest, outdir, n)
-    return float(sum(sizes.get(k, 0.0) for k in keys))
+    if len(sizes) <= max_cols:
+        return list(sizes)
+    inner = max_cols - 2
+    last = len(sizes) - 1
+    keep = {0, last} | {round(k * last / (inner + 1)) for k in range(1, inner + 1)}
+    return [sizes[i] for i in sorted(keep)]
 
 
-# artefacts manipulés par la génération de preuve : entrées, clé, sorties
-PROVING_IO: Tuple[Tuple[str, str, str], ...] = (
-    ("input.json", "Batch input", "in"),
-    ("circuit_final.zkey", "Proving key", "in"),
-    ("witness.wtns", "Witness", "tmp"),
-    ("public.json", "Public inputs", "out"),
-    ("proof.json", "Proof", "out"),
-)
+def tab_artifacts(manifest: Dict[str, Any], outdir: str, sizes: Sequence[int]) -> List[str]:
+    """Artefacts du pipeline et taille des données manipulées par la preuve, en
+    une seule table : une ligne par artefact, une colonne pour quelques $N_b$
+    mesurés, plus la phase qui le produit et sa fréquence. Les artefacts du
+    setup et le témoin grossissent avec le circuit, la preuve et les entrées
+    publiques restent de taille constante — d'où un coût de vérification
+    on-chain indépendant de $N_b$.
 
-
-def tab_proving_io(manifest: Dict[str, Any], outdir: str, sizes: Sequence[int]) -> List[str]:
-    """Taille des éléments manipulés par la génération de preuve, par $N_b$ :
-    entrées (input, clé de preuve), témoin intermédiaire, sorties (public,
-    preuve). Rend visible que seules les sorties restent de taille constante."""
+    La table est dimensionnée pour une colonne d'article (et non deux) : elle
+    ne porte que quelques tailles de lot, cf. `pick_size_columns`.
+    """
     per_n = {n: circuit_artifacts(manifest, outdir, n) for n in sizes}
     per_n = {n: a for n, a in per_n.items() if a}
     if not per_n:
         return []
-    cols = [c for c in PROVING_IO if any(a.get(c[0], 0) > 0 for a in per_n.values())]
-    if not cols:
+    measured = sorted(per_n)
+    cols = pick_size_columns(measured)
+
+    rows: List[str] = []
+    for key, label, produced, freq in ARTIFACT_ROLES:
+        if not any(per_n[n].get(key, 0) > 0 for n in cols):
+            continue
+        rows.append(
+            f"{_artefact_label(key, label)} & {produced} & {freq} & "
+            + " & ".join(_size_cell(per_n[n].get(key, 0)) for n in cols)
+            + " \\\\"
+        )
+    if not rows:
         return []
 
-    rows = [
-        f"{n} & " + " & ".join(_size_cell(per_n[n].get(key, 0)) for key, _l, _d in cols) + " \\\\"
-        for n in sorted(per_n)
-    ]
-    tag = {"in": "input", "tmp": "intermediate", "out": "output"}
-    header = "$N_b$ & " + " & ".join(
-        f"\\textbf{{{label}}}\\,\\footnotesize({tag[d]})" for _k, label, d in cols
-    ) + " \\\\"
-    biggest = max(per_n)
-    proof_b = per_n[biggest].get("proof.json", 0)
+    header = (
+        "\\textbf{Artefact} & \\textbf{Produced by} & \\textbf{Once per} & "
+        + " & ".join(f"$N_b = {n}$" for n in cols)
+        + " \\\\"
+    )
+    proof_b = per_n[max(measured)].get("proof.json", 0)
     notes = [
-        "Inputs and witness grow linearly with N_b, while the proof and the public inputs",
-        "stay constant -- the on-chain payload does not depend on how many transactions",
-        "the batch contains.",
+        "Fusion des anciennes tables « artefacts » et « size of the data handled by proof",
+        "generation » : l'étiquette de la première colonne porte le rôle de l'artefact dans",
+        "la génération de preuve (input / intermediate / output).",
+        "Setup artefacts (Powers of Tau, proving key) and the witness grow with the circuit,",
+        "whereas the proof and the public inputs stay constant -- the on-chain payload does",
+        "not depend on how many transactions the batch contains.",
     ]
+    if len(cols) < len(measured):
+        notes.append(
+            "Colonnes : premier, dernier et intermédiaires des N_b mesurés ("
+            + ", ".join(str(n) for n in measured)
+            + ") — la table est dimensionnée pour une colonne d'article."
+        )
     if proof_b:
-        notes.insert(0, f"Proof size at the largest batch : {proof_b:.0f} B.")
+        notes.append(f"Proof size at the largest batch : {proof_b:.0f} B.")
+    subset = (
+        " Batch sizes are a subset of those measured "
+        f"({', '.join(str(n) for n in measured)}), evenly spaced in $\\log_2 N_b$."
+        if len(cols) < len(measured)
+        else ""
+    )
     return _tex_table(
         caption=(
-            "Size of the data handled by proof generation, as a function of the batch "
-            "size $N_b$."
+            "Pipeline artefacts and size of the data handled by proof generation, as a "
+            "function of the batch size $N_b$. The tag in the first column gives the role "
+            "of the artefact in proof generation (input, intermediate witness, output)."
+            + subset
         ),
-        label="tab:zk_io",
-        colspec="|r|" + "r|" * len(cols),
+        label="tab:zk_artifacts",
+        colspec="|l|l|l|" + "r|" * len(cols),
         header=header,
         rows=rows,
         comments=notes,
     )
 
 
-def tab_artifacts(manifest: Dict[str, Any], outdir: str, sizes: Sequence[int]) -> List[str]:
-    """Empreinte de stockage par artefact : les clés du setup grossissent avec
-    le circuit, la preuve reste de taille constante — d'où un coût de
-    vérification on-chain indépendant de $N_b$."""
-    circuits = manifest.get("circuits") or {}
-    avail = [n for n in sizes if str(n) in circuits and circuits[str(n)].get("artifacts")]
-    if not avail:
-        return []
-    n_lo, n_hi = avail[0], avail[-1]
-    a_lo = circuit_artifacts(manifest, outdir, n_lo)
-    a_hi = circuit_artifacts(manifest, outdir, n_hi)
+# sous-étapes du setup (groupes de commandes de env_commands), dans l'ordre
+# d'exécution : phase 1 réutilisable, compilation du circuit, phase 2 propre au
+# circuit
+SETUP_GROUP_LABELS: Tuple[Tuple[str, str], ...] = (
+    ("ptau", "\\quad Phase 1 (powers of tau)"),
+    ("compile", "\\quad Circuit compilation (circom)"),
+    ("zkey", "\\quad Phase 2 (circuit-specific zkey)"),
+)
 
-    size_cell = _size_cell
-    rows: List[str] = []
-    for key, label, produced, freq in ARTIFACT_ROLES:
-        lo, hi = a_lo.get(key, 0), a_hi.get(key, 0)
-        if lo <= 0 and hi <= 0:
-            continue
-        rows.append(
-            f"{label} & {size_cell(lo)} & {size_cell(hi)} & {produced} & {freq} \\\\"
-        )
-    if not rows:
-        return []
-    proof_hi = a_hi.get("proof.json", 0)
-    note = (
-        "Setup artefacts (Powers of Tau, proving key) grow with the circuit, whereas the "
-    )
-    if proof_hi:
-        note += (
-            f"proof stays at {proof_hi} B regardless of N_b -- the reason why the on-chain "
-            "verification cost per batch is constant."
-        )
-    else:
-        note += "proof stays constant in size regardless of N_b."
-    return _tex_table(
-        caption=(
-            f"Storage footprint of the pipeline artefacts, from $N_b = {n_lo}$ to "
-            f"$N_b = {n_hi}$."
-        ),
-        label="tab:zk_artifacts",
-        colspec="|l|r|r|l|l|",
-        header=(
-            f"\\textbf{{Artefact}} & $N_b = {n_lo}$ & $N_b = {n_hi}$ & "
-            "\\textbf{Produced by} & \\textbf{Frequency} \\\\"
-        ),
-        rows=rows,
-        comments=[note],
-    )
+
+# tables produites par les versions précédentes du script : supprimées lors
+# d'une régénération (--plot-only) pour ne laisser que les deux tables courantes
+OBSOLETE_TABLES: Tuple[str, ...] = (
+    "tab2_provers.tex",
+    "tab3_lifecycle.tex",
+    "tab4_ratios.tex",
+    "tab5_amortization.tex",
+    "tab6_provisioning.tex",
+    "tab7_io.tex",
+    "tab8_artifacts.tex",
+    "tab9_cost.tex",
+    "tab9_cost.csv",
+)
+
+
+def env_group_lookup(agg: Dict[str, Any]) -> Dict[Tuple[int, str], Dict[str, Any]]:
+    """Table (n, groupe) -> agrégat des steps de la phase setup."""
+    return {(r["n"], r["group"]): r for r in (agg.get("env_groups") or [])}
 
 
 def write_latex_tables(
@@ -2654,10 +2827,15 @@ def write_latex_tables(
     manifest: Dict[str, Any],
     provers: Sequence[str],
     main_prover: str,
-    usd_per_hour: float,
 ) -> None:
-    """Tables LaTeX prêtes à coller dans l'article (style tabulaire du papier :
-    \\renewcommand{\\arraystretch}{1.2} + \\resizebox{\\columnwidth})."""
+    """Les deux tables LaTeX de l'article (style tabulaire du papier :
+    \\renewcommand{\\arraystretch}{1.2} + \\resizebox) :
+
+      tab1_resources   ressources par (N_b, phase), le setup étant détaillé en
+                       phase 1 / compilation / phase 2
+      tab2_artifacts   artefacts du pipeline et taille des données manipulées
+                       par la génération de preuve
+    """
     agg = manifest["aggregates"]
     sizes = manifest["params"]["sizes"]
     if not agg.get("phases"):
@@ -2675,216 +2853,107 @@ def write_latex_tables(
         print(f"    table  : tables/{name}")
 
     tmain = phase_lookup(agg["phases"], main_prover)
+    egroups = env_group_lookup(agg)
 
     # --- table 1 : ressources par (taille, phase) ------------------------- #
-    lines = [
-        "% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.",
-        "\\begin{table}[t]",
-        "\\centering",
-        "\\caption{Resource footprint of the Groth16 pipeline as a function of the"
-        " batch size $N_b$ (mean over repetitions). Time is wall-clock, Cores is the"
-        " mean number of busy cores (CPU time / wall-clock), Artefacts is the total"
-        " size of the files the phase leaves on disk, and I/O is the volume"
-        " read / written at the read()/write() syscall level. Cost prices the"
-        " wall-clock time at the on-demand rate of the cheapest instance that fits"
-        " the measured footprint, following the same sizing rule as"
-        " Table~\\ref{tab:zk_provisioning}.}",
-        "\\label{tab:zk_resources}",
-        "\\renewcommand{\\arraystretch}{1.2}",
-        "\\resizebox{\\columnwidth}{!}{",
-        "\\begin{tabular}{|r|l|r|r|r|r|r|r|}",
-        "\\hline",
-        "$N_b$ & \\textbf{Phase} & \\textbf{Time (s)} & "
-        "\\textbf{Cores} & \\textbf{Peak RAM} & \\textbf{Artefacts} & "
-        "\\textbf{I/O (R/W)} & \\textbf{Cost ($10^{-3}$\\,USD)} \\\\",
-        "\\hline",
-    ]
-
-    def _musd(v: float) -> str:
-        """Coût en 10^-3 USD, avec une précision qui reste lisible de 0,05 à 100."""
-        if v <= 0:
-            return "--"
-        m = v * 1000.0
-        return f"{m:.1f}" if m >= 10 else (f"{m:.2f}" if m >= 1 else f"{m:.3f}")
-
-    def resource_row(table, n: int, phase: str, label: str) -> Optional[str]:
-        r = table.get((n, phase))
-        if not r:
-            return None
-        wall = r["wall_s_mean"]
-        cores = r["cpu_total_s_mean"] / wall if wall > 0 else 0.0
-        io = f"{_tex_bytes(r['io_rchar_bytes_mean'])} / {_tex_bytes(r['io_wchar_bytes_mean'])}"
-        # taille des fichiers produits : dépend de la phase et de N, pas du prover
-        artefacts = _size_cell(phase_artifact_bytes(manifest, outdir, n, phase))
+    def cells(wall: float, cpu: float, rss: float, rchar: float, wchar: float) -> str:
+        cores = cpu / wall if wall > 0 else 0.0
         return (
-            f"{n} & {label} & {wall:.2f} & "
-            f"{cores:.1f} & {_tex_bytes(r['rss_peak_bytes_mean'])} & "
-            f"{artefacts} & {io} & {_musd(phase_cost_usd(r))} \\\\"
+            f"{wall:.2f} & {cores:.1f} & {_tex_bytes(rss)} & "
+            f"{_tex_bytes(rchar)} / {_tex_bytes(wchar)}"
         )
 
+    def phase_cells(table, n: int, phase: str) -> Optional[str]:
+        r = table.get((n, phase))
+        if not r or r["wall_s_mean"] <= 0:
+            return None
+        return cells(
+            r["wall_s_mean"],
+            r["cpu_total_s_mean"],
+            r["rss_peak_bytes_mean"],
+            r["io_rchar_bytes_mean"],
+            r["io_wchar_bytes_mean"],
+        )
+
+    def group_cells(n: int, group: str) -> Optional[str]:
+        # la phase setup n'est exécutée qu'une fois : les sommes par groupe
+        # sont directement comparables à la moyenne de la phase
+        g = egroups.get((n, group))
+        if not g or g.get("wall_s_sum", 0.0) <= 0:
+            return None
+        return cells(
+            g["wall_s_sum"],
+            g["cpu_total_s_sum"],
+            g["rss_peak_bytes_sum"],
+            g["io_rchar_bytes_sum"],
+            g["io_wchar_bytes_sum"],
+        )
+
+    rows: List[str] = []
     for n in sizes:
-        block: List[str] = []
-        r = resource_row(tmain, n, "env", "Trusted setup (one-off)")
-        if r:
-            block.append(r)
+        block: List[Tuple[str, str]] = []
+        c = phase_cells(tmain, n, "env")
+        if c:
+            block.append(("Setup (one-off)", c))
+            for group, label in SETUP_GROUP_LABELS:
+                gc = group_cells(n, group)
+                if gc:
+                    block.append((label, gc))
         for p in provers:
             label = "Proof generation" + (f" ({p})" if len(provers) > 1 else "")
-            r = resource_row(phase_lookup(agg["phases"], p), n, "prove", label)
-            if r:
-                block.append(r)
-        r = resource_row(tmain, n, "verify", "Verification")
-        if r:
-            block.append(r)
-        if block:
-            lines.extend(block)
-            lines.append("\\hline")
-    lines += ["\\end{tabular}}", "\\end{table}"]
-    emit("tab1_resources.tex", lines)
-
-    # --- table 2 : provers face à face à la taille de référence ----------- #
-    lookups = {p: phase_lookup(agg["phases"], p) for p in provers}
-    n_ref = None
-    for n in reversed(list(sizes)):
-        if all(lookups[p].get((n, "prove")) for p in provers):
-            n_ref = n
-            break
-    if n_ref is not None:
-        env = tmain.get((n_ref, "env"))
-        ver = tmain.get((n_ref, "verify"))
-
-        def metric_row(label: str, fn, fmt: str = "{:.2f}") -> str:
-            cells = []
-            for p in provers:
-                v = fn(lookups[p][(n_ref, "prove")])
-                cells.append(v if isinstance(v, str) else fmt.format(v))
-            return f"{label} & " + " & ".join(cells) + " \\\\"
-
-        cap = f"Prover comparison for the same Groth16 circuit at $N_b = {n_ref}$."
-        notes: List[str] = []
-        if env:
-            notes.append(
-                f"The one-off trusted setup took {env['wall_s_mean']:.0f} s"
-                f" (peak {env['rss_peak_bytes_mean'] / MB:.0f} MiB) and is shared by all provers."
-            )
-        if ver:
-            notes.append(
-                f"Verification takes {ver['wall_s_mean']:.2f} s, independently of the prover."
-            )
-        if usd_per_hour > 0:
-            notes.append(f"USD figures assume a machine rate of ${usd_per_hour:.2f}/h.")
-
-        rows = [
-            metric_row("Time per proof (s)", lambda r: r["wall_s_mean"]),
-            metric_row(
-                "Mean busy cores",
-                lambda r: (r["cpu_total_s_mean"] / r["wall_s_mean"]) if r["wall_s_mean"] > 0 else 0.0,
-                "{:.1f}",
+            c = phase_cells(phase_lookup(agg["phases"], p), n, "prove")
+            if c:
+                block.append((label, c))
+        c = phase_cells(tmain, n, "verify")
+        if c:
+            block.append(("Verification", c))
+        if not block:
+            continue
+        # $N_b$ n'est porté que par la première ligne du bloc
+        for i, (label, c) in enumerate(block):
+            rows.append(f"{n if i == 0 else ''} & {label} & {c} \\\\")
+        rows.append("\\hline")
+    if rows:
+        rows.pop()  # le dernier \hline est ajouté par _tex_table
+        emit(
+            "tab1_resources.tex",
+            _tex_table(
+                caption=(
+                    "Resource footprint of the Groth16 pipeline as a function of the batch"
+                    " size $N_b$ (mean over repetitions). Time is wall-clock, Cores is the"
+                    " mean number of busy cores (CPU time / wall-clock) and I/O is the"
+                    " volume read / written at the read()/write() syscall level. The"
+                    " indented rows break the one-off setup down into its phase 1 (powers"
+                    " of tau, reusable across circuits), circuit compilation and phase 2"
+                    " (circuit-specific proving key) sub-steps."
+                ),
+                label="tab:zk_resources",
+                colspec="|r|l|r|r|r|r|",
+                header=(
+                    "$N_b$ & \\textbf{Phase} & \\textbf{Time (s)} & \\textbf{Cores} & "
+                    "\\textbf{Peak RAM} & \\textbf{I/O (R/W)} \\\\"
+                ),
+                rows=rows,
+                comments=[
+                    "Setup = powers of tau (phase 1) + circom compilation + zkey (phase 2).",
+                    "Peak RAM d'une sous-étape : maximum sur les commandes du groupe ;",
+                    "durée, CPU et I/O : somme sur ces mêmes commandes.",
+                ],
             ),
-            metric_row("Peak RAM", lambda r: _tex_bytes(r["rss_peak_bytes_mean"])),
-            metric_row(
-                "Proving throughput (tx/s)",
-                lambda r: (n_ref / r["wall_s_mean"]) if r["wall_s_mean"] > 0 else 0.0,
-                "{:.1f}",
-            ),
-            metric_row("CPU time per tx (ms)", lambda r: r["cpu_total_s_mean"] / n_ref * 1000.0),
-        ]
-        if usd_per_hour > 0:
-            rows.append(
-                metric_row("USD per proof", lambda r: _tex_sci(r["wall_s_mean"] * usd_per_hour / 3600.0))
-            )
-            rows.append(
-                metric_row(
-                    "USD per transaction",
-                    lambda r: _tex_sci(r["wall_s_mean"] * usd_per_hour / 3600.0 / n_ref),
-                )
-            )
-        lines = [
-            "% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.",
-            *[f"% {note}" for note in notes],
-            "\\begin{table}[t]",
-            "\\centering",
-            f"\\caption{{{cap}}}",
-            "\\label{tab:zk_provers}",
-            "\\renewcommand{\\arraystretch}{1.2}",
-            "\\resizebox{\\columnwidth}{!}{",
-            "\\begin{tabular}{|l|" + "r|" * len(provers) + "}",
-            "\\hline",
-            "\\textbf{Metric} & " + " & ".join(f"\\textbf{{{p}}}" for p in provers) + " \\\\",
-            "\\hline",
-            *rows,
-            "\\hline",
-            "\\end{tabular}}",
-            "\\end{table}",
-        ]
-        emit("tab2_provers.tex", lines)
+        )
 
-    # --- table 3 + CSV : coûts en USD (métriques de Chaliasos et al.) ----- #
-    if usd_per_hour > 0:
-        cost_rows: List[Dict[str, Any]] = []
-        for r in sorted(
-            (r for r in agg["phases"] if r["phase"] == "prove" and r["prover"]),
-            key=lambda r: (r["n"], r["prover"]),
-        ):
-            wall = r["wall_s_mean"]
-            if wall <= 0:
-                continue
-            usd = wall * usd_per_hour / 3600.0
-            cost_rows.append(
-                {
-                    "n": r["n"],
-                    "prover": r["prover"],
-                    "seconds_per_proof": round(wall, 4),
-                    "usd_per_proof": usd,
-                    "usd_per_tx": usd / r["n"],
-                }
-            )
-        if cost_rows:
-            save_csv(os.path.join(tables_dir, "tab9_cost.csv"), cost_rows)
-            written["tab9_cost.csv"] = "tables/tab9_cost.csv"
-            lines = [
-                "% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.",
-                "% Métriques reprises de Chaliasos et al., AFT'24 (\\cite{...}) :",
-                "% Seconds per Proof, USD per Proof, USD per Proving a Transaction.",
-                "\\begin{table}[t]",
-                "\\centering",
-                f"\\caption{{Off-chain proving cost of one batch, at a machine rate of"
-                f" \\${usd_per_hour:.2f}/h (one-off setup excluded).}}",
-                "\\label{tab:zk_cost}",
-                "\\renewcommand{\\arraystretch}{1.2}",
-                "\\resizebox{\\columnwidth}{!}{",
-                "\\begin{tabular}{|r|l|r|r|r|}",
-                "\\hline",
-                "$N_b$ & \\textbf{Prover} & \\textbf{s / proof} & "
-                "\\textbf{USD / proof} & \\textbf{USD / tx} \\\\",
-                "\\hline",
-            ]
-            for c in cost_rows:
-                lines.append(
-                    f"{c['n']} & {c['prover']} & {c['seconds_per_proof']:.2f} & "
-                    f"{_tex_sci(c['usd_per_proof'])} & {_tex_sci(c['usd_per_tx'])} \\\\"
-                )
-            lines += ["\\hline", "\\end{tabular}}", "\\end{table}"]
-            emit("tab9_cost.tex", lines)
+    # --- table 2 : artefacts + données manipulées par la preuve ----------- #
+    tex = tab_artifacts(manifest, outdir, sizes)
+    if tex:
+        emit("tab2_artifacts.tex", tex)
 
-    # --- tables d'analyse : cycle de vie, ratios, amortissement, ---------- #
-    # --- dimensionnement, stockage --------------------------------------- #
-    n_life = n_ref if n_ref is not None else (sizes[-1] if sizes else None)
-    if n_life is not None:
-        # tab5_amortization (tab_amortization) est écartée de l'article pour le
-        # moment ; la fonction reste disponible pour la réactiver.
-        for name, tex in (
-            ("tab3_lifecycle.tex", tab_lifecycle(tmain, lookups, n_life, provers)),
-        ):
-            if tex:
-                emit(name, tex)
-    for name, tex in (
-        ("tab4_ratios.tex", tab_phase_ratios(tmain, lookups, sizes, provers, main_prover)),
-        ("tab6_provisioning.tex", tab_provisioning(tmain, lookups, sizes, provers)),
-        ("tab7_io.tex", tab_proving_io(manifest, outdir, sizes)),
-        ("tab8_artifacts.tex", tab_artifacts(manifest, outdir, sizes)),
-    ):
-        if tex:
-            emit(name, tex)
+    # régénération d'un run antérieur : les tables qui ne sont plus produites
+    # traîneraient sinon dans tables/ et pourraient être insérées par erreur
+    for stale in OBSOLETE_TABLES:
+        path = os.path.join(tables_dir, stale)
+        if os.path.isfile(path):
+            os.remove(path)
+            print(f"    obsolète (supprimée) : tables/{stale}")
 
     if written:
         manifest.setdefault("artifacts", {})["tables"] = written
@@ -3307,13 +3376,12 @@ def main() -> None:
             raise SystemExit(f"[erreur] {manifest_path} introuvable")
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
-        # les tables d'analyse dépendent de ce paramètre : il suit la CLI de
-        # régénération, y compris pour les manifests antérieurs
+        # conservé dans le manifest régénéré (période de lot de la campagne)
         manifest.setdefault("params", {})["batch_period_s"] = args.batch_period_s
         build_figures(outdir, manifest, args)
         provers = ordered_provers(manifest)
         main_prover = args.main_prover if args.main_prover in provers else (provers[0] if provers else "")
-        write_latex_tables(outdir, manifest, provers, main_prover, args.usd_per_hour)
+        write_latex_tables(outdir, manifest, provers, main_prover)
         save_json(manifest_path, manifest)
         write_report(outdir, manifest, main_prover, args.usd_per_hour)
         print(f"\n>>> Figures régénérées dans {os.path.join(outdir, 'figs')}")
@@ -3346,7 +3414,7 @@ def main() -> None:
         except Exception as exc:
             print(f"[attention] génération des figures interrompue : {exc}")
 
-    write_latex_tables(outdir, manifest, provers, main_prover, args.usd_per_hour)
+    write_latex_tables(outdir, manifest, provers, main_prover)
     write_report(outdir, manifest, main_prover, args.usd_per_hour)
     save_json(os.path.join(outdir, "manifest.json"), manifest)
 
@@ -3355,7 +3423,7 @@ def main() -> None:
     print("    - mesures brutes  : raw/steps.jsonl, raw/samples/*.csv")
     print("    - agrégats        : steps.csv, phases.csv, env_breakdown.csv")
     print("    - figures         : figs/*.png, figs/*.svg")
-    print("    - tables LaTeX    : tables/tab*.tex (+ tables/tab9_cost.csv)")
+    print("    - tables LaTeX    : tables/tab1_resources.tex, tables/tab2_artifacts.tex")
     print("    - synthèse        : report.md, manifest.json")
     if failed:
         print(f"    [!] {len(failed)} étape(s) en échec — voir report.md et logs/")

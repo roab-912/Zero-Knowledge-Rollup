@@ -1,0 +1,5 @@
+# cmd : snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
+# cwd : /work/bench-out/20260813_144351/circuits/8
+
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 0/1231
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 0/1272

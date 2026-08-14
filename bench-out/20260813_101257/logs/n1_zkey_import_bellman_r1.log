@@ -1,0 +1,3 @@
+# cmd : snarkjs zkey import bellman circuit_0002.zkey response_phase2_0003 circuit_0003.zkey -n="Third contribution"
+# cwd : /work/bench-out/20260813_101257/circuits/1
+

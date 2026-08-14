@@ -1,0 +1,23 @@
+# cmd : snarkjs powersoftau contribute pot8_0000.ptau pot8_0001.ptau --name="First contribution" -v -e="some random text"
+# cwd : /work/bench-out/20260813_144351/circuits/1
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/511
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		fbe35bb9 55e58b80 bee315bc f645bcce
+		27eb02f9 e5c1ef9d b7adff5a 3a54c475
+		b5df9f2f cc9c835b 3dcbd4ea cdd80945
+		bbaa0c2c 546d98c7 2de428ff d4a2f312
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		049f383f c99fde98 59c82cf0 74b668c8
+		09f2a7ad 661f2897 1035ebaa f6bed40e
+		7bbe6172 e1d016b0 7e1354ed c56a9e07
+		f8034dbd 47a04e0c 1cb16fdf ba8ca220

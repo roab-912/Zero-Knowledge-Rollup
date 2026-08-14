@@ -1,0 +1,46 @@
+# cmd : snarkjs zkey verify circuit.r1cs pot8_final.ptau circuit_final.zkey
+# cwd : /work/bench-out/20260813_101257/circuits/1
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		38cbd4cb 0eaf294c 4d4bd6fb 708b570a
+		614b1097 dd56112e 340e4670 d137c9e2
+		64f13f14 ccf4604a 265d7509 998ab297
+		9baf8a3e 0f3cb77a d4a65cc8 c18ec657
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		38cbd4cb 0eaf294c 4d4bd6fb 708b570a
+		614b1097 dd56112e 340e4670 d137c9e2
+		64f13f14 ccf4604a 265d7509 998ab297
+		9baf8a3e 0f3cb77a d4a65cc8 c18ec657
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #4 Final Beacon phase2:
+		45231326 82f7b170 85b7e2b5 86593430
+		a86744df 0a57de68 099e2c4c 79acd3ec
+		154951ce fed275f9 b00424e5 cd41182d
+		c0c75398 50abfc6e 4e364b86 1b81fb67
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon generator: 0102030405060708090a0b0c0d0e0f101112131515161718191a1b1c1d1e1f
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon iterations Exp: 10
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #3 Third contribution:
+		2340a689 3e3f7c8e 80c17b9e 6b7a799a
+		6b1c769f 21a34573 1f273036 d2ae4095
+		8954e1a7 0ba613ce 00d0aa4d 726eab17
+		f21a7da1 91e0ea7c adf4d2ad 046f67f8
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #2 2nd Contributor:
+		03799fd2 82d72520 3c0926c6 438b3a6e
+		d27653cb 5489e7ba fd66d046 8e082906
+		28b1dbf2 69bc3ef9 1e7dc681 7cf20407
+		6e2b0ecf 72361d42 c4340607 8916777c
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #1 1st Contributor:
+		ded2c431 94b2fbaa a78d06a0 b554a3d6
+		d803e53b 1f8cde14 78ef35a5 de865639
+		c4233505 6b31d5f0 42cc58de d5d201a8
+		0dfd902e 8f0eb470 4836ff0a a6bb6398
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: ZKey Ok!

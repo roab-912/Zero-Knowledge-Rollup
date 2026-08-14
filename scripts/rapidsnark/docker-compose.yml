@@ -1,0 +1,24 @@
+# Conteneur de bench persistant : `docker compose up -d` puis
+# `docker compose exec bench python3 scripts/measure_zk_resources.py ...`.
+#
+# Le dépôt est monté sur /work (les sorties bench-out/ atterrissent donc
+# directement sur l'hôte). Le volume nommé bench_scratch est monté sur /bench :
+# c'est un système de fichiers Linux natif, à utiliser via --work-dir quand les
+# chiffres d'I/O comptent (un bind mount Windows passe par drvfs et fausse les
+# débits disque ; le CPU et la RAM, eux, ne sont pas affectés).
+services:
+  bench:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zk-bench:rapidsnark
+    container_name: zk_bench
+    working_dir: /work
+    init: true
+    volumes:
+      - ../..:/work
+      - bench_scratch:/bench
+    command: ["sleep", "infinity"]
+
+volumes:
+  bench_scratch:

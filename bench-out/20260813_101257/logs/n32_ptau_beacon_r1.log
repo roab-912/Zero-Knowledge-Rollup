@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau beacon pot13_0003.ptau pot13_beacon.ptau 0102030405060708090a0b0c0d0e0f101112131015161718191a1b1c1d1e1f 10 -n="Final Beacon"
+# cwd : /work/bench-out/20260813_101257/circuits/32
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		a4b94301 27743517 4f79d010 2ce46b68
+		e433ec06 e6201593 519d432e 4ffc2d8c
+		c514446b 5f9ff792 0e3ff658 8b0ef630
+		b3848fb3 9d8ce4cf f03f69cc 947dd093
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		e2f8b712 7849a560 343e1d8e bc98574f
+		ad4a21d9 87d62ff1 00125efc 70e06ce5
+		c9de6cf0 7ad3d888 deb37559 bc4274db
+		f8bffabd 3e274a1f 20a95cc9 7410d844
