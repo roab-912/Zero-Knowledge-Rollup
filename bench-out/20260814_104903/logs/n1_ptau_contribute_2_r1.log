@@ -1,0 +1,18 @@
+# cmd : snarkjs powersoftau contribute pot8_0001.ptau pot8_0002.ptau --name="Second contribution" -v -e="some random text"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/1
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/511
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/256
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		fbaf9894 6e8f3d5e d58e8574 28af00c6
+		59df508b 72eb93e2 5173758a 35dc0bf3
+		6f9f6d21 85e49f1e 2640c2a5 9c7918f6
+		0f2bf1d2 6ed9e80f f61aacd2 ebcb8d4c
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		52635c79 29a7d124 6020b2e9 bde56959
+		1a9c0e42 8a292d63 7bd5920a b902597e
+		9866a01b e0c7afb3 f6d807da 5d3eb39b
+		a9b8c12c d4c5a7fc 5f959e7a c0379599

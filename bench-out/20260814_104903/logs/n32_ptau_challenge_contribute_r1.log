@@ -1,0 +1,18 @@
+# cmd : snarkjs powersoftau challenge contribute bn128 challenge_0003 response_0003 -e="some random text"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/32
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Claimed Previous Response Hash: 
+		defa9dbb 2ce2b040 fb347cea 1fb8b05c
+		e0c54640 80a0e910 0112cd2c 62e56bdb
+		94387447 833c32e8 327bcd53 019c70c8
+		7e259645 0c1c86b0 e56dc5bd 6a53d172
+[32;22m[INFO]  [39;1msnarkJS[0m: Current Challenge Hash: 
+		ab5cb662 57a70d7d 1ff898a6 edc60d06
+		2845bc40 28274f04 8e0bfcb3 dbf935a3
+		ea32469f 8a6a6480 2a7b097d 957406ba
+		9a7be39a 08065260 808f75fc ebd61b51
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash: 
+		6190ed30 10509fa1 58f85d4b 3a27eca3
+		dfd0218e f0269413 e2fba9bc f0b87897
+		2d11aa7a 63b44025 3166d37f 8edea5fe
+		65c01c89 077d80a0 37dd24ab 15fc8183

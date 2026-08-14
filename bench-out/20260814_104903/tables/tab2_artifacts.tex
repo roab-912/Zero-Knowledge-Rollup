@@ -1,0 +1,31 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+% Fusion des anciennes tables « artefacts » et « size of the data handled by proof
+% generation » : l'étiquette de la première colonne porte le rôle de l'artefact dans
+% la génération de preuve (input / intermediate / output).
+% Setup artefacts (Powers of Tau, proving key) and the witness grow with the circuit,
+% whereas the proof and the public inputs stay constant -- the on-chain payload does
+% not depend on how many transactions the batch contains.
+% Colonnes : premier, dernier et intermédiaires des N_b mesurés (1, 2, 4, 8, 16, 32, 64, 128) — la table est dimensionnée pour une colonne d'article.
+% Proof size at the largest batch : 805 B.
+\begin{table}[t]
+\centering
+\caption{Pipeline artefacts and size of the data handled by proof generation, as a function of the batch size $N_b$. The tag in the first column gives the role of the artefact in proof generation (input, intermediate witness, output). Batch sizes are a subset of those measured (1, 2, 4, 8, 16, 32, 64, 128), evenly spaced in $\log_2 N_b$.}
+\label{tab:zk_artifacts}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|l|r|r|r|r|}
+\hline
+\textbf{Artefact} & \textbf{Produced by} & \textbf{Once per} & $N_b = 1$ & $N_b = 4$ & $N_b = 32$ & $N_b = 128$ \\
+\hline
+Batch input\,\footnotesize(input) & Sequencer & batch & 293\,B & 635\,B & 3.8\,KiB & 14.8\,KiB \\
+Powers of Tau & Setup (phase 1) & circuit size & 789.8\,KiB & 3.0\,MiB & 24.0\,MiB & 96.0\,MiB \\
+R1CS system & Setup (circom) & circuit & 23.7\,KiB & 95.0\,KiB & 760.1\,KiB & 3.0\,MiB \\
+Proving key\,\footnotesize(input) & Setup (phase 2) & circuit & 85.9\,KiB & 336.0\,KiB & 2.6\,MiB & 10.4\,MiB \\
+Verification key & Setup (phase 2) & circuit & 2.9\,KiB & 2.9\,KiB & 2.9\,KiB & 2.9\,KiB \\
+On-chain verifier & Setup (export) & circuit (deployed) & 6.9\,KiB & 6.9\,KiB & 6.9\,KiB & 6.9\,KiB \\
+Witness\,\footnotesize(intermediate) & Proving & batch (ephemeral) & 5.0\,KiB & 19.9\,KiB & 159.1\,KiB & 636.1\,KiB \\
+Groth16 proof\,\footnotesize(output) & Proving & batch (on-chain) & 805\,B & 806\,B & 803\,B & 805\,B \\
+Public inputs\,\footnotesize(output) & Proving & batch (on-chain) & 8\,B & 8\,B & 8\,B & 8\,B \\
+\hline
+\end{tabular}}
+\end{table}

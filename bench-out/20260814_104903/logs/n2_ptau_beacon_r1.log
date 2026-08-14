@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau beacon pot9_0003.ptau pot9_beacon.ptau 0102030405060708090a0b0c0d0e0f101112131015161718191a1b1c1d1e1f 10 -n="Final Beacon"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/2
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		23177fb3 8b7f8853 d73eaf43 b3e62cbd
+		a7e5e897 a6bcde54 94a115e4 6c4907d0
+		191052fc 93124e1b a3424843 9f7bd7e6
+		d82458fb 5bd4061f cef28b64 66e51ac3
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		74f6d4e2 276655bc 3ad0b1d7 abdd25e0
+		70a0f726 1382bb5d 9574f572 238b4412
+		591d872f ae4ceb08 2544884a 30afff44
+		8a750e8b cd0041bf b7769858 a128b8f7

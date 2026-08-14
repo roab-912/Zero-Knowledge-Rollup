@@ -1,0 +1,3 @@
+# cmd : snarkjs wtns calculate circuit_js/circuit.wasm input.json witness.wtns
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/8
+

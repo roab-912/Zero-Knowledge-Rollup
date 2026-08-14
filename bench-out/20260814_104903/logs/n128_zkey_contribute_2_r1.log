@@ -1,0 +1,15 @@
+# cmd : snarkjs zkey contribute circuit_0001.zkey circuit_0002.zkey --name="2nd Contributor" -v -e="some random text"
+# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/128
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 0/20350
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 0/32768
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		74fe8a07 132ad1f1 1a3b8bf5 89505555
+		fe96c9c2 e6987973 94b2fd01 c6bbacec
+		27734486 29cb88f9 00c9d8cf dbdcbc77
+		763d9140 78bf8bd2 e107272a b150a4a5
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		b64af7d2 f19005bf b24bd1e7 90a624d7
+		5e2a489d aef5c7b8 18661797 2aa8143e
+		49d7d182 67d1c62f 8c33976c 1609258b
+		b54e713c 6cccad61 a8344737 80f8693f
