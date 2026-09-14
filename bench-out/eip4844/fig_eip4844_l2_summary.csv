@@ -1,0 +1,5 @@
+,fork,layer,mean_before_usd,mean_after_usd,reduction_pct,l1_over_l2_before,l1_over_l2_after
+Dencun - Aggregate L2,dencun,l2,0.4035,0.0814,79.8262,17.475,54.1812
+Dencun - Ethereum L1,dencun,l1,7.0516,4.4107,37.4513,17.475,54.1812
+Pectra - Aggregate L2,pectra,l2,0.0024,0.0018,27.6112,43.7148,198.4319
+Pectra - Ethereum L1,pectra,l1,0.1071,0.3518,-228.5904,43.7148,198.4319

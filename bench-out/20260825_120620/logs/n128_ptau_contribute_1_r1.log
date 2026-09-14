@@ -1,0 +1,31 @@
+# cmd : snarkjs powersoftau contribute pot15_0000.ptau pot15_0001.ptau --name="First contribution" -v -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/128
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/65535
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 16384/65535
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 32768/65535
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 49152/65535
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 8192/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 16384/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 24576/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 16384/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 16384/32768
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		7abb5d14 9ca5b684 1aa627d9 a02cc374
+		f91caedc 4482a3d6 9342b0eb 205a70b9
+		9ac8e746 b8435778 6d6365c5 02f2dd0f
+		2c58b9ac 4bf7cbad 1dd9560d b81c6313
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		63899bcd 26716f5b f986b6b9 affd54ff
+		60ed0c59 47c49075 9a9dab71 9db41f04
+		c66c8776 33806e7f 1d343c76 a7ae74c1
+		cacd4146 b39b3fa8 db058296 368e435d

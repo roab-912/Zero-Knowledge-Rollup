@@ -1,0 +1,65 @@
+# cmd : snarkjs zkey contribute circuit_0000.zkey circuit_0001.zkey --name="1st Contributor" -v -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/8192
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 0/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 65536/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 131072/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 196608/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 262144/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 327680/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 393216/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 458752/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 524288/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 589824/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 655360/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 720896/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 786432/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 851968/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 917504/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 983040/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 1048576/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 1114112/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 1179648/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 1245184/1302526
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 0/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 65536/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 131072/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 196608/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 262144/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 327680/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 393216/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 458752/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 524288/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 589824/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 655360/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 720896/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 786432/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 851968/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 917504/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 983040/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1048576/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1114112/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1179648/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1245184/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1310720/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1376256/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1441792/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1507328/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1572864/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1638400/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1703936/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1769472/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1835008/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1900544/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 1966080/2097152
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 2031616/2097152
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		7b58f295 23ff9021 95c2bc37 ed1d7f63
+		6d7160c0 362ad71d 0d14eebe 49b1d7d7
+		db439069 0a1dac5d 92a5b602 0336c35b
+		59453757 44a1c01e 840875bd 930807ec
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		9c74f514 fc073ba7 7973eeec 66491193
+		5a306558 1d693ec9 472f4482 927dbe0b
+		f8b86063 f98fa3f2 860f1eaa a94e9ae9
+		d40942ee cb319860 2bbfbce2 2fd6383f

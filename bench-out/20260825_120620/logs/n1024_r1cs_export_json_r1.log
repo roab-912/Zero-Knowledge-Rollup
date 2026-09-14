@@ -1,0 +1,22 @@
+# cmd : snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/1024
+
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 0/157695
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 100000/157695
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 0/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 10000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 20000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 30000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 40000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 50000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 60000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 70000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 80000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 90000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 100000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 110000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 120000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 130000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 140000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 150000/162816
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 160000/162816

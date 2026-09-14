@@ -1,0 +1,18 @@
+# cmd : snarkjs powersoftau challenge contribute bn128 challenge_0003 response_0003 -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/2
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Claimed Previous Response Hash: 
+		491206bd b96b8f6b 93f21d73 5b56d503
+		9364b3a5 1ce68da5 4e6967aa 39ad1458
+		704cd0e6 985a3a4e 3a87df57 dda575b9
+		b18cf22d b7b44565 c81ca76a a667b194
+[32;22m[INFO]  [39;1msnarkJS[0m: Current Challenge Hash: 
+		8e2377ed 1fa46e72 df20a134 5e6b03b2
+		6d025b40 5b98d99b 813ed6bf e08b2c52
+		bd6f9dba a0c417e1 aa78986f d404d88a
+		909b24f5 857de651 76e9b4b1 d590ec92
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash: 
+		1e06281d 99edcc3c 68b04b06 fcc6b8d8
+		f52cb755 93085633 c6ffcc02 2c04c51c
+		8df8d55c 68c12e0d e0ef4d4d 740d019f
+		75ff3605 826ca78e d95e37cf 52fd410b

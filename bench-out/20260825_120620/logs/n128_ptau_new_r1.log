@@ -1,0 +1,18 @@
+# cmd : snarkjs powersoftau new bn128 15 pot15_0000.ptau -v
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/128
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Blank Contribution Hash:
+		786a02f7 42015903 c6c6fd85 2552d272
+		912f4740 e1584761 8a86e217 f71f5419
+		d25e1031 afee5853 13896444 934eb04b
+		903a685b 1448b755 d56f701a fe9be2ce
+[32;22m[INFO]  [39;1msnarkJS[0m: First Contribution Hash:
+		eca6f514 b89180fc fc6bf9f8 81a5670c
+		45419054 f1f6fec9 3628d6d1 bf995fbf
+		677d427c d40a7c05 ebb14fe5 ee96aff2
+		b4994dc0 e2904852 b408a9e7 fe36a02e

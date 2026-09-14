@@ -1,5 +1,0 @@
-# cmd : snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
-# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_093616/circuits/1
-
-[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 0/153
-[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 0/159

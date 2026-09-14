@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau beacon pot8_0003.ptau pot8_beacon.ptau 0102030405060708090a0b0c0d0e0f101112131015161718191a1b1c1d1e1f 10 -n="Final Beacon"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/1
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		a866c392 efa48af8 a41acbf8 5e047375
+		b3634200 af34f759 f4322d6c 0b8ffb92
+		405ebbdb 65dff8d9 1c0e8b9a 5e4290fe
+		2dc3efe7 3868ce67 af40c1c4 13fdc3f9
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		1649a8b4 d6be0d96 c2de5010 641afa2a
+		7fec2f1b 7caf53f9 d8cb5afc dda190b4
+		0043d922 8859c767 12166f69 ec1150af
+		56a0baa9 e1243753 35dfcd34 d23be271

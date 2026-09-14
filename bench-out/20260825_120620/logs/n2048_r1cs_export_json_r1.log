@@ -1,0 +1,40 @@
+# cmd : snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/2048
+
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 0/315391
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 100000/315391
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 200000/315391
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 300000/315391
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 0/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 10000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 20000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 30000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 40000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 50000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 60000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 70000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 80000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 90000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 100000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 110000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 120000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 130000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 140000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 150000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 160000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 170000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 180000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 190000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 200000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 210000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 220000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 230000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 240000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 250000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 260000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 270000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 280000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 290000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 300000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 310000/325632
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 320000/325632

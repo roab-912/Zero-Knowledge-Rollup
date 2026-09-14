@@ -57,7 +57,7 @@ class Prover:
         if not abi_path.exists():
             print(
                 "[Prover] smart_contract/abi/Rollup.json introuvable — "
-                "exécutez scripts/deploy_contracts.py."
+                "exécutez scripts/chain/deploy_contracts.py."
             )
             return
 

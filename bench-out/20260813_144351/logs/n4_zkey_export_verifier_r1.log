@@ -1,6 +1,0 @@
-# cmd : snarkjs zkey export solidityverifier circuit_final.zkey verifier.sol
-# cwd : /work/bench-out/20260813_144351/circuits/4
-
-[32;22m[INFO]  [39;1msnarkJS[0m: EXPORT VERIFICATION KEY STARTED
-[32;22m[INFO]  [39;1msnarkJS[0m: > Detected protocol: groth16
-[32;22m[INFO]  [39;1msnarkJS[0m: EXPORT VERIFICATION KEY FINISHED

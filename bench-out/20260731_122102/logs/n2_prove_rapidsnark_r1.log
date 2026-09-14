@@ -1,3 +1,0 @@
-# cmd : docker exec debian_rapidsnark mnt/projet/rapidsnark/package/bin/prover mnt/projet/2/circuit_final.zkey mnt/projet/2/witness.wtns mnt/projet/2/proof.json mnt/projet/2/public.json
-# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260731_122102/circuits/2
-

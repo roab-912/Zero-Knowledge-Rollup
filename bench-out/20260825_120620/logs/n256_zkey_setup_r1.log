@@ -1,0 +1,13 @@
+# cmd : snarkjs groth16 setup circuit.r1cs pot16_final.ptau circuit_0000.zkey
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/256
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		8aa7c7af 0bb37a89 afc1f56b 172dfa06
+		1971d80c 2769265d f6fe13c1 19d99f39
+		2fb235e5 5df491a7 6ddb4343 15620e88
+		ddf7fb7c 66fe6638 7fbee26e 5def2b29

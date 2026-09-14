@@ -1,0 +1,66 @@
+# cmd : snarkjs powersoftau verify pot11_0003.ptau
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/8
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: Next challenge hash: 
+		649d9192 25a0003b ce2a5aad a2857a39
+		ab1b591f 4a621a87 b6380cb6 7eebcb8b
+		399a8f9a 18954395 a00ec53f 6210f6de
+		a74912f2 79bc3aaa 21a974d7 41b78582
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #3: Third contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		649d9192 25a0003b ce2a5aad a2857a39
+		ab1b591f 4a621a87 b6380cb6 7eebcb8b
+		399a8f9a 18954395 a00ec53f 6210f6de
+		a74912f2 79bc3aaa 21a974d7 41b78582
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		ce6da0d7 8d16d4bb b57464e5 ab194289
+		c461583d 2bde5903 d41820c5 5f857004
+		a16baa5e ad53f180 0657a21d 04306df7
+		720b9789 fa8faecb d5e73808 e9ab1e62
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		5eb1d408 87ec84a3 1e1d5905 56727e7e
+		04ab44a7 06b09348 907c75da 74a86d5c
+		5b32f619 6e5e0ca3 ff6a023c c108e450
+		71deec0b 17e031fa 5e49d430 810d8f08
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #2: Second contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		5eb1d408 87ec84a3 1e1d5905 56727e7e
+		04ab44a7 06b09348 907c75da 74a86d5c
+		5b32f619 6e5e0ca3 ff6a023c c108e450
+		71deec0b 17e031fa 5e49d430 810d8f08
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		eac2614b ed422e4a 43982e0c 74b7e90d
+		f1b7a350 30ba1b2f e0bf9660 639de4ee
+		5e0647e8 6c51e247 e7c70d91 4d271fca
+		e4e1554d 14fb7e10 efa4720a 7fdf3975
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		98a464d4 e36e97a7 8084c674 13e60a56
+		be8f9413 f1d9b179 aefdc45f b5c82b7e
+		c3f3cf25 2f9e21b1 53f9c35f be71324b
+		7c3a5d1a 2b84c0fc 71a9d223 61c613db
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers Of tau file OK!
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution #1: First contribution
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge: 
+		98a464d4 e36e97a7 8084c674 13e60a56
+		be8f9413 f1d9b179 aefdc45f b5c82b7e
+		c3f3cf25 2f9e21b1 53f9c35f be71324b
+		7c3a5d1a 2b84c0fc 71a9d223 61c613db
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		44b4a31a d67b547c 7f766d95 fea5ccab
+		b691c041 ebcd302b c5159b60 93fd2858
+		94428051 d795b0d3 ff9588eb 9011bac4
+		824f4a17 9d068de5 dbdf3c31 ee06cf45
+[32;22m[INFO]  [39;1msnarkJS[0m: Response Hash:
+		e778ddf5 7120714d 0a7a8841 13aac0db
+		0c37dee0 d580dcb4 b3794fe5 b2b68875
+		c32f0275 9a860990 bec44cbd 38a86fea
+		abea62ea 9a0b682b 3c076003 c80042fd
+[32;22m[INFO]  [39;1msnarkJS[0m: -----------------------------------------------------
+[33;22m[WARN]  [39;1msnarkJS[0m: this file does not contain phase2 precalculated values. Please run: 
+   snarkjs "powersoftau preparephase2" to prepare this file to be used in the phase2 ceremony.
+[32;22m[INFO]  [39;1msnarkJS[0m: Powers of Tau Ok!

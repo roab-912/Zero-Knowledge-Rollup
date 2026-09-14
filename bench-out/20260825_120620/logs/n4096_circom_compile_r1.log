@@ -1,0 +1,18 @@
+# cmd : circom --r1cs --wasm --sym --inspect circuit.circom
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/4096
+
+[32mtemplate instances[0m: 22
+[0m[1m[38;5;11mwarning[CA02][0m[1m: In template "LessThan(64)": Array of subcomponent input/output signals n2b.out contains a total of 64 signals that do not appear in any constraint of the father component[0m
+ [0m[34m=[0m For example: n2b.out[0], n2b.out[10].
+
+non-linear constraints: 577535
+linear constraints: 53248
+public inputs: 0
+private inputs: 28672
+public outputs: 1
+wires: 651264
+labels: 847870
+[32mWritten successfully:[0m ./circuit.r1cs
+[32mWritten successfully:[0m ./circuit.sym
+[32mWritten successfully:[0m ./circuit_js/circuit.wasm
+[32mEverything went okay[0m

@@ -1,0 +1,6 @@
+# cmd : snarkjs zkey export verificationkey circuit_final.zkey verification_key.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/4096
+
+[32;22m[INFO]  [39;1msnarkJS[0m: EXPORT VERIFICATION KEY STARTED
+[32;22m[INFO]  [39;1msnarkJS[0m: > Detected protocol: groth16
+[32;22m[INFO]  [39;1msnarkJS[0m: EXPORT VERIFICATION KEY FINISHED

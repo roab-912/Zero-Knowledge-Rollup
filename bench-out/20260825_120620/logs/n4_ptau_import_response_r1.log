@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau import response pot10_0002.ptau response_0003 pot10_0003.ptau -n="Third contribution"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/4
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		0ab6141c c9d17abb 6cd8f928 61b4ca12
+		1e304173 98de1d86 51ac19f0 09b60a9e
+		036c1e63 03158a44 5178a99f 70d95432
+		0492a9bb 49d17d42 5b1844ce f2945156
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		718a8319 7b90d81a 5f7034ab 423de773
+		810069d0 2a7891e1 368d294e e4251740
+		b8f90daa d3edfa88 376d0ccf aa3483b5
+		bc4e89d2 efaef95a 4dbdb391 a92702e7

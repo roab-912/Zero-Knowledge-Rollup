@@ -1,0 +1,23 @@
+# cmd : snarkjs powersoftau new bn128 17 pot17_0000.ptau -v
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/512
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Blank Contribution Hash:
+		786a02f7 42015903 c6c6fd85 2552d272
+		912f4740 e1584761 8a86e217 f71f5419
+		d25e1031 afee5853 13896444 934eb04b
+		903a685b 1448b755 d56f701a fe9be2ce
+[32;22m[INFO]  [39;1msnarkJS[0m: First Contribution Hash:
+		d27bebee 8c0abf50 66dd8742 fa7de8c4
+		54bea04a 8afad209 d51f58ec 16bcea9e
+		02b2774d 6d408b4a 71af1986 203a7ed7
+		d9d2d6d5 fb7c5318 b8d58183 a15b9706

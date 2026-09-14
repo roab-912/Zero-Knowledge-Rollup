@@ -1,0 +1,38 @@
+# cmd : snarkjs zkey verify circuit.r1cs pot8_final.ptau circuit_0003.zkey
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/1
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		10268069 3e7fe2c4 b6629387 847d2cdc
+		1560f281 713128c4 1253c7a8 f61cdac3
+		69d35df1 1047318e 386112cc 48a5cb18
+		eb6ac8cd d3a53fee 41d8529d 3e231c17
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		10268069 3e7fe2c4 b6629387 847d2cdc
+		1560f281 713128c4 1253c7a8 f61cdac3
+		69d35df1 1047318e 386112cc 48a5cb18
+		eb6ac8cd d3a53fee 41d8529d 3e231c17
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #3 Third contribution:
+		32ca6cf4 a40630bd 52b76f08 520222f3
+		a931418d 5a97c3f5 808bdfc5 a68eba57
+		01034034 29ac5b86 1bb0fff5 00ff5591
+		be7ec988 175449d4 31b1a837 deb74971
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #2 2nd Contributor:
+		91443c23 3ce0506a d9febc5a fc37e155
+		0025f74c ba1b82da b1504f13 837019d7
+		130f8390 8a6472e1 e530a87a a50e87e1
+		c9529615 f7f376c2 e0bb05cf 946847ca
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #1 1st Contributor:
+		3c1384c7 d3362f3f 9f58a640 3eccca34
+		2d6c6a77 8216c19c 41bc413d 6cd06a93
+		bb993bc3 7b631f99 39d5ef8c 7b016905
+		308b83d3 623a0f7b 2eb286ef c9c0948c
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: ZKey Ok!

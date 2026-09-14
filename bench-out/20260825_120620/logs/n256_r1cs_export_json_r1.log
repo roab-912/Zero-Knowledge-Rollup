@@ -1,0 +1,9 @@
+# cmd : snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/256
+
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading constraints: 0/39423
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 0/40704
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 10000/40704
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 20000/40704
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 30000/40704
+[32;22m[INFO]  [39;1msnarkJS[0m: undefined: Loading map: 40000/40704

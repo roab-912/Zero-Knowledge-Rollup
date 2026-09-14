@@ -1,0 +1,8 @@
+# cmd : snarkjs zkey bellman contribute bn128 challenge_phase2_0003 response_phase2_0003 -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/16
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		acd8afd5 b23547a3 aa4c6b0f cc717507
+		fdfebdbc 3d7721a1 101dd20d 2ce729b3
+		3e4ff6f5 2f7fa449 b6c852f9 31418b4f
+		14ab8b8d f7daac0c c688aaaf d0ee91b9

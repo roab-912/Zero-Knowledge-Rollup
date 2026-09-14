@@ -1,3 +1,0 @@
-# cmd : snarkjs wtns calculate circuit_js/circuit.wasm input.json witness.wtns
-# cwd : /work/bench-out/20260813_101257/circuits/2
-

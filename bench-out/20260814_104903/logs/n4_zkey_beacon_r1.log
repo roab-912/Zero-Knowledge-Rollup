@@ -1,8 +1,0 @@
-# cmd : snarkjs zkey beacon circuit_0003.zkey circuit_final.zkey 0102030405060708090a0b0c0d0e0f101112131515161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
-# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/4
-
-[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
-		c54c5605 8ed7ea64 7d1dfdfb 00258658
-		80ad0e30 0f7c6a12 70ac1958 7ca1dbe4
-		429c3a41 77541d2a 9cf6cccd 960e65d6
-		b84cf832 648db8fc 9236f0fa 91978e4f

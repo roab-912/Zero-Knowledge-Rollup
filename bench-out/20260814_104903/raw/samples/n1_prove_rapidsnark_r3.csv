@@ -1,4 +1,0 @@
-t_s,proc_rss_bytes,proc_cpu_s,proc_cpu_pct,proc_read_bytes,proc_write_bytes,nproc,sys_cpu_pct,sys_iowait_pct,sys_mem_used_bytes,sys_read_bytes,sys_write_bytes
-0.0000,0,0.0000,0.00,0,0,0,0.00,0.00,999936000,0,0
-0.1005,24641536,0.0100,9.95,0,0,1,16.17,0.00,1008308224,0,0
-0.1233,0,0.0100,0.00,0,0,0,16.39,0.00,1002594304,0,0

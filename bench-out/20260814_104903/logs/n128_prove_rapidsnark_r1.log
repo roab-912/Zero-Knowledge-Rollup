@@ -1,4 +1,0 @@
-# cmd : docker exec debian_rapidsnark mnt/projet/rapidsnark/package/bin/prover mnt/projet/128/circuit_final.zkey mnt/projet/128/witness.wtns mnt/projet/128/proof.json mnt/projet/128/public.json
-# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/128
-
-Error: open: No such file or directory

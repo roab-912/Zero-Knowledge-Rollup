@@ -1,0 +1,83 @@
+# cmd : snarkjs powersoftau new bn128 20 pot20_0000.ptau -v
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/4096
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 300000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 400000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 500000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 600000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 700000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 800000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 900000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1000000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1300000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1400000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1500000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1600000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1700000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1800000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 1900000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG1: 2000000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 300000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 400000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 500000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 600000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 700000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 800000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 900000
+[36;22m[DEBUG] [39;1msnarkJS[0m: tauG2: 1000000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 300000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 400000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 500000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 600000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 700000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 800000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 900000
+[36;22m[DEBUG] [39;1msnarkJS[0m: alphaTauG1: 1000000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 100000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 200000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 300000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 400000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 500000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 600000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 700000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 800000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 900000
+[36;22m[DEBUG] [39;1msnarkJS[0m: betaTauG1: 1000000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 0
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 341000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 682000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 1023000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 1364000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 1705000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 0
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 341000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 682000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 0
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 341000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 682000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 0
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 341000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Initial hash: 682000
+[36;22m[DEBUG] [39;1msnarkJS[0m: Blank Contribution Hash:
+		786a02f7 42015903 c6c6fd85 2552d272
+		912f4740 e1584761 8a86e217 f71f5419
+		d25e1031 afee5853 13896444 934eb04b
+		903a685b 1448b755 d56f701a fe9be2ce
+[32;22m[INFO]  [39;1msnarkJS[0m: First Contribution Hash:
+		33936051 18d83c21 a2a1763b ec8ebf7a
+		6076c754 6b4bbf01 e35e71fa ad0214cf
+		18fa19b6 053dfd11 02454d05 754b1b21
+		873da78e 0d5d66be 1f74169d e3963011

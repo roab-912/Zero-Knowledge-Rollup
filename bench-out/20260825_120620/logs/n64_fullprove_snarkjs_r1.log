@@ -1,0 +1,3 @@
+# cmd : snarkjs groth16 fullprove input.json circuit_js/circuit.wasm circuit_final.zkey proof.json public.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/64
+

@@ -1,0 +1,20 @@
+{
+  "timestamp": "20260826_080200",
+  "chain_id": 11155111,
+  "rollup": "0xDC22889f54B4191Ca65b4fa8E3E9194a78718Bff",
+  "verifier": "0xe91D7F81FBEf830077AD57858f17c01703f17061",
+  "N_b": 8192,
+  "repeats_requested": 25,
+  "repeats_success": 25,
+  "mode": "onchain",
+  "G_batch_mean_gas": 235140.12,
+  "G_batch_median_gas": 234459,
+  "G_batch_stdev_gas": 3351.4937126003983,
+  "G_batch_min_gas": 234447,
+  "G_batch_max_gas": 251559,
+  "blobGasUsed": 131072,
+  "n_blobs": 1,
+  "useful_batch_bytes": 1664,
+  "decomposition": null,
+  "csv": "/home/r24barbi/bench-out/batch_cost_8192_20260826_080200.csv"
+}

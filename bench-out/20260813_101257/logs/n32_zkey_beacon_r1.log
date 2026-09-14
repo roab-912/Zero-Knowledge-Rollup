@@ -1,8 +1,0 @@
-# cmd : snarkjs zkey beacon circuit_0003.zkey circuit_final.zkey 0102030405060708090a0b0c0d0e0f101112131515161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
-# cwd : /work/bench-out/20260813_101257/circuits/32
-
-[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
-		85d7b84f 9567973d 4f822f0d f9605286
-		4f10f2d4 f633a782 25749339 04dbe6e6
-		c067689e 35e77b2f e547d686 02f57af7
-		f5fd7a61 10095838 99599ef3 6789330e

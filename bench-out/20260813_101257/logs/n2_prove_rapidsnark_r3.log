@@ -1,3 +1,0 @@
-# cmd : /usr/local/bin/prover circuit_final.zkey witness.wtns proof.json public.json
-# cwd : /work/bench-out/20260813_101257/circuits/2
-

@@ -1,0 +1,38 @@
+# cmd : snarkjs powersoftau contribute pot16_0001.ptau pot16_0002.ptau --name="Second contribution" -v -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/256
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 16384/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 32768/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 49152/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 65536/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 81920/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 98304/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 114688/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 8192/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 24576/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 40960/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 57344/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		58710618 c1c148b6 3cbefdca 1c4511c8
+		8dcd428e c686a4f0 a7e894d4 20261c90
+		a0325bcc 3897c393 24e4d518 e20c8893
+		ed9b72df eae2e6d0 aacd6024 aa0e119c
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		dc50d0ec afe7a775 acbf2804 3b28b943
+		0844428e d0605fc0 4b9ced8f 7929fe2f
+		dfa64caa 6c10933d a6c96765 b1a756ce
+		fadf9918 b14ebcb9 9c10eaf7 9425c8cc

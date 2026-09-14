@@ -1,0 +1,4 @@
+# cmd : snarkjs groth16 verify verification_key.json public.json proof.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/1024
+
+[32;22m[INFO]  [39;1msnarkJS[0m: OK!

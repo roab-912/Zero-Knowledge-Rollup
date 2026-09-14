@@ -1,0 +1,39 @@
+# cmd : snarkjs zkey contribute circuit_0001.zkey circuit_0002.zkey --name="2nd Contributor" -v -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/4096
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 0/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 65536/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 131072/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 196608/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 262144/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 327680/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 393216/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 458752/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 524288/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: L Section: 589824/651262
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 0/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 65536/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 131072/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 196608/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 262144/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 327680/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 393216/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 458752/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 524288/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 589824/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 655360/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 720896/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 786432/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 851968/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 917504/1048576
+[36;22m[DEBUG] [39;1msnarkJS[0m: Applying key: H Section: 983040/1048576
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		b6ce90c0 2de60a81 f07bd1fe 3ee1fdf0
+		0800fa62 1059ddbb d128f1fb 3cd958e3
+		2d73ea76 f635a3fc cca5a326 9736023e
+		535df228 b0983c6e 38816b5e 869649cb
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		6657ca67 281e4706 c99591e1 040d8c44
+		869718fa b67cf16d 4fca4aab 9301acaa
+		8a859400 7269a78b ccc9116e 0577fe19
+		f57087ca 24aa222d 5c750079 69fa6da0

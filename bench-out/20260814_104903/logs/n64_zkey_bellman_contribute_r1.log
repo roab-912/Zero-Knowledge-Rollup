@@ -1,8 +1,0 @@
-# cmd : snarkjs zkey bellman contribute bn128 challenge_phase2_0003 response_phase2_0003 -e="some random text"
-# cwd : /mnt/c/Users/Barbi/Documents/Code/GitHub/Zero-Knowledge-Rollup/bench-out/20260814_104903/circuits/64
-
-[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
-		ab85fe44 d9a43320 680bd1fd 76048fce
-		46779224 65709200 37495051 8c3ae6c2
-		4c37e789 3ed7fd95 a277f6eb 7343f86b
-		4b87f8ce 1ed52d4b 952b934c 03b14fdc

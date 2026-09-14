@@ -1,0 +1,43 @@
+# cmd : snarkjs powersoftau contribute pot16_0000.ptau pot16_0001.ptau --name="First contribution" -v -e="some random text"
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/256
+
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 16384/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 32768/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 49152/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 65536/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 81920/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 98304/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 114688/131071
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 8192/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 24576/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 40960/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 57344/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 16384/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 32768/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 49152/65536
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		0023a0e2 4add4e78 e24b8b2b b7c8afd5
+		e04821d9 6e32624f d4bb45b9 9fd3d682
+		361f5365 4a4e807d 4635a812 343a220c
+		a5ff217a 6886343a b74b1f79 c3f7b819
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		2a99f21e af0f5766 431f71f4 2665a232
+		25a649a7 e2c50e1c 64c60dc7 9a882509
+		5946465e 3b6fd733 7592cfda 7b13d5dd
+		e198465f 6b633f03 91b54819 ce9feb80

@@ -1,3 +1,11 @@
 .env
 __pycache__/
 *.pyc
+exp/*
+
+# Artefacts circom/snarkjs (regenerables, trop gros pour GitHub)
+*.zkey
+*.r1cs
+*.sym
+*.ptau
+*.wtns

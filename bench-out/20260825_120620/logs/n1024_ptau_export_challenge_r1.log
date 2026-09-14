@@ -1,0 +1,13 @@
+# cmd : snarkjs powersoftau export challenge pot18_0002.ptau challenge_0003
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/1024
+
+[32;22m[INFO]  [39;1msnarkJS[0m: Last Response Hash: 
+		53408668 0ed0d0bb 3dcd696f 575551ea
+		ddf19ca7 3e846398 81a9467e d7e1e917
+		d490ba22 a674c4dc 38912a2c e4615143
+		25d9e27a a692c7c5 16981968 90d6ac5b
+[32;22m[INFO]  [39;1msnarkJS[0m: New Challenge Hash: 
+		9112bbd2 8662aa36 55a0c916 38031c91
+		015d69cc 9cbef092 860dae8f 3902b319
+		4f1a81df d0c7e25f 49278ac1 6e47eaf7
+		d2641815 f97f3a87 1c28c2d4 ff3fcd9b

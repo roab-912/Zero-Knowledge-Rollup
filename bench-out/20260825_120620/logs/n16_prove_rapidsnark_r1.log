@@ -1,0 +1,3 @@
+# cmd : /home/r24barbi/rapidsnark/package/bin/prover circuit_final.zkey witness.wtns proof.json public.json
+# cwd : /home/r24barbi/bench-out/20260825_120620/circuits/16
+

@@ -96,7 +96,7 @@ the circuit verifies:
 and outputs a single public signal *σ_pub ∈ {0,1}* certifying the conjunction
 of the *N* transition constraints. The artefact ships the witnesses, R1CS
 descriptions, and proving/verification keys for *N ∈ {1, 2, 4, 8, 16, 32, 64}*.
-Larger sizes can be regenerated via `scripts/generate_environments.py`, which
+Larger sizes can be regenerated via `scripts/bench/generate_environments.py`, which
 performs the full Powers-of-Tau and Phase-2 ceremonies and emits the Solidity
 verifier through `snarkjs zkey export solidityverifier`.
 
@@ -194,7 +194,7 @@ Submitted batches and their EIP-4844 blobs can additionally be inspected on
 of the rollup deployer or by following the `BatchSubmitted` event log of the
 rollup contract above. Verifier addresses for the larger batch sizes
 (*N ∈ {128, 256, …, 8192}*) are not pinned in this artefact and are
-regenerated locally on demand via `scripts/deploy_contracts.py`.
+regenerated locally on demand via `scripts/chain/deploy_contracts.py`.
 
 ---
 
@@ -216,16 +216,25 @@ zk_rollup/
 │   ├── Rollup.sol             settlement contract (Cancun)
 │   └── abi/Rollup.json        ABI emitted by the deployment script
 ├── scripts/
-│   ├── deploy_contracts.py    automated deployment to Sepolia
-│   ├── inspect_rollup.py      on-chain state inspection / event tail
-│   ├── generate_environments.py   per-size circuit ceremony driver
-│   ├── send_transaction.py    asynchronous load generator
-│   └── generate_graph_from_bench_out.py   benchmark plotting
+│   ├── chain/                 on-chain interaction
+│   │   ├── deploy_contracts.py        automated deployment to Sepolia
+│   │   ├── inspect_rollup.py          on-chain state / event tail
+│   │   └── send_transaction.py        asynchronous load generator
+│   ├── bench/                 measurement harnesses
+│   │   ├── measure_zk_resources.py    CPU / RAM / I-O per Groth16 phase
+│   │   ├── measure_batch_cost.py      empirical G_batch on Sepolia
+│   │   ├── measure_settlement_latency.py  end-to-end settlement latency
+│   │   ├── generate_proofs.py         snarkjs / rapidsnark proving bench
+│   │   ├── generate_environments.py   per-size circuit ceremony driver
+│   │   └── rapidsnark/                Docker image + helper scripts
+│   ├── collect/               on-chain / market data collection
+│   ├── analysis/              figures and LaTeX tables from raw results
+│   └── circuit_template/      circuit.circom + vendored circomlib
 ├── batch/                     DA archives (one JSON per committed batch)
 ├── blob/                      compressed blob payloads (debug / fallback)
 ├── proofs/                    archived proofs per batch
 ├── storage/                   txpool.db (SQLite) + last_committed.json
-├── bench-out/                 raw measurements
+├── bench-out/                 raw measurements and generated figures
 ├── main.py                    runtime entry point
 └── requirements.txt
 ```
@@ -278,7 +287,7 @@ under EVM target Cancun, deploys each verifier to Sepolia, deploys the
 through `setVerifier(N, addr)`, and writes all addresses back into `.env`:
 
 ```
-python scripts/deploy_contracts.py
+python scripts/chain/deploy_contracts.py
 ```
 
 Verifiers already known in `.env` can be skipped with `--skip-existing`,
@@ -289,8 +298,8 @@ restart.
 
 ```
 python main.py                       # launches the rollup loop
-python scripts/send_transaction.py   # asynchronous load generator
-python scripts/inspect_rollup.py     # on-chain state and event tail
+python scripts/chain/send_transaction.py   # asynchronous load generator
+python scripts/chain/inspect_rollup.py     # on-chain state and event tail
 ```
 
 Recovery semantics: at boot, `ZKRollup` reloads its state from
@@ -309,7 +318,7 @@ The artefact is instrumented to support three families of measurements.
 ### 7.1 Off-chain proof cost
 
 For each *N*, the proving time *T_p(N)* and the size of the resulting witness
-are reported by the prover. `scripts/generate_graph_from_bench_out.py` plots
+are reported by the prover. `scripts/analysis/generate_graph_from_bench_out.py` plots
 *T_p(N)* under both `snarkjs` and `rapidsnark` backends. Linear behaviour is
 expected up to constraints of the Powers-of-Tau ceiling.
 
@@ -518,7 +527,7 @@ The figures in `bench-out/20260301_113715/graph/` provide a graphical view
 of the same observations: `latency_vs_circuit_size`,
 `throughput_vs_circuit_size`, `time_per_tx_vs_circuit_size`, and
 `scaling_efficiency`. New campaigns can be acquired through the bench
-harness and re-rendered with `scripts/generate_graph_from_bench_out.py`.
+harness and re-rendered with `scripts/analysis/generate_graph_from_bench_out.py`.
 
 ---
 
