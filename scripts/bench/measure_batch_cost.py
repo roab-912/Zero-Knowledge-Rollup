@@ -69,7 +69,8 @@ from eth_account.typed_transactions.blob_transactions.blob_transaction import (
 from hexbytes import HexBytes
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# scripts/bench/<ce fichier> -> racine du dépôt (deux niveaux au-dessus).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 ENV_PATH = PROJECT_ROOT / ".env"
 ABI_PATH = PROJECT_ROOT / "smart_contract" / "abi" / "Rollup.json"
 CIRCUITS_DIR = PROJECT_ROOT / "circuits"
