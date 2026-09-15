@@ -12,12 +12,20 @@ On ne dispose que d'un jeu fini de tailles de circuit (les puissances de deux
   * décomposition binaire : 1024 + 16 + 8 + 2   -> 4 preuves, 0 padding
   * circuit supérieur     : un seul 2048        -> 1 preuve, 998 tx vides
 
-Le script calcule l'optimum exact (programmation dynamique) et le compare à
-ces deux heuristiques. Il produit trois figures :
+Le script compare ces deux stratégies, et rien d'autre. Le résultat n'est pas
+qu'une stratégie gagne : AUCUNE DES DEUX NE DOMINE L'AUTRE.
 
-  01_time_vs_n          coût réel : optimum contre heuristiques, par prover
-  02_decomposition_map  pour chaque N, les tailles que retient l'optimum
-  03_critical_rho       la règle de décision, indépendante de la machine
+  * `single` gagne dans le gros du domaine, parce qu'une preuve de plus coûte
+    cher : la vérification est constante, indépendante de la taille du circuit.
+  * `binary` gagne juste après chaque puissance de deux, là où `single` doit
+    sauter à la taille supérieure et payer près de 50 % de padding.
+
+Le vainqueur change donc des dizaines de fois quand N parcourt 1..8192, et la
+frontière dépend du prover. Trois figures :
+
+  01_time_vs_n          coût réel des deux stratégies, par prover
+  02_padding            la part du batch remplie de transactions vides
+  03_binary_vs_single   le rapport des deux temps : qui gagne, où, de combien
 
 Domaine : tailles de circuit = puissances de deux de 1 à 8192, et N parcourant
 *toutes* les valeurs entières de 1 à 8192.
@@ -88,13 +96,10 @@ DEFAULT_MAX_SIZE = 8192
 
 PROVERS = ("rapidsnark", "snarkjs")
 
-# Les façons de placer les transactions du batch dans des circuits. `opt` est
-# l'optimum exact calculé par programmation dynamique ; les deux autres sont
-# les heuristiques de référence auxquelles on le compare.
-STRATEGIES = ("opt", "binary", "single")
-BASELINES = ("binary", "single")
+# Les deux façons de placer les transactions du batch dans des circuits.
+# Aucune ne domine l'autre : c'est tout l'objet du script.
+STRATEGIES = ("binary", "single")
 STRATEGY_LABELS = {
-    "opt": "Optimal partition (DP)",
     "binary": "Binary decomposition",
     "single": "Single padded circuit",
 }
@@ -102,24 +107,22 @@ STRATEGY_LABELS = {
 # de gris. Chaque stratégie porte en plus un style de trait propre, pour rester
 # lisible sur une impression noir et blanc.
 STRATEGY_COLORS = {
-    "opt": "#0072B2",
     "binary": "#D55E00",
     "single": "#009E73",
 }
 STRATEGY_LINESTYLES = {
-    "opt": "-",
     "binary": "--",
-    "single": "-.",
+    "single": "-",
 }
-# L'optimum coïncide souvent avec une baseline : il est dessiné en dernier pour
-# rester visible. La légende, elle, garde l'ordre de STRATEGIES.
-DRAW_ORDER = ("single", "binary", "opt")
+# `binary` est en dents de scie et occupe une bande large : on la dessine en
+# premier pour que l'escalier de `single` reste lisible par-dessus.
+DRAW_ORDER = ("binary", "single")
 
 ACCENT = "#0072B2"
 ACCENT_ALT = "#D55E00"
 
-# Figure 2 superpose les provers : la couleur y porte le prover, le style de
-# trait restant celui de la stratégie (cf. make_time_figure).
+# Les deux figures superposent les provers : la couleur y porte le prover, le
+# style de trait restant celui de la stratégie (cf. make_time_figure).
 PROVER_COLORS = {
     "rapidsnark": "#0072B2",
     "snarkjs": "#CC79A7",
@@ -310,53 +313,6 @@ def fit_affine(sizes: Sequence[int], values: Sequence[float]) -> AffineFit:
     ss_res = sum((y - (a + b * x)) ** 2 for x, y in zip(sizes, values))
     r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 1.0
     return AffineFit(a=a, b=b, r2=r2)
-
-
-# --------------------------------------------------------------------------- #
-# Algorithme : programmation dynamique exacte
-# --------------------------------------------------------------------------- #
-
-
-def solve_dp(nmax: int, cost: Dict[int, float]) -> Tuple[List[float], List[int]]:
-    """Optimum pour tout n de 0 à nmax.
-
-    f[n] = coût minimal d'un multi-ensemble de circuits couvrant AU MOINS n
-    transactions ; choice[n] = une taille de circuit optimale à utiliser en
-    premier. Complexité O(nmax * |K|), mémoire O(nmax).
-
-    Exactitude : J est additive et invariante par permutation, donc pour un
-    multi-ensemble optimal S couvrant n, retirer n'importe quel k de S laisse un
-    multi-ensemble couvrant au moins n-k, d'où la récurrence avec clamp à 0
-    (sur-couvrir est gratuit : c'est exactement le padding).
-    """
-    sizes = sorted(cost)
-    f = [0.0] + [math.inf] * nmax
-    choice = [0] * (nmax + 1)
-    for n in range(1, nmax + 1):
-        best = math.inf
-        best_k = 0
-        for k in sizes:
-            prev = f[n - k] if n > k else 0.0
-            cand = cost[k] + prev
-            if cand < best:
-                best = cand
-                best_k = k
-        f[n] = best
-        choice[n] = best_k
-    return f, choice
-
-
-def reconstruct(n: int, choice: Sequence[int]) -> Plan:
-    """Plan optimal pour n, à partir de la table de décisions."""
-    plan: Plan = Counter()
-    cur = n
-    while cur > 0:
-        k = choice[cur]
-        if k <= 0:  # sécurité : ne devrait pas arriver
-            break
-        plan[k] += 1
-        cur = max(0, cur - k)
-    return plan
 
 
 # --------------------------------------------------------------------------- #
@@ -650,91 +606,35 @@ def import_bench_out(path: str) -> CostModel:
 # --------------------------------------------------------------------------- #
 
 
-def sweep(nmax: int, cost: Dict[int, float],
-          choice: Sequence[int]) -> List[Dict[str, object]]:
+def sweep(nmax: int, cost: Dict[int, float]) -> List[Dict[str, object]]:
     """Une ligne par N : pour chaque stratégie, nombre de circuits, temps, padding.
 
-    `choice` est la table de décisions de solve_dp, qui donne l'optimum exact
-    pour tout N en O(1) par reconstruction.
+    Les deux dernières colonnes portent le résultat. `binary_vs_single_pct` est
+    le gain de `binary` sur `single` : positif quand `binary` gagne, négatif
+    quand `single` gagne. Il change de signe des dizaines de fois sur le
+    domaine, et `winner` nomme le vainqueur pour chaque N.
     """
     sizes = sorted(cost)
     rows: List[Dict[str, object]] = []
     for n in range(1, nmax + 1):
         row: Dict[str, object] = {"n": n}
-        plans = {"opt": reconstruct(n, choice)}
-        for name in BASELINES:
-            plans[name] = PLANNERS[name](n, sizes)
         for name in STRATEGIES:
-            plan = plans[name]
+            plan = PLANNERS[name](n, sizes)
             cap = plan_capacity(plan)
             row[f"{name}_circuits"] = plan_m(plan)
             row[f"{name}_time_s"] = plan_cost(plan, cost)
             row[f"{name}_padding"] = cap - n
             row[f"{name}_padding_ratio"] = (cap - n) / cap if cap else 0.0
             row[f"{name}_plan"] = plan_str(plan)
-        # Gain de l'optimum sur chaque heuristique : > 0 = l'heuristique perd.
-        c_opt = float(row["opt_time_s"])
-        for name in BASELINES:
-            base = float(row[f"{name}_time_s"])
-            row[f"gain_vs_{name}_pct"] = (base - c_opt) / base * 100.0 if base > 0 else 0.0
+        t_bin = float(row["binary_time_s"])
+        t_sgl = float(row["single_time_s"])
+        row["binary_vs_single_pct"] = (
+            (t_sgl - t_bin) / t_sgl * 100.0 if t_sgl > 0 else 0.0
+        )
+        row["winner"] = ("binary" if t_bin < t_sgl
+                         else "single" if t_sgl < t_bin else "tie")
         rows.append(row)
     return rows
-
-
-# --------------------------------------------------------------------------- #
-# Diagramme de phase : la loi générale, indépendante de la machine
-# --------------------------------------------------------------------------- #
-
-
-def phase_diagram(
-    sizes: Sequence[int], n_grid: Sequence[int], rho_grid: Sequence[float]
-) -> Tuple[List[List[int]], List[List[float]]]:
-    """Diagramme de phase exact du compromis, en unités de transaction.
-
-    Sous le modèle affine c(k) = a + b*k, minimiser J revient à minimiser
-    m*rho + capacité (tout divisé par b), avec rho = (a + alpha)/b. Le coût
-    unitaire d'un circuit de taille k vaut donc simplement `rho + k` : le
-    diagramme obtenu est indépendant de la machine, et chaque prover s'y place
-    par son rho mesuré.
-
-    Retourne (m*, gain relatif de l'optimum sur le circuit unique rempli),
-    indexés [ligne = rho, colonne = N].
-    """
-    nmax = max(n_grid)
-    m_mat: List[List[int]] = []
-    gain_mat: List[List[float]] = []
-    for rho in rho_grid:
-        cost = {k: rho + k for k in sizes}
-        _, choice = solve_dp(nmax, cost)
-        m_row, g_row = [], []
-        for n in n_grid:
-            plan = reconstruct(n, choice)
-            m_row.append(plan_m(plan))
-            c_opt = plan_cost(plan, cost)
-            c_single = plan_cost(plan_single(n, sizes), cost)
-            g_row.append((c_single - c_opt) / c_single * 100.0 if c_single > 0 else 0.0)
-        m_mat.append(m_row)
-        gain_mat.append(g_row)
-    return m_mat, gain_mat
-
-
-def critical_rho(
-    n_grid: Sequence[int], rho_grid: Sequence[float], m_mat: Sequence[Sequence[int]]
-) -> List[Optional[float]]:
-    """rho*(N) : plus petit rho pour lequel une seule preuve redevient optimale.
-
-    Découper n'est rentable que si rho < rho*(N) : au-delà, la preuve
-    supplémentaire coûte plus cher que le padding qu'elle évite.
-    """
-    out: List[Optional[float]] = []
-    for j in range(len(n_grid)):
-        val: Optional[float] = None
-        for i, rho in enumerate(rho_grid):
-            if m_mat[i][j] <= 1:
-                val = rho
-                break
-        out.append(val)
-    return out
 
 
 def write_sweep_csv(path: str, rows: List[Dict[str, object]]) -> None:
@@ -905,14 +805,16 @@ def _moving_average(ys: Sequence[float], window: int) -> List[float]:
     return out
 
 
-# Séries en dents de scie par construction, qu'il faut lisser pour rester
-# lisibles. La décision dépend de la grandeur tracée, pas seulement de la
-# stratégie : m*(N) saute d'un N au suivant alors que le temps de l'optimum,
-# lui, est croissant en N (couvrir plus ne peut pas coûter moins).
-# `single` est monotone dans les deux cas — sa capacité ne décroît jamais — et
-# les micro-inversions de son temps mesuré (le coût de k=4 dépasse celui de
-# k=8 de 2 ms chez rapidsnark) sont du bruit de mesure, pas des dents de scie.
-JAGGED_CIRCUITS = ("opt", "binary")
+# `binary` est en dents de scie par construction : m(N) = popcount(N) saute
+# entre 1 et 13 d'un N au suivant, et son temps suit. Tracer les 8192 valeurs
+# brutes donne un aplat illisible, d'où la moyenne glissante de la figure 1.
+# `single` est monotone — sa capacité ne décroît jamais — et les
+# micro-inversions de son temps mesuré (le coût de k=4 dépasse celui de k=8 de
+# 2 ms chez rapidsnark) sont du bruit de mesure, pas des dents de scie.
+#
+# Attention : le lissage est réservé à la figure 1, où l'on compare des ordres
+# de grandeur. La figure 3 trace le rapport brut, car c'est justement dans les
+# dents de scie que `binary` passe devant.
 JAGGED_TIME = ("binary",)
 
 
@@ -937,14 +839,17 @@ def _plot_series(ax, ns, ys, label, color, ls, window, jagged, steps=False) -> N
 
 def make_time_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, object]]],
                      logx: bool = True, window: int = 101) -> None:
-    """Figure 2 : N -> temps total, tous provers sur le même panneau.
+    """Figure 1 : N -> temps total, les deux stratégies et tous les provers.
 
     Deux clés de lecture indépendantes : la couleur porte le prover, le style
-    de trait porte la stratégie — le même style de trait que dans la figure 1,
-    pour que « pointillé = décomposition binaire » reste vrai d'une figure à
-    l'autre. Les deux provers étant séparés d'un facteur ~5 en temps absolu,
-    ils forment deux bandes nettes sur l'axe logarithmique, et la comparaison
-    des stratégies se lit à l'intérieur de chaque bande.
+    de trait porte la stratégie (plein = `single`, tirets = `binary`). Les deux
+    provers étant séparés d'un facteur ~5 en temps absolu, ils forment deux
+    bandes nettes sur l'axe logarithmique, et la comparaison des stratégies se
+    lit à l'intérieur de chaque bande.
+
+    Cette figure donne les ordres de grandeur, pas le verdict : la moyenne
+    glissante de `binary` masque les N où elle passe devant `single`. C'est la
+    figure 3 qui tranche.
     """
     plt = _setup_mpl()
     fig, ax = plt.subplots(figsize=_figsize())
@@ -966,103 +871,111 @@ def make_time_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, objec
     _save(plt, fig, outdir, "01_time_vs_n")
 
 
-def make_decomposition_map(outdir: str, rows: List[Dict[str, object]],
-                           prover: str, logx: bool = True) -> None:
-    """Figure 4 : quelles tailles de circuit l'optimum retient, pour chaque N.
+def make_padding_figure(outdir: str, rows: List[Dict[str, object]],
+                        logx: bool = True) -> None:
+    """Figure 2 : la part du batch occupée par des transactions vides.
 
-    Un point par circuit du plan optimal ; l'aire du marqueur porte la
-    multiplicité. C'est la réponse littérale à « pour ce N, quelle
-    décomposition ». Lisible parce que m* reste petit : quelques circuits au
-    plus, jamais l'écriture binaire complète.
+    C'est le mécanisme derrière tout le reste. `single` doit arrondir N à la
+    puissance de deux supérieure : son taux de padding retombe à 0 chaque fois
+    que N tombe pile sur une taille de circuit, bondit à près de 50 % à la
+    transaction suivante, puis redescend à mesure que le circuit se remplit.
+    `binary`, sur des puissances de deux, couvre N exactement : zéro slot vide,
+    partout. D'où les deux allures opposées, dents de scie contre plat.
+
+    Figure prover-indépendante : le padding ne dépend que de N et du jeu de
+    tailles. Ce qu'il COÛTE, lui, dépend du prover — c'est la figure 3.
+
+    Ici la couleur porte la stratégie (il n'y a pas de dimension prover), alors
+    que les figures 1 et 3 s'en servent pour le prover ; le style de trait,
+    plein pour `single` et tireté pour `binary`, reste le repère commun.
     """
     plt = _setup_mpl()
-    xs: List[int] = []
-    ys: List[int] = []
-    mult: List[float] = []
-    for r in rows:
-        n = int(r["n"])
-        for k, c in parse_plan(str(r["opt_plan"])).items():
-            xs.append(n)
-            ys.append(k)
-            mult.append(c)
     fig, ax = plt.subplots(figsize=_figsize())
-    sc = ax.scatter(xs, ys, s=[2.0 * m for m in mult], c=mult, cmap="viridis",
-                    vmin=1, vmax=max(mult) if mult else 1, linewidths=0,
-                    rasterized=True)
-    ax.set_xlabel(r"Batch size $N$ (transactions)")
-    ax.set_ylabel(r"Circuit size $k$ used by the optimum")
+    ns = [int(r["n"]) for r in rows]
+    for name in DRAW_ORDER:
+        ys = [float(r[f"{name}_padding_ratio"]) * 100.0 for r in rows]
+        ax.plot(ns, ys, lw=1.0, color=STRATEGY_COLORS[name],
+                ls=STRATEGY_LINESTYLES[name], label=STRATEGY_LABELS[name],
+                zorder=3)
+        if name == "single":  # l'aire, c'est littéralement le vide qu'on prouve
+            ax.fill_between(ns, ys, 0.0, color=STRATEGY_COLORS[name],
+                            alpha=0.15, lw=0, zorder=2)
+
+    mean_pad = statistics.mean(
+        float(r["single_padding_ratio"]) for r in rows) * 100.0
+    ax.axhline(mean_pad, ls=":", lw=0.9, color="0.3", zorder=4)
+    ax.text(ns[-1], mean_pad + 1.4, f"single: {mean_pad:.0f} % on average",
+            fontsize=FIG.font_size - 1, color="0.3", ha="right", va="bottom",
+            zorder=5)
+
     if logx:
         ax.set_xscale("log")
-    ax.set_yscale("log", base=2)
-    ax.grid(True, which="major", ls="--", lw=0.35, alpha=0.6)
-    ax.set_axisbelow(True)
-    if max(mult) > 1:
-        cb = fig.colorbar(sc, ax=ax, pad=0.02,
-                          ticks=list(range(1, int(max(mult)) + 1)))
-        cb.set_label("Multiplicity", fontsize=FIG.font_size)
-        cb.outline.set_linewidth(0.6)
-    if FIG.titles:
-        ax.set_title(f"Optimal decomposition of a batch of $N$ ({prover})")
-    _save(plt, fig, outdir, f"02_decomposition_map_{prover}")
+    # Un cran sous zéro : sinon la ligne plate de `binary` se confond avec
+    # l'axe, et c'est précisément le résultat qu'on veut voir.
+    ax.set_ylim(-2.5, 53.0)
+    ax.set_yticks([0, 10, 20, 30, 40, 50])
+    ax.set_xlabel(r"Batch size $N$ (transactions)")
+    ax.set_ylabel("Empty slots in the batch (%)")
+    # Légende hors cadre : à l'intérieur, elle recouvre le sommet des dents
+    # entre N=9 et N=60, qui est justement ce qu'on veut lire.
+    _finish(ax, title="How much of each batch is padding?", above=True, ncol=2)
+    _save(plt, fig, outdir, "02_padding")
 
 
-def make_critical_rho_figure(outdir: str, sizes: Sequence[int],
-                             measured_rho: Dict[str, float], nmax: int,
-                             n_points: int = 90, rho_points: int = 70) -> Dict[str, object]:
-    """Figure 3 : rho*(N), le seuil au-delà duquel une seule preuve redevient optimale.
+def make_ratio_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, object]]],
+                      logx: bool = True) -> None:
+    """Figure 3 : le rapport des deux temps — la figure qui tranche.
 
-    C'est la règle de décision sous forme machine-indépendante. Sous le modèle
-    affine, tout l'optimum ne dépend que de rho = (a+alpha)/b, le prix d'une
-    preuve exprimé en transactions vides. Un prover est donc une simple
-    horizontale : partout où la courbe passe au-dessus de sa ligne, découper le
-    batch est rentable ; partout où elle passe en dessous, un seul circuit padé
-    est optimal.
+    On trace T_binary / T_single. Au-dessus de 1, `single` gagne ; en dessous,
+    `binary` gagne. La courbe traverse la ligne des dizaines de fois : elle
+    plonge juste après chaque puissance de deux — là où `single` doit sauter à
+    la taille supérieure et payer près de 50 % de padding — puis remonte à
+    mesure que le batch remplit ce circuit, jusqu'au creux suivant.
+
+    Aucun lissage ici, contrairement à la figure 1 : les plongeons SONT
+    l'information. Une moyenne glissante les effacerait et donnerait
+    l'illusion que `single` domine partout.
     """
     plt = _setup_mpl()
-    import matplotlib.patheffects as pe
+    fig, ax = plt.subplots(figsize=_figsize())
+    lo, hi = 1.0, 1.0
+    for prover, rows in rows_by_prover.items():
+        ns = [int(r["n"]) for r in rows]
+        ratio = [float(r["binary_time_s"]) / float(r["single_time_s"])
+                 if float(r["single_time_s"]) > 0 else 1.0 for r in rows]
+        lo, hi = min(lo, min(ratio)), max(hi, max(ratio))
+        color = PROVER_COLORS.get(prover, ACCENT)
+        ax.plot(ns, ratio, lw=0.5, color=color, label=prover, zorder=3)
+        # Seule la partie sous la ligne est remplie : c'est la zone à montrer.
+        ax.fill_between(ns, ratio, 1.0, where=[r < 1.0 for r in ratio],
+                        color=color, alpha=0.25, lw=0, zorder=2)
+    ax.axhline(1.0, ls=":", lw=1.0, color="0.2", zorder=4)
 
-    n_grid = sorted({max(1, round(10 ** (i / (n_points - 1) * math.log10(nmax))))
-                     for i in range(n_points)})
-    rho_grid = [10 ** (i / (rho_points - 1) * 4.0) for i in range(rho_points)]  # 1 -> 1e4
-    m_mat, _ = phase_diagram(sizes, n_grid, rho_grid)
-    crit = critical_rho(n_grid, rho_grid, m_mat)
+    # Les deux étiquettes sont ancrées à la ligne de décision, pas aux bords du
+    # cadre : c'est elle qui sépare les deux régimes.
+    ax.text(1.25, 1.10, "single wins", fontsize=FIG.font_size - 1, color="0.25",
+            va="bottom", ha="left", zorder=5)
+    ax.text(1.25, 0.91, "binary wins", fontsize=FIG.font_size - 1, color="0.25",
+            va="top", ha="left", zorder=5)
 
-    xs = [n for n, c in zip(n_grid, crit) if c is not None]
-    ys = [c for c in crit if c is not None]
-    if xs:
-        fig, ax = plt.subplots(figsize=_figsize())
-        ax.step(xs, ys, where="post", lw=1.2, color=ACCENT)
-        ax.fill_between(xs, ys, 1.0, step="post", alpha=0.12, color=ACCENT, lw=0)
-        # Les deux régimes sont nommés dans la zone qu'ils désignent ; liseré
-        # blanc pour rester lisibles là où ils croisent l'escalier.
-        halo = [pe.withStroke(linewidth=2.0, foreground="white")]
-        ax.text(0.5, 0.10, "partitioning pays", fontsize=FIG.font_size - 1,
-                color=ACCENT, transform=ax.transAxes, ha="center",
-                zorder=6, path_effects=halo)
-        ax.text(0.04, 0.95, "padding one circuit pays", fontsize=FIG.font_size - 1,
-                color="0.25", transform=ax.transAxes, va="top",
-                zorder=6, path_effects=halo)
-        for p, r in sorted(measured_rho.items(), key=lambda t: t[1]):
-            ax.axhline(r, ls="--", lw=0.9, color=PROVER_COLORS.get(p, ACCENT_ALT))
-            ax.text(xs[-1], r * 1.08, f"{p} ($\\rho={r:.0f}$)", ha="right",
-                    fontsize=FIG.font_size - 1.5,
-                    color=PROVER_COLORS.get(p, ACCENT_ALT),
-                    zorder=6, path_effects=halo)
+    if logx:
         ax.set_xscale("log")
-        ax.set_yscale("log")
-        ax.set_xlabel(r"Batch size $N$ (transactions)")
-        ax.set_ylabel(r"Critical overhead $\rho^*(N)$ (tx-equiv.)")
-        ax.grid(True, which="major", ls="--", lw=0.35, alpha=0.6)
-        ax.set_axisbelow(True)
-        if FIG.titles:
-            ax.set_title("When is it worth splitting a batch into several proofs?")
-        _save(plt, fig, outdir, "03_critical_rho")
-
-    return {
-        "n_grid": n_grid,
-        "critical_rho_tx": {n: c for n, c in zip(n_grid, crit)},
-        "measured_rho_tx": measured_rho,
-    }
+    ax.set_yscale("log")
+    ax.set_ylim(lo * 0.85, hi * 1.3)
+    # Sur une décennie incomplete, matplotlib ne graduerait que 10^0 : on force
+    # des repères en facteurs, seule échelle qui parle ici ("2x plus lent").
+    ticks = [t for t in (0.25, 0.5, 1, 2, 4, 8, 16)
+             if lo * 0.85 <= t <= hi * 1.3]
+    ax.set_yticks(ticks)
+    ax.set_yticklabels([("%g" % t) if t < 1 else ("%g$\\times$" % t)
+                        for t in ticks])
+    ax.minorticks_off()
+    ax.set_xlabel(r"Batch size $N$ (transactions)")
+    ax.set_ylabel(r"$T_{\mathrm{binary}} / T_{\mathrm{single}}$")
+    _finish(ax, title="Neither strategy dominates the other",
+            above=len(rows_by_prover) > 1, ncol=len(rows_by_prover),
+            loc="upper right")
+    _save(plt, fig, outdir, "03_binary_vs_single")
 
 
 # --------------------------------------------------------------------------- #
@@ -1107,8 +1020,6 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     provers = model.available_provers() if args.prover == "both" else [args.prover]
     os.makedirs(args.outdir, exist_ok=True)
     rows_by_prover: Dict[str, List[Dict[str, object]]] = {}
-    measured_rho: Dict[str, float] = {}
-    all_sizes: List[int] = []
 
     for prover in provers:
         if prover not in model.provers:
@@ -1128,15 +1039,15 @@ def cmd_analyze(args: argparse.Namespace) -> None:
                 f"aucune taille de circuit <= {args.max_size} dans {args.costs}"
             )
         sizes = sorted(cost)
-        all_sizes = sizes
         print(f"\n=== {prover} ===")
         print(f"  tailles de circuit : {sizes}")
         print("  coût d'une preuve  : " +
               ", ".join(f"{k}:{cost[k]:.3f}s" for k in sizes))
 
         # Ajustement affine et rho : le prix d'une preuve, en transactions
-        # vides. C'est le seul paramètre dont dépend l'optimum sous ce modèle,
-        # et c'est par lui que le prover se place dans le diagramme de phase.
+        # vides. C'est le chiffre qui explique l'arbitrage : `binary` ne gagne
+        # que si les (m-1) preuves qu'elle ajoute, à rho chacune, coûtent moins
+        # que le padding que `single` aurait payé.
         # L'ajustement porte sur le coût de PREUVE seul : obj.seconds() inclut
         # déjà la vérification, donc ajuster dessus mettrait alpha dans
         # l'intercept a, et rho = (a + alpha)/b le compterait deux fois.
@@ -1145,41 +1056,54 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             sizes, [obj.seconds(model.provers[prover][k]) - alpha for k in sizes]
         )
         rho = fit.rho(alpha)
-        measured_rho[prover] = rho
         print(f"  c(k) = a + b*k : a={fit.a:.3f}s  b={fit.b * 1e3:.4g}ms/tx  "
               f"R²={fit.r2:.4f}")
         print(f"  rho = (a+alpha)/b = {rho:.0f} tx  "
               f"(une preuve de plus coûte autant que {rho:.0f} slots vides)")
 
-        _, choice = solve_dp(args.nmax, cost)
-        rows = sweep(args.nmax, cost, choice)
+        rows = sweep(args.nmax, cost)
         rows_by_prover[prover] = rows
         csv_path = os.path.join(args.outdir, f"sweep_{prover}.csv")
         write_sweep_csv(csv_path, rows)
         print(f"  balayage N=1..{args.nmax} : {os.path.relpath(csv_path, REPO_ROOT)}")
 
-        # Repères de lecture : l'optimum est le seul plafond honnête, on dit
-        # donc sur quelle part du domaine chaque heuristique s'en écarte.
-        ms = Counter(int(r["opt_circuits"]) for r in rows)
-        print("  m* de l'optimum : " + ", ".join(
-            f"m={m} sur {c} N ({c / len(rows) * 100:.1f} %)" for m, c in sorted(ms.items())))
-        both = sum(1 for r in rows
-                   if all(float(r[f"gain_vs_{b}_pct"]) > 1e-9 for b in BASELINES))
-        print(f"  optimum strictement meilleur que les DEUX heuristiques sur "
-              f"{both}/{len(rows)} N ({both / len(rows) * 100:.1f} %)")
-        for b in BASELINES:
-            g = [float(r[f"gain_vs_{b}_pct"]) for r in rows]
-            beat = sum(1 for x in g if x > 1e-9)
-            top = max(range(len(g)), key=lambda i: g[i])
-            print(f"    vs {b:<7} : bat sur {beat}/{len(rows)} N, "
-                  f"gain max {g[top]:.1f} % à N={rows[top]['n']}")
+        # Le verdict : qui gagne, sur quelle part du domaine, et combien de
+        # fois le vainqueur change quand N avance d'une seule transaction.
+        nb = len(rows)
+        wins = Counter(str(r["winner"]) for r in rows)
+        print("  vainqueur : " + ", ".join(
+            f"{w} sur {c} N ({c / nb * 100:.1f} %)"
+            for w, c in wins.most_common()))
+        flips = sum(1 for a, b in zip(rows, rows[1:])
+                    if a["winner"] != b["winner"])
+        verdict = ("-> aucune des deux stratégies ne domine l'autre"
+                   if wins.get("binary") and wins.get("single")
+                   else "(une seule stratégie gagne sur ce domaine)")
+        print(f"  le vainqueur change {flips} fois sur N=1..{args.nmax} {verdict}")
+        pads = [float(r["single_padding_ratio"]) for r in rows]
+        print(f"  slots vides chez single : {statistics.mean(pads) * 100:.1f} % "
+              f"en moyenne, jusqu'à {max(pads) * 100:.1f} % "
+              f"(binary : 0 partout)")
+        g = [float(r["binary_vs_single_pct"]) for r in rows]
+        i_bin = max(range(nb), key=lambda i: g[i])
+        i_sgl = min(range(nb), key=lambda i: g[i])
+        if g[i_bin] > 1e-9:
+            print(f"    binary au mieux : {g[i_bin]:+.1f} % à N={rows[i_bin]['n']} "
+                  f"(juste après une puissance de deux)")
+        else:
+            print(f"    binary ne gagne sur aucun N <= {args.nmax}")
+        r_sgl = rows[i_sgl]
+        factor = (float(r_sgl["binary_time_s"]) / float(r_sgl["single_time_s"])
+                  if float(r_sgl["single_time_s"]) > 0 else float("inf"))
+        print(f"    single au mieux : binary est {factor:.1f}x plus lent "
+              f"à N={r_sgl['n']} (juste avant une puissance de deux)")
         for n in args.show_n:
             if 1 <= n <= args.nmax:
                 r = rows[n - 1]
-                print(f"    N={n:<6} opt {r['opt_plan']:<20} m={r['opt_circuits']:<2} "
-                      f"{float(r['opt_time_s']):7.2f}s | "
-                      f"bin {r['binary_plan']:<26} {float(r['binary_time_s']):7.2f}s | "
-                      f"sgl {r['single_plan']:<8} {float(r['single_time_s']):7.2f}s")
+                print(f"    N={n:<6} bin {r['binary_plan']:<26} "
+                      f"m={r['binary_circuits']:<2} {float(r['binary_time_s']):7.2f}s | "
+                      f"sgl {r['single_plan']:<8} {float(r['single_time_s']):7.2f}s "
+                      f"(padding {r['single_padding']:<5}) -> {r['winner']}")
 
     if not rows_by_prover:
         raise SystemExit(f"aucun prover exploitable dans {args.costs}")
@@ -1188,15 +1112,9 @@ def cmd_analyze(args: argparse.Namespace) -> None:
         print("\n=== figures ===")
         logx = not args.linear_x
         make_time_figure(args.outdir, rows_by_prover, logx=logx, window=args.smooth)
-        for prover, rows in rows_by_prover.items():
-            make_decomposition_map(args.outdir, rows, prover, logx=logx)
-        if not args.no_phase:
-            phase = make_critical_rho_figure(args.outdir, all_sizes, measured_rho,
-                                             nmax=args.nmax)
-            path = os.path.join(args.outdir, "critical_rho.json")
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(phase, f, indent=2, default=str)
-            print(f"    seuils rho*(N) : {os.path.relpath(path, REPO_ROOT)}")
+        make_padding_figure(args.outdir, next(iter(rows_by_prover.values())),
+                            logx=logx)
+        make_ratio_figure(args.outdir, rows_by_prover, logx=logx)
 
 
 # --------------------------------------------------------------------------- #
@@ -1279,7 +1197,8 @@ def build_parser() -> argparse.ArgumentParser:
     i.set_defaults(func=cmd_import)
 
     # -- analyze ----------------------------------------------------------- #
-    a = sub.add_parser("analyze", help="balayage N=1..nmax et les deux figures")
+    a = sub.add_parser("analyze",
+                       help="balayage N=1..nmax, binary contre single, et les figures")
     a.add_argument("--costs", default="bench-out/partition/costs.json")
     a.add_argument("--outdir", default="bench-out/partition")
     a.add_argument("--nmax", type=int, default=DEFAULT_NMAX,
@@ -1289,12 +1208,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help=f"plus grand circuit autorisé ; seules les puissances de "
                         f"deux sont retenues (défaut {DEFAULT_MAX_SIZE})")
     a.add_argument("--prover", choices=("rapidsnark", "snarkjs", "both"), default="both")
-    a.add_argument("--show-n", type=int, nargs="+", default=[1050, 5000, 10000],
-                   metavar="N", help="valeurs de N détaillées dans la sortie console")
+    a.add_argument("--show-n", type=int, nargs="+", default=[1050, 2049, 5000],
+                   metavar="N", help="valeurs de N détaillées dans la sortie console "
+                                     "(2049 : le premier N où binary passe devant)")
     a.add_argument("--no-figures", action="store_true")
-    a.add_argument("--no-phase", action="store_true",
-                   help="saute le diagramme de phase (le plus long : une DP "
-                        "complète par valeur de rho de la grille)")
     add_figure_args(a)
     add_objective_args(a)
     a.set_defaults(func=cmd_analyze)
