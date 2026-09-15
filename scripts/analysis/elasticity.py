@@ -78,6 +78,9 @@ PHASE_LINESTYLES = {"prove": "-", "verify": "--", "env": "-."}
 # Okabe-Ito, discriminables en niveaux de gris comme en daltonisme courant.
 SUBLINEAR_C = "#009E73"
 SUPERLINEAR_C = "#D55E00"
+# Gris de l'axe ξ : assez sombre pour rester lisible, assez neutre pour ne pas
+# se confondre avec une série.
+XI_AXIS_C = "0.35"
 
 SINGLE_COLUMN_IN = 3.5
 DOUBLE_COLUMN_IN = 7.16
@@ -324,6 +327,71 @@ def parallelism_spread(s: Series) -> Tuple[float, float]:
     return (min(r), max(r)) if r else (0.0, 0.0)
 
 
+
+@dataclass
+class Amortization:
+    """Le coût d'UNE preuve, et son unique paramètre d'échelle rho.
+
+    On amortit le coût d'une preuve complète : l'intercept de la preuve ET la
+    vérification, qui se paie une fois par preuve quelle que soit la taille du
+    circuit. D'où W_total(N) = (W_0 + v) + w·N, et donc
+
+        xi(N) = (W_0 + v) / ((W_0 + v) + w·N) = rho / (rho + N)
+        W_bar(N) / w = 1 + rho / N
+
+    Tout ne dépend donc que de rho = (W_0 + v)/w, exprimé en transactions :
+    c'est le nombre de transactions dont le coût marginal égale le coût fixe
+    d'une preuve. C'est exactement le rho que calcule optimize_batch_partition,
+    par un tout autre chemin — ici une dérivée logarithmique, là-bas le prix
+    d'une preuve supplémentaire en transactions vides.
+    """
+
+    prover: str
+    ns: List[int]
+    work: List[float]   # W_prove(N) + W_verify(N)
+    xi: List[float]     # mesuré, par différences centrées
+    fit: AffineFit
+
+    @property
+    def rho(self) -> float:
+        return self.fit.w0 / self.fit.w if self.fit.w > 0 else float("inf")
+
+    def n_for(self, eps: float) -> float:
+        """Le N qui amène W_bar à moins de eps du plancher w : N = rho/eps."""
+        return self.rho / eps
+
+    def law(self, n: float) -> float:
+        """La courbe maîtresse xi = rho/(rho+N)."""
+        return self.rho / (self.rho + n)
+
+
+def build_amortization(els: Sequence[Elasticity]) -> List[Amortization]:
+    """Assemble, par prover, le coût d'une preuve complète : prove + verify.
+
+    La vérification est constante en N : c'est du coût fixe, donc du coût
+    amortissable, et l'ignorer sous-estimerait rho. Si aucune série verify
+    n'est disponible, on retombe sur la preuve seule — rho est alors le rho
+    du prover seul, sans le règlement.
+    """
+    ver = next((e for e in els if e.series.phase == "verify"), None)
+    out: List[Amortization] = []
+    for e in els:
+        if e.series.phase != "prove":
+            continue
+        ns = e.series.ns
+        work = list(e.series.work)
+        if ver is not None:
+            by_n = dict(zip(ver.series.ns, ver.series.work))
+            if all(n in by_n for n in ns):
+                work = [w + by_n[n] for w, n in zip(work, ns)]
+        out.append(Amortization(
+            prover=e.series.prover, ns=ns, work=work,
+            xi=[1.0 - g for g in log_slope(ns, work)],
+            fit=fit_affine(ns, work),
+        ))
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # Style des figures
 # --------------------------------------------------------------------------- #
@@ -453,12 +521,18 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
     ax_g.axhspan(-0.6, 1.0, color=SUBLINEAR_C, alpha=0.07, lw=0, zorder=0)
     ax_g.axhspan(1.0, 1.6, color=SUPERLINEAR_C, alpha=0.09, lw=0, zorder=0)
     ax_g.axhline(1.0, ls=":", lw=1.0, color="0.25", zorder=4)
+    # Pas de prédiction affine ici, contrairement aux panneaux (a) et (c) :
+    # elle doublerait chaque courbe pour presque rien, puisqu'elle colle à
+    # la mesure sur les séries prove et n'a aucun sens sur verify (w ~ 0, R^2 =
+    # 0.01). L'ajustement se juge en (a), directement contre W.
+    #
+    # À noter tout de même, et c'est dans le rapport console : le modèle
+    # affine donne gamma = wN/(W0 + wN), qui est < 1 pour tout N. Un gamma
+    # mesuré au-dessus de 1 n'est donc pas un point du modèle affine, c'est un
+    # écart à ce modèle.
     for e in els:
-        st = _style_of(e)
-        ax_g.plot(e.series.ns, e.gamma, marker="o", ms=1.8, zorder=3, **st)
-        if show_fit:
-            ax_g.plot(e.series.ns, [e.fit.gamma(n) for n in e.series.ns],
-                      lw=0.6, alpha=0.55, color=st["color"], ls=":", zorder=2)
+        ax_g.plot(e.series.ns, e.gamma, marker="o", ms=1.8, zorder=3,
+                  **_style_of(e))
     ax_g.set_xscale("log")
     ax_g.set_ylim(-0.6, 1.6)
     ax_g.set_yticks([0.0, 0.5, 1.0, 1.5])
@@ -467,12 +541,30 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
     ax_g.set_title("(d) work and amortization elasticity", loc="left")
     _grid(ax_g)
 
-    # ξ = 1 - γ : même courbe, deuxième graduation. Plutôt que de tracer deux
-    # fois la même information, on donne au lecteur le second axe qui la lit.
+    # ξ = 1 - γ n'est pas une seconde mesure, c'est une définition : tracer
+    # une deuxième courbe dessinerait deux fois la même information. On donne
+    # donc la seconde graduation qui la lit sur le même trait.
+    #
+    # Cet axe est INVERSÉ par construction — γ monte quand ξ descend — et rien
+    # ne le signale de soi-même : un lecteur voit une courbe montante et croit
+    # que les deux élasticités vont dans le même sens. D'où les trois repères
+    # ci-dessous : l'inversion écrite dans le libellé, toute la graduation
+    # grisée pour qu'elle se lise comme une échelle étrangère à l'axe gauche,
+    # et l'équivalence des deux seuils posée sur la ligne qui les porte.
     ax_xi = ax_g.secondary_yaxis(
         "right", functions=(lambda g: 1.0 - g, lambda x: 1.0 - x))
-    ax_xi.set_ylabel(r"$\xi_x(N) = 1 - \gamma_x(N)$")
+    ax_xi.set_ylabel(r"$\xi_x(N) = 1 - \gamma_x(N)$  (axis reversed)",
+                     color=XI_AXIS_C)
     ax_xi.set_yticks([-0.5, 0.0, 0.5, 1.0])
+    ax_xi.tick_params(axis="y", colors=XI_AXIS_C)
+    for sp in ax_xi.spines.values():
+        sp.set_color(XI_AXIS_C)
+
+    # Posé juste sous la ligne seuil : c'est le point où les deux lectures se
+    # rejoignent, et donc la clé de l'inversion.
+    ax_g.text(0.035, 0.705, r"$\gamma = 1 \Leftrightarrow \xi = 0$",
+              transform=ax_g.transAxes, fontsize=FIG.font_size - 2,
+              color="0.25", va="top", zorder=5)
 
     ax_g.text(0.04, 0.10, "sublinear: batching amortizes",
               transform=ax_g.transAxes, fontsize=FIG.font_size - 2,
@@ -489,6 +581,103 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
         fig.suptitle("Batch amortization law")
     fig.tight_layout()
     _save(plt, fig, outdir, "01_elasticity")
+
+
+def make_optimum_figure(outdir: str, ams: Sequence[Amortization],
+                       tolerances: Sequence[float], nmax: int) -> None:
+    """Figure 2 : où placer N pour chaque prover.
+
+    (a) L'effondrement. Si xi ne dépend que de rho, alors tracer xi contre le N
+    RÉDUIT x = N/rho doit superposer toutes les implémentations sur la même
+    courbe 1/(1+x). C'est le test de la loi, pas son illustration : deux
+    provers séparés d'un facteur 5 en temps absolu et 3.7 en rho doivent
+    tomber l'un sur l'autre. Les écarts à la courbe sont alors le signal —
+    c'est là que se voit le décrochage super-linéaire de snarkjs.
+
+    (b) La réponse en N réels. Pour chaque prover, la barre est le domaine
+    effectivement mesuré ; les marqueurs sont rho (amortissement à moitié
+    consommé) et les cibles N = rho/eps. Un marqueur PLEIN est dans le domaine
+    mesuré, un marqueur CREUX est une extrapolation de la loi affine au-delà
+    des données — distinction qui porte toute la conclusion, puisque l'optimum
+    de rapidsnark tombe hors du domaine et celui de snarkjs dedans.
+    """
+    plt = _setup_mpl()
+    fig, (ax_c, ax_n) = plt.subplots(
+        1, 2, figsize=(FIG.width_in, FIG.width_in * 0.40))
+
+    # -- (a) effondrement sur la courbe maîtresse -------------------------- #
+    xs = [10 ** (-3 + i * 4.8 / 299) for i in range(300)]
+    ax_c.plot(xs, [1.0 / (1.0 + x) for x in xs], lw=1.1, color="0.25",
+              zorder=2, label=r"$\xi = 1/(1 + N/\rho)$")
+    ax_c.axhline(0.0, ls="-", lw=0.6, color="0.45", zorder=1)
+    for eps in tolerances:
+        ax_c.axvline(1.0 / eps, ls=":", lw=0.8, color="0.55", zorder=1)
+        ax_c.text(1.0 / eps, 0.62, rf"$\bar{{W}}$ within {eps:.0%}",
+                  fontsize=FIG.font_size - 2, color="0.45", rotation=90,
+                  ha="right", va="center", zorder=2)
+    for a in ams:
+        ax_c.plot([n / a.rho for n in a.ns], a.xi, marker="o", ms=2.4, lw=0.7,
+                  color=PROVER_COLORS.get(a.prover, SUBLINEAR_C),
+                  label=f"{a.prover}  ($\\rho$ = {a.rho:,.0f})", zorder=3)
+    ax_c.set_xscale("log")
+    ax_c.set_ylim(-0.25, 1.12)
+    ax_c.set_xlabel(r"Reduced batch size  $N / \rho$")
+    ax_c.set_ylabel(r"Amortization elasticity  $\xi$")
+    ax_c.set_title("(a) one curve for every prover", loc="left")
+    _grid(ax_c)
+    ax_c.legend(loc="lower left", fontsize=FIG.font_size - 2)
+
+    # -- (b) les cibles, en N réels ---------------------------------------- #
+    # Marqueur par tolérance : la forme porte le critère, le remplissage dit
+    # si la valeur est mesurée ou extrapolée.
+    shapes = ["s", "D", "^", "v"]
+    hi = max(max(a.n_for(min(tolerances)) for a in ams), nmax) * 1.6
+    for i, a in enumerate(ams):
+        y = len(ams) - 1 - i
+        color = PROVER_COLORS.get(a.prover, SUBLINEAR_C)
+        ax_n.plot([1, nmax], [y, y], lw=5.0, color=color, alpha=0.30,
+                  solid_capstyle="butt", zorder=2)
+        if hi > nmax:  # la zone que la loi affine prolonge sans données
+            ax_n.plot([nmax, hi], [y, y], lw=5.0, color=color, alpha=0.16,
+                      solid_capstyle="butt", zorder=1)
+        ax_n.plot([a.rho], [y], marker="o", ms=4.2, color=color, zorder=4,
+                  mfc=color if a.rho <= nmax else "white", mew=0.9)
+        for j, eps in enumerate(sorted(tolerances, reverse=True)):
+            n_t = a.n_for(eps)
+            ax_n.plot([n_t], [y], marker=shapes[j % len(shapes)], ms=4.2,
+                      color=color, zorder=4, mew=0.9,
+                      mfc=color if n_t <= nmax else "white")
+        ax_n.text(1.25, y + 0.26, a.prover, fontsize=FIG.font_size - 1,
+                  color=color, va="bottom", ha="left", zorder=5)
+    ax_n.axvline(nmax, ls="--", lw=0.9, color="0.3", zorder=3)
+    ax_n.text(nmax * 0.88, len(ams) - 0.36, f"measured up to $N$ = {nmax:,}",
+              fontsize=FIG.font_size - 2, color="0.3", ha="right", va="top")
+    ax_n.set_xscale("log")
+    ax_n.set_xlim(1, hi)
+    # La bande sous la derniere barre est reservee a la legende des marqueurs.
+    ax_n.set_ylim(-1.55, len(ams) - 0.28)
+    ax_n.set_yticks([])
+    ax_n.set_xlabel(r"Batch size $N$ (transactions)")
+    ax_n.set_title("(b) where to set $N$", loc="left")
+    ax_n.grid(True, axis="x", which="major", ls="--", lw=0.35, alpha=0.6)
+    ax_n.set_axisbelow(True)
+
+    marks = [plt.Line2D([], [], ls="none", marker="o", ms=4.2, color="0.35",
+                        label=r"$\rho$  ($\xi = 1/2$)")]
+    for j, eps in enumerate(sorted(tolerances, reverse=True)):
+        marks.append(plt.Line2D([], [], ls="none", marker=shapes[j % len(shapes)],
+                                ms=4.2, color="0.35",
+                                label=r"$\bar{W}$ within " + f"{eps:.0%}"))
+    marks.append(plt.Line2D([], [], ls="none", marker="o", ms=4.2, color="0.35",
+                            mfc="white", mew=0.9, label="hollow = extrapolated"))
+    ax_n.legend(handles=marks, loc="lower center", ncol=2,
+                fontsize=FIG.font_size - 2, handletextpad=0.4,
+                borderpad=0.3, columnspacing=1.2)
+
+    if FIG.titles:
+        fig.suptitle("Optimal batch size per prover")
+    fig.tight_layout()
+    _save(plt, fig, outdir, "02_optimal_batch")
 
 
 # --------------------------------------------------------------------------- #
@@ -508,6 +697,39 @@ def write_csv(path: str, els: Sequence[Elasticity]) -> None:
                             f"{s.work[i]:.6g}", f"{e.wbar[i]:.6g}",
                             f"{e.throughput[i]:.6g}",
                             f"{e.gamma[i]:.4f}", f"{e.xi[i]:.4f}"])
+
+
+def report_optimum(ams: Sequence[Amortization], tolerances: Sequence[float],
+                   nmax: int) -> None:
+    """Dit, par prover, où placer N — et quand le run ne permet pas de le dire.
+
+    Deux verdicts très différents sont possibles, et les confondre serait la
+    faute la plus coûteuse de toute cette analyse :
+
+      - la cible tombe DANS le domaine mesuré : on la lit sur les données ;
+      - elle tombe au-delà : c'est une extrapolation de la loi affine, et le
+        run ne contient tout simplement pas l'optimum du prover.
+    """
+    print("\n=== taille de batch optimale, par prover ===")
+    print("  xi(N) = rho/(rho+N) et Wbar(N)/w = 1 + rho/N : tout ne dépend "
+          "que de rho.")
+    for a in ams:
+        print(f"\n  {a.prover} : rho = {a.rho:,.0f} tx  "
+              f"(W = {a.fit.w0:.4g} + {a.fit.w:.4g}·N, R² = {a.fit.r2:.4f})")
+        print(f"    xi mesuré au bord du domaine (N={a.ns[-1]:,}) : "
+              f"{a.xi[-1]:+.3f}")
+        for eps in sorted(tolerances, reverse=True):
+            n_t = a.n_for(eps)
+            where = "mesuré" if n_t <= nmax else "EXTRAPOLÉ, hors domaine"
+            print(f"    Wbar à {eps:.0%} du plancher w  ->  N = {n_t:,.0f}  "
+                  f"[{where}]")
+        if a.xi[-1] > 0.02:
+            print(f"    -> l'amortissement paie encore au dernier point : "
+                  f"l'optimum de ce prover n'est PAS dans ce run")
+        else:
+            i = min(range(len(a.ns)), key=lambda k: abs(a.xi[k]))
+            print(f"    -> xi s'annule vers N = {a.ns[i]:,} : l'optimum est "
+                  f"dans le domaine mesuré")
 
 
 def report(els: Sequence[Elasticity], work_metric: str) -> None:
@@ -558,6 +780,11 @@ def build_parser() -> argparse.ArgumentParser:
                    metavar="PHASE",
                    help="phases à analyser (défaut : prove verify ; 'env' "
                         "ajoute le setup, dont l'échelle écrase les autres)")
+    p.add_argument("--tolerance", type=float, nargs="+", default=[0.10, 0.05],
+                   metavar="EPS",
+                   help="tolérances visées sur le coût moyen : N = rho/eps "
+                        "amène Wbar à eps près de son plancher (défaut : "
+                        "0.10 0.05)")
     p.add_argument("--no-merge-verify", action="store_true",
                    help="garde une série verify par prover au lieu de les "
                         "moyenner ; elles se superposent sous le bruit de "
@@ -594,6 +821,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
           f"N = {series[0].ns[0]}..{series[0].ns[-1]})")
     report(els, args.work)
 
+    nmax = max(s.ns[-1] for s in series)
+    ams = build_amortization(els)
+    if ams:
+        report_optimum(ams, args.tolerance, nmax)
+
     os.makedirs(args.outdir, exist_ok=True)
     csv_path = os.path.join(args.outdir, "elasticity.csv")
     write_csv(csv_path, els)
@@ -602,6 +834,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not args.no_figures:
         print("\n=== figures ===")
         make_figure(args.outdir, els, show_fit=not args.no_fit)
+        if ams:
+            make_optimum_figure(args.outdir, ams, args.tolerance, nmax)
     return 0
 
 
