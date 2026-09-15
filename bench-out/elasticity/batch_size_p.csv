@@ -1,0 +1,9 @@
+prover,limit,budget,n_limit,binding,n_allowed,p,capped_by_circuits,xi_at_p,work_at_p_s,rss_at_p_gb
+rapidsnark,eps,xi <= 5% du plancher,30032,0,20862,8192,1,0.1549,5.202,1.146
+rapidsnark,super,gamma franchit 1,,0,20862,8192,1,0.1549,5.202,1.146
+rapidsnark,mem,RSS <= 128 GB,956183,0,20862,8192,1,0.1549,5.202,1.146
+rapidsnark,deadline,prove+verify <= 12 s,20862,1,20862,8192,1,0.1549,5.202,1.146
+snarkjs,eps,xi <= 5% du plancher,8039,0,3607,2048,0,0.1641,7.334,4.019
+snarkjs,super,gamma franchit 1,5520,0,3607,2048,0,0.1641,7.334,4.019
+snarkjs,mem,RSS <= 128 GB,80997,0,3607,2048,0,0.1641,7.334,4.019
+snarkjs,deadline,prove+verify <= 12 s,3607,1,3607,2048,0,0.1641,7.334,4.019
