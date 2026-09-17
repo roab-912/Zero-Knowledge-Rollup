@@ -749,6 +749,57 @@ def _setup_mpl():
     return plt
 
 
+# Le jeu de tailles de circuit EST l'ensemble des puissances de deux de 1 a
+# 8192, et toute la lecture de ces figures se fait par rapport a ces tailles :
+# `single` saute a chaque 2^k, `binary` decompose sur les 2^k. Une graduation
+# en decades obligerait donc a convertir a chaque repere. Les abscisses
+# logarithmiques sont graduees en base 2.
+_POW2_STEPS = (1, 2, 4, 8)
+
+
+def _pow2_locator(target: int = 6):
+    """Graduations aux puissances de deux, ancrees sur 2^0.
+
+    Le pas est le premier de _POW2_STEPS qui tient ~`target` reperes sur le
+    domaine, et l'ancrage sur un multiple du pas garantit que 2^0 est gradue
+    des qu'il est dans le cadre. matplotlib est importe tardivement (cf.
+    _setup_mpl), d'ou la classe definie ici plutot qu'au niveau du module.
+    """
+    from matplotlib.ticker import Locator
+
+    class _Pow2Locator(Locator):
+        def __call__(self):
+            return self.tick_values(*self.axis.get_view_interval())
+
+        def tick_values(self, vmin, vmax):
+            if vmin <= 0 or not math.isfinite(vmin):
+                vmin = 1.0
+            if vmax <= vmin:
+                vmax = vmin * 2.0
+            lo = math.floor(math.log2(vmin))
+            hi = math.ceil(math.log2(vmax))
+            raw = max(1, math.ceil((hi - lo) / max(1, target)))
+            step = next((s for s in _POW2_STEPS if s >= raw), raw)
+            k0 = step * math.floor(lo / step)
+            return [2.0 ** k for k in range(k0, hi + step, step)]
+
+    return _Pow2Locator()
+
+
+def _logx2(ax, target: int = 6) -> None:
+    """Passe l'abscisse en log base 2, graduee en puissances de deux.
+
+    Les mineures sont posees sur *chaque* puissance de deux : la grille garde
+    une ligne par taille de circuit, meme quand les majeures sautent de
+    plusieurs exposants.
+    """
+    from matplotlib.ticker import LogLocator, NullFormatter
+    ax.set_xscale("log", base=2)
+    ax.xaxis.set_major_locator(_pow2_locator(target))
+    ax.xaxis.set_minor_locator(LogLocator(base=2.0, subs=(1.0,), numticks=128))
+    ax.xaxis.set_minor_formatter(NullFormatter())
+
+
 def _finish(ax, title: str = "", above: bool = False, **legend_kw) -> None:
     """Grille, légende et titre optionnel, de façon homogène sur les deux figures."""
     ax.grid(True, which="major", ls="--", lw=0.35, alpha=0.6)
@@ -863,7 +914,7 @@ def make_time_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, objec
     ax.set_xlabel(r"Batch size $N$ (transactions)")
     ax.set_ylabel("Total proving time (s)")
     if logx:
-        ax.set_xscale("log")
+        _logx2(ax)
         ax.set_yscale("log")
     _finish(ax, title="Time to prove $N$ transactions",
             above=len(rows_by_prover) > 1, ncol=len(rows_by_prover),
@@ -909,7 +960,7 @@ def make_padding_figure(outdir: str, rows: List[Dict[str, object]],
             zorder=5)
 
     if logx:
-        ax.set_xscale("log")
+        _logx2(ax)
     # Un cran sous zéro : sinon la ligne plate de `binary` se confond avec
     # l'axe, et c'est précisément le résultat qu'on veut voir.
     ax.set_ylim(-2.5, 53.0)
@@ -959,7 +1010,7 @@ def make_ratio_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, obje
             va="top", ha="left", zorder=5)
 
     if logx:
-        ax.set_xscale("log")
+        _logx2(ax)
     ax.set_yscale("log")
     ax.set_ylim(lo * 0.85, hi * 1.3)
     # Sur une décennie incomplete, matplotlib ne graduerait que 10^0 : on force
@@ -969,7 +1020,10 @@ def make_ratio_figure(outdir: str, rows_by_prover: Dict[str, List[Dict[str, obje
     ax.set_yticks(ticks)
     ax.set_yticklabels([("%g" % t) if t < 1 else ("%g$\\times$" % t)
                         for t in ticks])
-    ax.minorticks_off()
+    # Seulement en y : les mineures de l'abscisse marquent les puissances de
+    # deux, c'est-a-dire exactement les N ou la courbe plonge.
+    from matplotlib.ticker import NullLocator
+    ax.yaxis.set_minor_locator(NullLocator())
     ax.set_xlabel(r"Batch size $N$ (transactions)")
     ax.set_ylabel(r"$T_{\mathrm{binary}} / T_{\mathrm{single}}$")
     _finish(ax, title="Neither strategy dominates the other",

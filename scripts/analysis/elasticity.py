@@ -664,6 +664,58 @@ def _setup_mpl():
     return plt
 
 
+# Les tailles de batch sont des puissances de deux — le jeu de circuits l'est,
+# et p est arrondi à la puissance de deux inférieure. Une graduation en
+# décades obligerait donc le lecteur à convertir à chaque repère : 10^3 ne
+# tombe nulle part, alors que 2^10 est une taille de circuit réelle. Toutes les
+# abscisses logarithmiques de ce script se lisent en base 2.
+_POW2_STEPS = (1, 2, 4, 8)
+
+
+def _pow2_locator(target: int = 6):
+    """Graduations aux puissances de deux, ancrées sur 2^0.
+
+    Le pas est le premier de _POW2_STEPS qui tient ~`target` repères sur le
+    domaine ; l'ancrage sur un multiple du pas garantit que 2^0 est gradué dès
+    qu'il est dans le cadre — ce qui compte sur l'axe réduit N/rho, où 2^0 est
+    exactement N = rho. matplotlib est importé tardivement (cf. _setup_mpl),
+    d'où la classe définie ici plutôt qu'au niveau du module.
+    """
+    from matplotlib.ticker import Locator
+
+    class _Pow2Locator(Locator):
+        def __call__(self):
+            return self.tick_values(*self.axis.get_view_interval())
+
+        def tick_values(self, vmin, vmax):
+            if vmin <= 0 or not math.isfinite(vmin):
+                vmin = 1.0
+            if vmax <= vmin:
+                vmax = vmin * 2.0
+            lo = math.floor(math.log2(vmin))
+            hi = math.ceil(math.log2(vmax))
+            raw = max(1, math.ceil((hi - lo) / max(1, target)))
+            step = next((s for s in _POW2_STEPS if s >= raw), raw)
+            k0 = step * math.floor(lo / step)
+            return [2.0 ** k for k in range(k0, hi + step, step)]
+
+    return _Pow2Locator()
+
+
+def _logx2(ax, target: int = 6) -> None:
+    """Passe l'abscisse en log base 2, graduée en puissances de deux.
+
+    Les mineures sont posées sur *chaque* puissance de deux : la grille garde
+    ainsi une ligne par taille de circuit, même quand les majeures sautent de
+    quatre exposants.
+    """
+    from matplotlib.ticker import LogLocator, NullFormatter
+    ax.set_xscale("log", base=2)
+    ax.xaxis.set_major_locator(_pow2_locator(target))
+    ax.xaxis.set_minor_locator(LogLocator(base=2.0, subs=(1.0,), numticks=128))
+    ax.xaxis.set_minor_formatter(NullFormatter())
+
+
 def _grid(ax) -> None:
     ax.grid(True, which="major", ls="--", lw=0.35, alpha=0.6)
     ax.grid(True, which="minor", ls=":", lw=0.25, alpha=0.3)
@@ -708,7 +760,7 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
         if show_fit:
             ax_w.plot(e.series.ns, [e.fit.w0 + e.fit.w * n for n in e.series.ns],
                       lw=0.6, alpha=0.55, color=st["color"], ls=":")
-    ax_w.set_xscale("log")
+    _logx2(ax_w)
     ax_w.set_yscale("log")
     ax_w.set_ylabel(r"$W_x(N)$  (s)")
     ax_w.set_title("(a) total work", loc="left")
@@ -717,7 +769,7 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
     # -- (b) travail moyen par transaction --------------------------------- #
     for e in els:
         ax_wbar.plot(e.series.ns, e.wbar, **_style_of(e))
-    ax_wbar.set_xscale("log")
+    _logx2(ax_wbar)
     ax_wbar.set_yscale("log")
     ax_wbar.set_ylabel(r"$\bar{W}_x(N) = W_x(N)/N$  (s/tx)")
     ax_wbar.set_title("(b) work per transaction", loc="left")
@@ -731,7 +783,7 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
         if show_fit and e.fit.w > 0:
             ax_thr.axhline(1.0 / e.fit.w, lw=0.6, alpha=0.5,
                            color=st["color"], ls=":")
-    ax_thr.set_xscale("log")
+    _logx2(ax_thr)
     ax_thr.set_yscale("log")
     ax_thr.set_xlabel(r"Batch size $N$ (transactions)")
     ax_thr.set_ylabel(r"$\Lambda_x(N) = N / T_x(N)$  (tx/s)")
@@ -756,7 +808,7 @@ def make_figure(outdir: str, els: Sequence[Elasticity], show_fit: bool) -> None:
     for e in els:
         ax_g.plot(e.series.ns, e.gamma, marker="o", ms=1.8, zorder=3,
                   **_style_of(e))
-    ax_g.set_xscale("log")
+    _logx2(ax_g)
     ax_g.set_ylim(-0.6, 1.6)
     ax_g.set_yticks([0.0, 0.5, 1.0, 1.5])
     ax_g.set_xlabel(r"Batch size $N$ (transactions)")
@@ -842,7 +894,7 @@ def make_optimum_figure(outdir: str, ams: Sequence[Amortization],
         ax_c.plot([n / a.rho for n in a.ns], a.xi, marker="o", ms=2.4, lw=0.7,
                   color=PROVER_COLORS.get(a.prover, SUBLINEAR_C),
                   label=f"{a.prover}  ($\\rho$ = {a.rho:,.0f})", zorder=3)
-    ax_c.set_xscale("log")
+    _logx2(ax_c)
     ax_c.set_ylim(-0.25, 1.12)
     ax_c.set_xlabel(r"Reduced batch size  $N / \rho$")
     ax_c.set_ylabel(r"Amortization elasticity  $\xi$")
@@ -875,7 +927,7 @@ def make_optimum_figure(outdir: str, ams: Sequence[Amortization],
     ax_n.axvline(nmax, ls="--", lw=0.9, color="0.3", zorder=3)
     ax_n.text(nmax * 0.88, len(ams) - 0.36, f"measured up to $N$ = {nmax:,}",
               fontsize=FIG.font_size - 2, color="0.3", ha="right", va="top")
-    ax_n.set_xscale("log")
+    _logx2(ax_n)
     ax_n.set_xlim(1, hi)
     # La bande sous la derniere barre est reservee a la legende des marqueurs.
     ax_n.set_ylim(-1.55, len(ams) - 0.28)
@@ -969,7 +1021,7 @@ def make_p_figure(outdir: str, opts: Sequence[Optimum], b: Budget,
     ax_c.text(hi * 0.95, 1.008, "floor $w$", fontsize=FIG.font_size - 2,
               color="0.45", ha="right", va="bottom")
 
-    ax_c.set_xscale("log")
+    _logx2(ax_c)
     ax_c.set_yscale("log")
     ax_c.set_xlim(lo, hi)
     ax_c.set_ylim(0.93, 1.35 * max(1.0 + o.am.rho / lo for o in opts))
@@ -1021,7 +1073,7 @@ def make_p_figure(outdir: str, opts: Sequence[Optimum], b: Budget,
               fontsize=FIG.font_size - 2, color="0.35", ha="right", va="top")
     if not same:
         ax_b.axvline(b.max_circuit, ls="-", lw=0.8, color="0.35", zorder=3)
-    ax_b.set_xscale("log")
+    _logx2(ax_b)
     ax_b.set_xlim(lo, hi)
     # La bande sous la dernière voie est réservée à la légende des marqueurs.
     ax_b.set_ylim(-1.45, len(opts) - 0.25)
