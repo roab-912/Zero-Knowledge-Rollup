@@ -1,0 +1,20 @@
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculating First Challenge Hash
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: tauG2
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: alphaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: Calculate Initial Hash: betaTauG1
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG1: 0/1023
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: tauG2: 0/512
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: alphaTauG1: 0/512
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG1: 0/512
+[36;22m[DEBUG] [39;1msnarkJS[0m: processing: betaTauG2: 0/1
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Response Hash imported: 
+		72dfcc0e 60c1db98 83ab5ceb fcc8fd5d
+		186681ef 55ff5cd9 0d67d523 07187985
+		508f3786 0aaf4cf6 608b6b32 921886bb
+		ff68c062 7ae47cc6 463cc894 288f9529
+[32;22m[INFO]  [39;1msnarkJS[0m: Next Challenge Hash: 
+		30016c7a c3c525c8 3ed9740d 60627788
+		cf703c74 6c81dedb 85501856 570cb3cd
+		7fe9493c cb7fdcff 17260115 eda5eccd
+		c2e75002 3c27921e 60dd6ce0 0e19f51c

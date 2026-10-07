@@ -2,7 +2,7 @@
 __pycache__/
 *.pyc
 exp/*
-
+circuits/*
 # Artefacts circom/snarkjs (regenerables, trop gros pour GitHub)
 *.zkey
 *.r1cs

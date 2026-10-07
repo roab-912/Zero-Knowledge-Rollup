@@ -1,0 +1,43 @@
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading r1cs
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading tauG2
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading alphatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Reading betatauG1
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit hash: 
+		02c1b0fa 4b28c544 98d815be aab878de
+		f3ea4e10 a6318380 3bde2846 6235f0ad
+		1b2c679f aed106af 04272952 b0f4dd6c
+		247de531 0376c404 8c7fba30 0037ac49
+[32;22m[INFO]  [39;1msnarkJS[0m: Circuit Hash: 
+		02c1b0fa 4b28c544 98d815be aab878de
+		f3ea4e10 a6318380 3bde2846 6235f0ad
+		1b2c679f aed106af 04272952 b0f4dd6c
+		247de531 0376c404 8c7fba30 0037ac49
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #4 Final Beacon phase2:
+		f1a7c5a0 7e169242 3b6f89a3 2b276621
+		abf9de6b f1721b2b 5b182eae 8462b977
+		360a2cf1 9f1f8ebb 0121bd7a d95439d3
+		8b633030 bd5ea23c 60b3521f b0553d28
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon generator: 0102030405060708090a0b0c0d0e0f101112131515161718191a1b1c1d1e1f
+[32;22m[INFO]  [39;1msnarkJS[0m: Beacon iterations Exp: 10
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #3 Third contribution:
+		ba1b5ac7 10c75ee9 d841f716 cb41ee41
+		f2de6534 fa20948f 619a9eee 882a00df
+		aac8e2a8 34576f32 fa0c2860 93ec90a6
+		627123ce 65e7355c 6b1e57b1 9cf511bf
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #2 2nd Contributor:
+		94f98638 8aa9b4d7 d73d11a5 18eca336
+		ee79f153 843c7fa5 8cdd8996 218da5ac
+		a23f3d05 4c2a79f5 4ba3ca8d a04ba9bb
+		ae152fdf a72a928d 8001a4c6 63350e9f
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: contribution #1 1st Contributor:
+		567c3412 2995880f ba23a831 262caf1b
+		5497ad07 aac84f03 d0bdef42 22909fa4
+		4f0393a2 3a2b5b1b 276b4322 93ce380d
+		4d2ecde4 877ac181 bbbde871 2d72a81a
+[32;22m[INFO]  [39;1msnarkJS[0m: -------------------------
+[32;22m[INFO]  [39;1msnarkJS[0m: ZKey Ok!
