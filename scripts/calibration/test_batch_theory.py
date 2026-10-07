@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
@@ -86,6 +87,89 @@ class TheoryTests(unittest.TestCase):
         self.assertAlmostEqual(result["model"]["alpha_s"], .3)
         self.assertAlmostEqual(result["model"]["beta_s_per_tx"], .01)
         self.assertIn("retrospective", result["model_origin"])
+
+    def test_single_repetition_all_sizes_has_no_invented_uncertainty(self):
+        grid, _, validation, frozen = self.documents()
+        validation["trials"] = [r for r in validation["trials"] if r["id"].endswith("-0")]
+        calibration = {"trials": [dict(r) for r in validation["trials"]]}
+        frozen["calibration_sizes"] = grid
+        result = theory.analyse_scope(calibration, validation, frozen, "snarkjs", "proof_generation_s",
+                                      grid, 300., "deadline", 50, 1)
+        self.assertFalse(result["uncertainty_available"])
+        self.assertEqual(result["optimal_batch_bootstrap_counts"], {})
+        self.assertTrue(all(not r["parameter_ci95"] for r in result["rows"]))
+        self.assertTrue(all(s["measurement_ci95"] is None for s in result["elasticity_secants"]))
+        self.assertIsNone(result["metrics"]["held_out_sizes"]["capacity_tps"])
+        self.assertEqual(result["metrics"]["all_sizes"]["capacity_tps"]["size_count"], len(grid))
+        self.assertEqual(result["optimum_kind"], "best_at_tested_boundary")
+
+    def test_new_local_model_is_frozen_before_validation(self):
+        grid, calibration, validation, frozen = self.documents()
+        model = dict(frozen["models"]["snarkjs"]["proof_generation_s"]["model"], alpha_s=.3)
+        frozen["models"]["snarkjs"]["local_verified_s"] = {"model": model, "candidates": []}
+        with patch.object(theory.bench, "select_model", side_effect=AssertionError("model reselected")):
+            result = theory.analyse_scope(calibration, validation, frozen, "snarkjs", "local_verified_s",
+                                          grid, 300., "deadline", 50, 1)
+        self.assertIn("frozen before", result["model_origin"])
+
+    def test_verification_uses_its_own_times_and_frozen_model(self):
+        grid, calibration, validation, frozen = self.documents()
+        verification_model = {"family": "affine", "alpha_s": .1, "beta_s_per_tx": 0., "c": 0., "p": None}
+        frozen["models"]["snarkjs"]["verification_s"] = {"model": verification_model, "candidates": []}
+        with patch.object(theory.bench, "select_model", side_effect=AssertionError("verification refit")):
+            result = theory.analyse_scope(calibration, validation, frozen, "snarkjs", "verification_s",
+                                          grid, 300., "deadline", 50, 1)
+        self.assertIn("frozen before", result["model_origin"])
+        self.assertAlmostEqual(result["rows"][-1]["observed"]["time_s"], .1)
+        self.assertAlmostEqual(result["rows"][-1]["predicted"]["capacity_tps"], grid[-1]/.1)
+        self.assertEqual(result["rows"][-1]["predicted"]["gamma"], 0.)
+        del frozen["models"]["snarkjs"]["verification_s"]
+        legacy = theory.analyse_scope(calibration, validation, frozen, "snarkjs", "verification_s",
+                                      grid, 300., "deadline", 50, 1)
+        self.assertIn("retrospective", legacy["model_origin"])
+        self.assertAlmostEqual(legacy["model"]["alpha_s"], .1)
+
+    def test_shared_verification_preserves_rounds_and_independent_validation(self):
+        grid, calibration, validation, frozen = self.documents()
+        frozen["provers"] = ["snarkjs", "rapidsnark"]
+        for document in (calibration, validation):
+            for r in document["trials"]:
+                r["repetition"] = int(r["id"].split("-")[-1])
+            document["trials"] += [dict(r, id="rapid-"+r["id"], prover="rapidsnark", verification_s=.3)
+                                    for r in document["trials"]]
+        paired = theory.bench.shared_verification_rows(validation["trials"], frozen["provers"])
+        self.assertEqual(len(paired), len(grid)*3)
+        self.assertTrue(all(abs(r["verification_s"]-.2)<1e-12 for r in paired))
+        # Changing validation must not change the shared calibration-only fit.
+        for r in validation["trials"]:
+            r["verification_s"] *= 2
+        result = theory.analyse_shared_verification(calibration, validation, frozen, grid, 300., "deadline", 50, 1)
+        self.assertAlmostEqual(result["model"]["alpha_s"], .2)
+        self.assertAlmostEqual(result["rows"][-1]["observed"]["time_s"], .4)
+        self.assertEqual(result["rows"][-1]["observed"]["repetitions"], 3)
+        validation["trials"].pop()
+        paired = theory.bench.shared_verification_rows(validation["trials"], frozen["provers"])
+        self.assertEqual(sum(r["status"] == "unavailable" for r in paired), 1)
+
+
+    def test_interior_optimum_and_deadline_are_distinguished(self):
+        grid = [1, 4, 16, 64, 256, 512]
+        model = {"family": "power", "alpha_s": 4., "beta_s_per_tx": .001, "c": .0001, "p": 2.}
+        rows = [{"n": n, "prover": "snarkjs", "warmup": False, "status": "success", "id": str(n),
+                 "proof_generation_s": 4 + .001*n + .0001*n*n} for n in grid]
+        document = {"trials": rows}
+        frozen = {"calibration_sizes": grid, "models": {"snarkjs": {
+            "proof_generation_s": {"model": model, "candidates": []}}}}
+        result = theory.analyse_scope(document, document, frozen, "snarkjs", "proof_generation_s",
+                                      grid, 300., "deadline", 50, 1)
+        self.assertEqual(result["optimum_kind"], "predicted_interior_maximum")
+        self.assertEqual(result["continuous_capacity_maximum"], 200.)
+        self.assertEqual(result["optimal_batch_predicted"], 256)
+        result = theory.analyse_scope(document, document, frozen, "snarkjs", "proof_generation_s",
+                                      grid, 5., "deadline", 50, 1)
+        self.assertEqual(result["optimum_kind"], "deadline_limited")
+        self.assertEqual(result["optimal_batch_predicted"], 64)
+        self.assertEqual(result["optimal_batch_predicted_without_deadline"], 256)
 
 
 if __name__ == "__main__":

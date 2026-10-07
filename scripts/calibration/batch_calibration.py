@@ -39,11 +39,11 @@ from models.State import State
 from models.Transaction import Transaction
 from classes.Executor import Executor
 
-GRID = [2 ** i for i in range(10)]
-CALIBRATION = GRID[::2]
+GRID = [2 ** i for i in range(14)]
+CALIBRATION = GRID.copy()
 POWERS = [1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
 MODE = "sequential_fresh_witness_and_prover_processes_v1"
-SCOPES = ("proof_s", "proof_generation_s", "total_s")
+SCOPES = ("proof_s", "proof_generation_s", "total_s", "local_verified_s", "verification_s")
 ARTIFACTS = ("circuit_js/circuit.wasm", "circuit_final.zkey",
              "verification_key.json", "circuit.circom", "circuit.r1cs",
              "circuit.r1cs.json")
@@ -375,14 +375,21 @@ def data_seed(seed, kind, n, repetition, warmup):
 def make_plan(args):
     rng = random.Random(args.seed)
     jobs = []
-    for warmup, count in ((True, args.warmups), (False, args.repeat)):
+    for warmup in (True, False):
         part = [{"prover": p, "n": n, "repetition": r, "warmup": warmup,
                  "data_seed": data_seed(args.seed, args.command, n, r, warmup),
                  "id": f"{'w' if warmup else 'r'}-{r:03d}-{n}-{p}"}
-                for r in range(count) for n in args.sizes for p in args.provers]
+                for n in args.sizes
+                for r in range(args.warmups if warmup else repetition_count(args, n))
+                for p in args.provers]
         rng.shuffle(part)
         jobs.extend(part)
     return jobs
+
+
+def repetition_count(args, n):
+    return max(args.repeat, getattr(args, "focus_repeat", 1)) if n in getattr(
+        args, "focus_sizes", [2048, 4096, 8192]) else args.repeat
 
 
 def prepare_batch(n, seed, directory):
@@ -546,6 +553,7 @@ def trial(args, job, manifest, commands):
                           work, phase, args.timeout, args.sample_interval)
         row["steps"][phase] = result
         row["verification_s"] = result["wall_s"]
+        row["local_verified_s"] = row["total_s"] + row["verification_s"]
         if result["status"] in ("timeout", "out_of_memory"):
             row.update(status=result["status"], diagnostic={"phase": phase, "message": result["message"]})
         elif result["returncode"] is None:
@@ -641,6 +649,9 @@ def collect(args):
         config.update(circuits_dir=str(args.circuits_dir), execution_mode=MODE)
         config.update(auto_setup=not args.no_setup, setup_sizes=args.setup_sizes,
                       setup_timeout=args.setup_timeout, circom=args.circom)
+        config.update(focus_sizes=args.focus_sizes, focus_repeat=args.focus_repeat,
+                      repetitions_by_size={str(n): repetition_count(args, n) for n in args.sizes},
+                      validation_protocol="independent repetitions; calibration may include every size")
         if frozen:
             if machine_signature(env) != frozen["machine_signature"]:
                 raise ValueError("validation environment differs from calibration (tools/hardware/parallelism/source)")
@@ -671,6 +682,7 @@ def collect(args):
                     "proof_generation_s": "sequential witness_s + proof_s (fresh processes)",
                     "total_s": "contiguous preparation + witness + proof, including instrumentation overhead",
                     "verification_s": "separate local snarkjs verification; excluded from total_s",
+                    "local_verified_s": "total_s + verification_s; sum of measured intervals, excludes DA/L1",
                     "exclusions": "compilation, cryptographic setup, pool, DA, L1, scheduling/queueing",
                     "warmups": "fresh processes warm OS caches only; no persistent JIT/service",
                 },
@@ -810,6 +822,8 @@ def buckets(rows, prover, scope):
     for r in rows:
         if r["prover"] == prover and not r["warmup"] and r["status"] == "success":
             value = r.get(scope)
+            if scope == "local_verified_s" and value is None and r.get("verification_s") is not None:
+                value = r["total_s"] + r["verification_s"]
             if value is not None and math.isfinite(value) and value > 0:
                 grouped.setdefault(r["n"], []).append(value)
     return grouped
@@ -915,6 +929,30 @@ def describe_fit(grouped, admissible, bootstrap, seed, max_time=None):
             "residuals": residuals, "warnings": warnings}
 
 
+def shared_verification_rows(rows, provers):
+    """One mean verification time per matched round, never extra repetitions.
+
+    Both proof producers use the same snarkjs verifier. Keep their matched
+    timings together during bootstrap; an incomplete/failed round stays failed.
+    """
+    groups = {}
+    for row in rows:
+        if row["prover"] in provers:
+            groups.setdefault((row["n"], row["repetition"], row["warmup"]), []).append(row)
+    result = []
+    for (n, repetition, warmup), members in sorted(groups.items()):
+        complete = len(members) == len(provers) and {r["prover"] for r in members} == set(provers)
+        good = complete and all(r["status"] == "success" and r.get("verification_s") is not None
+                                and math.isfinite(r["verification_s"]) and r["verification_s"] > 0
+                                for r in members)
+        result.append({"id": f"shared-verify-{n}-{repetition}-{warmup}", "prover": "verification",
+                       "n": n, "repetition": repetition, "warmup": warmup,
+                       "status": "success" if good else "unavailable",
+                       "verification_s": statistics.mean(r["verification_s"] for r in members) if good else None,
+                       "source_trial_ids": [r["id"] for r in members]})
+    return result
+
+
 def freeze(args):
     with campaign_lock(args.campaign):
         source = read_result(args.campaign)
@@ -938,6 +976,10 @@ def freeze(args):
             models[prover] = {scope: describe_fit(buckets(rows, prover, scope), admissible,
                                                 args.bootstrap, args.seed, args.max_time)
                               for scope in SCOPES}
+        verification_rows = shared_verification_rows(rows, manifest["config"]["provers"])
+        verification_failed = {r["n"] for r in verification_rows if r["status"] != "success"}
+        shared_verification = describe_fit(buckets(verification_rows, "verification", "verification_s"),
+            [n for n in supported if n not in verification_failed], args.bootstrap, args.seed, args.max_time)
         model = {
             "schema": 1, "campaign": "calibration", "frozen_utc": utc_now(),
             "calibration_directory": str(args.campaign), "campaign_id": manifest["campaign_id"],
@@ -955,7 +997,7 @@ def freeze(args):
                 "optimal_zone": "within 2% of best prediction OR overlapping pointwise bootstrap 95% intervals; descriptive, not a simultaneous equivalence test",
                 "boundary": f"{GRID[-1]} is an experimental bound, not a physical or protocol limit",
                 "max_predicted_time_s": args.max_time,
-            }, "models": models,
+            }, "models": models, "shared_verification": shared_verification,
         }
         target = args.out / RESULT_FILE
         fit_manifest = {
@@ -1020,6 +1062,8 @@ def validation_report(rows, frozen, bootstrap, seed):
                     loss_ci = interval(1 - draws[rec] / np.max(list(draws.values()), axis=0))
             errors = [abs(v["relative_tps_error"]) for v in measures.values()
                       if v["held_out_size"] and v["relative_tps_error"] is not None]
+            all_errors = [abs(v["relative_tps_error"]) for v in measures.values()
+                          if v["relative_tps_error"] is not None]
             failures = [{"id": r["id"], "n": r["n"], "status": r["status"]}
                         for r in rows if r["prover"] == prover and not r["warmup"] and r["status"] != "success"]
             out["models"][prover][scope] = {
@@ -1029,6 +1073,9 @@ def validation_report(rows, frozen, bootstrap, seed):
                 "recommendation_loss_measurement_ci95": loss_ci,
                 "loss_missing_reason": None if loss is not None else "recommended batch has no successful validation measurement",
                 "held_out_mean_absolute_relative_tps_error": statistics.mean(errors) if errors else None,
+                "all_sizes_mean_absolute_relative_tps_error": statistics.mean(all_errors) if all_errors else None,
+                "validation_scope": "new executions at known sizes" if not any(
+                    v["held_out_size"] for v in measures.values()) else "new executions including held-out sizes",
                 "failures": failures, "comparison_is_partial": bool(failures) or set(measures) != set(GRID),
                 "caveat": "success-conditioned throughput; missing/failed sizes excluded, not treated as zero; pointwise intervals, no simultaneous equivalence claim",
             }
@@ -1061,8 +1108,12 @@ def parser():
                          help="timeout per setup command in seconds (default: 6 hours)")
         cmd.add_argument("--provers", nargs="+", choices=("rapidsnark", "snarkjs"), default=["rapidsnark", "snarkjs"])
         cmd.add_argument("--sizes", type=size_list, default=CALIBRATION if name == "calibration" else GRID)
-        cmd.add_argument("--repeat", type=int, default=10)
-        cmd.add_argument("--warmups", type=int, default=1)
+        cmd.add_argument("--repeat", type=int, default=1)
+        cmd.add_argument("--focus-sizes", type=size_list, default=[2048, 4096, 8192],
+                         help="sizes receiving extra repetitions in BOTH campaigns")
+        cmd.add_argument("--focus-repeat", type=int, default=1,
+                         help="minimum measured repetitions per focus size (default: 1; use 30 for plateau study)")
+        cmd.add_argument("--warmups", type=int, default=0)
         cmd.add_argument("--timeout", type=float, default=600, help="timeout per subprocess, seconds")
         cmd.add_argument("--sample-interval", type=float, default=.05)
         cmd.add_argument("--seed", type=int, default=20261006 if name == "calibration" else 20261007)
@@ -1080,11 +1131,13 @@ def parser():
     fit.add_argument("--bootstrap", type=int, default=500)
     fit.add_argument("--seed", type=int, default=17)
     fit.add_argument("--admissible-sizes", type=size_list)
-    fit.add_argument("--max-time", type=float, help="optional predicted latency constraint in seconds, per scope")
+    fit.add_argument("--max-time", type=float, default=300.,
+                     help="predicted latency budget per scope, seconds (default: 300)")
     return p
 
 
 def main(argv=None):
+    global GRID, CALIBRATION
     p = parser()
     args = p.parse_args(argv)
     if args.seed < 0:
@@ -1093,19 +1146,30 @@ def main(argv=None):
         p.error("--bootstrap must be at least 50")
     if args.command == "fit":
         args.campaign = args.campaign.resolve()
+        GRID = sorted(int(n) for n in read_result(args.campaign)["manifest"]["artifacts"])
+        CALIBRATION = GRID.copy()
         if args.max_time is not None and (not math.isfinite(args.max_time) or args.max_time <= 0):
             p.error("--max-time must be positive and finite")
         args.out = output_directory(args.command, args.out)
         freeze(args)
         return 0
-    if (args.repeat < 1 or args.warmups < 0 or not math.isfinite(args.timeout) or args.timeout <= 0
+    if (args.repeat < 1 or args.focus_repeat < 1 or args.warmups < 0 or not math.isfinite(args.timeout) or args.timeout <= 0
             or not math.isfinite(args.sample_interval) or args.sample_interval < .01
             or not math.isfinite(args.setup_timeout) or args.setup_timeout <= 0):
         p.error("repeat>=1, warmups>=0, timeout>0, setup-timeout>0, sample-interval>=0.01 required")
     if len(set(args.provers)) != len(args.provers):
         p.error("duplicate provers")
-    if args.command == "calibration" and not set(args.sizes) <= set(CALIBRATION):
-        p.error("calibration sizes must be a subset of " + ",".join(map(str, CALIBRATION)))
+    if args.command == "validation":
+        frozen = load_frozen(args.model)
+        previous_grid = GRID
+        GRID = frozen["prediction_grid"].copy()
+        CALIBRATION = GRID.copy()
+        if args.sizes is previous_grid:
+            args.sizes = GRID
+        if args.setup_sizes is previous_grid:
+            args.setup_sizes = GRID
+        if not set(args.sizes) <= set(GRID):
+            p.error("validation sizes must belong to the frozen prediction grid")
     args.out = output_directory(args.command, args.out, args.resume)
     args.circuits_dir = args.circuits_dir.resolve()
     if args.command == "validation":

@@ -68,7 +68,7 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(result["model"]["family"], "affine")
         self.assertAlmostEqual(result["model"]["alpha_s"], 2, places=8)
         self.assertIsNone(result["continuous_maximum"])
-        self.assertEqual(result["recommended_batch"], 512)
+        self.assertEqual(result["recommended_batch"], max(bench.GRID))
         for prediction in result["predictions"]:
             n = prediction["n"]
             self.assertAlmostEqual(prediction["tps"], n/(2+.01*n))
@@ -127,9 +127,11 @@ class AnalysisTests(unittest.TestCase):
         self.assertIsNone(result["parameter_ci95"])
         self.assertTrue(all(p["parameter_tps_ci95"] is None for p in result["predictions"]))
 
-    def test_calibration_rejects_held_out_sizes_and_validation_fit(self):
-        with self.assertRaises(SystemExit):
-            bench.main(["calibration", "--sizes", "2", "--out", "unused"])
+    def test_calibration_accepts_all_sizes_but_cannot_fit_validation(self):
+        with patch.object(bench, "output_directory", return_value=Path("unused")), \
+                patch.object(bench, "collect", return_value=0) as collect:
+            bench.main(["calibration", "--sizes", "2,2048,8192"])
+            self.assertEqual(collect.call_args.args[0].sizes, [2, 2048, 8192])
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             bench.save_result(directory, {"schema": 2, "manifest": {"campaign": "validation"}})
@@ -138,6 +140,22 @@ class AnalysisTests(unittest.TestCase):
 
 
 class ExecutionTests(unittest.TestCase):
+    def test_single_trial_defaults_and_optional_extra_plateau_repetitions(self):
+        args = bench.parser().parse_args(["calibration", "--no-setup"])
+        plan = bench.make_plan(args)
+        self.assertEqual(args.sizes, bench.GRID)
+        self.assertEqual(len(plan), len(bench.GRID)*2)
+        self.assertTrue(all(not j["warmup"] and j["repetition"] == 0 for j in plan))
+        args.focus_repeat = 30
+        plan = bench.make_plan(args)
+        self.assertEqual(sum(j["n"] == 2048 and j["prover"] == "snarkjs" for j in plan), 30)
+        self.assertEqual(sum(j["n"] == 1024 and j["prover"] == "snarkjs" for j in plan), 1)
+        seed = next(j["data_seed"] for j in plan if j["n"] == 8192 and j["repetition"] == 0)
+        args.command = "validation"
+        args.seed += 1
+        other = bench.make_plan(args)
+        self.assertNotEqual(seed, next(j["data_seed"] for j in other if j["n"] == 8192 and j["repetition"] == 0))
+
     def test_unique_default_outputs_and_explicit_resume(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "bench-out"

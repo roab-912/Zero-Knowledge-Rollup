@@ -16,11 +16,12 @@ sys.path.insert(0, str(ROOT))
 from scripts.calibration import batch_calibration as bench
 import numpy as np
 
-SCOPES = ("proof_s", "proof_generation_s", "total_s", "local_verified_s")
+SCOPES = ("proof_s", "proof_generation_s", "total_s", "local_verified_s", "verification_s")
 LABELS = {"proof_s": "Proof only", "proof_generation_s": "Witness + proof",
           "total_s": "Preparation + witness + proof",
-          "local_verified_s": "Local processing including verification"}
-COLORS = {"rapidsnark": "#0072B2", "snarkjs": "#CC79A7"}
+          "local_verified_s": "Local processing including verification",
+          "verification_s": "Shared snarkjs verification"}
+COLORS = {"rapidsnark": "#0072B2", "snarkjs": "#CC79A7", "verification": "#009E73"}
 
 
 def portable_path(value):
@@ -31,6 +32,8 @@ def portable_path(value):
     normalized = str(value).replace("\\", "/")
     if normalized.startswith("/work/"):
         return ROOT / normalized[len("/work/"):]
+    if "/bench-out/" in normalized:
+        return ROOT / "bench-out" / normalized.split("/bench-out/", 1)[1]
     return path
 
 
@@ -130,7 +133,7 @@ def analyse_scope(calibration, validation, frozen, prover, scope, grid, delta, m
     sizes = sorted(training)
     if len(sizes) < 4:
         return {"status": "insufficient_data", "reason": "fewer than four calibration sizes"}
-    if scope == "local_verified_s":
+    if scope in ("local_verified_s", "verification_s") and scope not in frozen["models"][prover]:
         model, candidates = bench.select_model(sizes, [np.mean(training[n]) for n in sizes])
         origin = "retrospective extension: selected using calibration only, after validation collection"
     else:
@@ -221,7 +224,36 @@ def analyse_scope(calibration, validation, frozen, prover, scope, grid, delta, m
         pick = optimum([v[0] for v in valid], [v[1] for v in valid], delta, mode)
         key = str(pick) if pick is not None else "none"
         hist[key] = hist.get(key, 0) + 1
+    unconstrained_rows = [r for r in rows if r["n"] not in failed_calibration]
+    unconstrained = max(unconstrained_rows, key=lambda r: (r["predicted"]["capacity_tps"], -r["n"])) if unconstrained_rows else None
+    observed_successes = [r for r in rows if r["observed"] and not r["failures"]]
+    observed_unconstrained = max(observed_successes, key=lambda r: r["observed"]["capacity_tps"]) if observed_successes else None
+    near_optimal = [n for n in admissible if by_n[n]["predicted"][selected_field] >=
+                    .98 * by_n[recommendation]["predicted"][selected_field]] if recommendation else []
+    crossing = bool(interior and min(grid) < interior < max(grid) and
+                    bench.evaluate(model, [interior*.999])[2][0] > 0 >
+                    bench.evaluate(model, [interior*1.001])[2][0])
+    if recommendation is None:
+        kind = "no_admissible_size"
+    elif mode == "cadence":
+        kind = "cadence_limited_objective"
+    elif unconstrained and recommendation != unconstrained["n"]:
+        kind = "deadline_limited"
+    elif crossing:
+        kind = "predicted_interior_maximum"
+    elif model["family"] == "affine" and model["alpha_s"] == 0:
+        kind = "flat_predicted_capacity"
+    else:
+        kind = "best_at_tested_boundary"
     return {"status": "complete", "model": model, "model_origin": origin, "candidates": candidates,
+            "optimum_kind": kind, "positive_to_negative_xi_crossing_in_tested_range": crossing,
+            "optimal_batch_predicted_without_deadline": unconstrained["n"] if unconstrained else None,
+            "optimal_batch_observed_without_deadline": observed_unconstrained["n"] if observed_unconstrained else None,
+            "predicted_sizes_within_2_percent_of_best": near_optimal,
+            "uncertainty_available": bool(boot_models) and all(n in observed_draws for n in grid),
+            "uncertainty_missing_reason": None if boot_models and all(n in observed_draws for n in grid)
+                else "at least two successful repetitions per size in each campaign are needed; single measurements cannot establish repeatability",
+            "validation_scope": "new executions at known sizes" if not held_out else "new executions including held-out sizes",
             "calibration_sizes": sizes, "rows": rows, "elasticity_secants": secants,
             "continuous_capacity_maximum": interior,
             "affine_amortization_scale_alpha_over_beta": model["alpha_s"] / model["beta_s_per_tx"] if (
@@ -238,6 +270,18 @@ def analyse_scope(calibration, validation, frozen, prover, scope, grid, delta, m
             "metrics": {group: {key: accuracy(values, key) for key in ("time_s", "capacity_tps", "scheduled_tps")}
                         for group, values in (("all_sizes", evaluated), ("held_out_sizes", held_out))},
             "elasticity_secant_mae": float(np.mean([s["absolute_error"] for s in secants])) if secants else None}
+
+
+def analyse_shared_verification(calibration, validation, frozen, grid, delta, mode, count, seed):
+    calibration_rows = bench.shared_verification_rows(calibration["trials"], frozen["provers"])
+    validation_rows = bench.shared_verification_rows(validation["trials"], frozen["provers"])
+    scopes = {"verification_s": frozen["shared_verification"]} if "shared_verification" in frozen else {}
+    derived_model = {**frozen, "models": {"verification": scopes}}
+    result = analyse_scope({"trials": calibration_rows}, {"trials": validation_rows}, derived_model,
+                           "verification", "verification_s", grid, delta, mode, count, seed)
+    result["aggregation"] = "arithmetic mean across proof producers per matched (size, repetition, warmup); one round remains one sample; incomplete rounds excluded"
+    result["proof_producers"] = frozen["provers"]
+    return result
 
 
 def phase_profile(validation, prover, grid):
@@ -283,23 +327,35 @@ def figures(report, out):
 
     def axis(ax):
         ax.set_xscale("log", base=2)
-        ticks = grid[::2] + ([grid[-1]] if grid[-1] not in grid[::2] else [])
+        ticks = grid[::max(2, math.ceil(len(grid)/6))]
+        if grid[-1] not in ticks:
+            if len(ticks) > 1 and grid[-1] / ticks[-1] < 4:
+                ticks.pop()
+            ticks.append(grid[-1])
         ax.set_xticks(ticks, [str(n) for n in ticks])
         ax.set_xlabel("Batch size N")
         ax.grid(alpha=.2, linestyle="--")
 
-    for scope, name in (("proof_generation_s", "01_elasticity"), ("local_verified_s", "03_local_processing")):
+    for scope, name in (("proof_generation_s", "01_elasticity"), ("local_verified_s", "03_local_processing"),
+                        ("verification_s", "05_verification")):
         fig, axes = plt.subplots(2, 2, figsize=(11, 7.5))
         for ax in axes.flat:
             axis(ax)
-        for prover, scopes in report["provers"].items():
-            result = scopes[scope]
+        series = [(p, scope, scopes[scope], "-") for p, scopes in report["provers"].items()]
+        if scope == "proof_generation_s":
+            series.append(("verification", "verification_s", report["verification"], "--"))
+        elif scope == "verification_s":
+            series = [("verification", "verification_s", report["verification"], "--")]
+        handles = []
+        for prover, series_scope, result, style in series:
             if result["status"] != "complete":
                 continue
             color = COLORS.get(prover, "#009E73")
+            label = "Verification (snarkjs)" if series_scope == "verification_s" else prover
+            handles.append(Line2D([], [], color=color, ls=style, label=label))
             q = quantities(result["model"], dense, report["config"]["delta_s"])
             for ax, field in zip(axes.flat, ("time_s", "mean_cost_s_per_tx", "capacity_tps", "gamma")):
-                ax.plot(dense, q[field], color=color, label=prover)
+                ax.plot(dense, q[field], color=color, ls=style, label=label)
                 if field == "gamma":
                     continue
                 for held, marker in ((False, "o"), (True, "s")):
@@ -323,9 +379,11 @@ def figures(report, out):
         for ax in (axes[0, 0], axes[0, 1], axes[1, 0]):
             ax.set_yscale("log")
         deadline = report["config"]["delta_s"]
-        axes[0, 0].axhline(deadline, color=".4", ls=":")
-        axes[0, 0].annotate(f"Deadline: {deadline:g} s", (min(grid), deadline),
-                            xytext=(4, 5), textcoords="offset points", color=".4", fontsize=8)
+        # A generous budget should not compress the measured curves on a log axis.
+        if deadline <= axes[0, 0].get_ylim()[1] * 1.2:
+            axes[0, 0].axhline(deadline, color=".4", ls=":")
+        axes[0, 0].text(.02, .95, f"Deadline: {deadline:g} s", transform=axes[0, 0].transAxes,
+                        va="top", color=".4", fontsize=8)
         for ax, title, ylabel in zip(axes.flat,
                 ("(a) Batch service time", "(b) Amortized service cost", "(c) Processing capacity", "(d) Scaling elasticity"),
                 ("T(N) [s]", "T(N)/N [s/tx]", "N/T(N) [tx/s]", r"$\gamma = d\ln T / d\ln N$")):
@@ -339,19 +397,21 @@ def figures(report, out):
         ax.axhline(1, color=".4", ls=":")
         sec = ax.secondary_yaxis("right", functions=(lambda y: 1-y, lambda y: 1-y))
         sec.set_ylabel(r"$\xi = 1-\gamma$")
-        handles = [Line2D([], [], color=COLORS.get(p, "k"), label=p) for p in report["provers"]]
-        handles += [Line2D([], [], color=".3", marker="o", ls="none", label="New trials, fitted size"),
-                    Line2D([], [], color=".3", marker="s", mfc="white", ls="none", label="Held-out size"),
+        handles += [Line2D([], [], color=".3", marker="o", ls="none", label="Independent validation"),
                     Line2D([], [], color=".3", marker="x", ls="none", label="Predicted secant (d)")]
+        if any(r["held_out_size"] for scopes in report["provers"].values()
+               for r in scopes[scope].get("rows", [])):
+            handles.append(Line2D([], [], color=".3", marker="s", mfc="white", ls="none", label="Held-out size"))
         fig.legend(handles=handles, loc="lower center", ncol=3, fontsize=9)
-        title = LABELS[scope] + " — calibration model vs independent measurements"
-        if scope == "local_verified_s":
-            title += "\nRetrospective model extension; excludes DA and L1"
+        title = ("Witness + proof, and verification separately" if scope == "proof_generation_s" else LABELS[scope])
+        title += " — model vs measurements"
+        if any("retrospective" in result.get("model_origin", "") for _, _, result, _ in series):
+            title += "\nIncludes retrospective calibration-only extension"
         fig.suptitle(title, fontsize=12)
-        fig.tight_layout(rect=(0, .085, 1, .96))
+        fig.tight_layout(rect=(0, .14 if len(handles) > 6 else .085, 1, .94))
         save(fig, name)
 
-    fig, axes = plt.subplots(2, 2, figsize=(11, 7.5))
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.1))
     for col, (prover, scopes) in enumerate(report["provers"].items()):
         if col >= 2:
             break
@@ -360,27 +420,29 @@ def figures(report, out):
             continue
         rows = [r for r in result["rows"] if r["observed"]]
         color = COLORS.get(prover, "k")
-        for ax in axes[:, col]:
-            axis(ax)
+        ax = axes[col]
+        axis(ax)
         x = [r["n"] for r in rows]
-        axes[0, col].plot(x, [r["predicted"]["capacity_tps"] for r in rows], color=color, label="Theory")
-        axes[0, col].plot(x, [r["observed"]["capacity_tps"] for r in rows], "o--", color=color, label="Validation")
+        ax.plot(x, [r["predicted"]["capacity_tps"] for r in rows], color=color, label="Theory")
+        ax.plot(x, [r["observed"]["capacity_tps"] for r in rows], "o--", color=color, label="Validation")
         for r in rows:
             if "capacity_tps_ci95" in r["observed"]:
-                axes[0, col].vlines(r["n"], *r["observed"]["capacity_tps_ci95"], color=color)
-        axes[0, col].set_title(prover)
-        axes[0, col].set_ylabel("Processing capacity [tx/s]")
-        axes[0, col].legend()
-        for held, marker in ((False, "o"), (True, "s")):
-            pts = [r for r in rows if r["held_out_size"] == held]
-            axes[1, col].scatter([r["n"] for r in pts], [100*r["relative_capacity_error"] for r in pts],
-                                 marker=marker, color=color, label="Held-out size" if held else "Fitted size, new trials")
-        axes[1, col].axhline(0, color=".4", ls=":")
-        axes[1, col].set_ylabel("(Predicted / observed − 1) [%]")
-        metric = result["metrics"]["held_out_sizes"]["capacity_tps"]
-        axes[1, col].set_title(f"Held-out MAPE: {metric['mape_percent']:.2f}%" if metric else "No held-out comparison")
-        axes[1, col].legend(fontsize=8)
-    fig.suptitle("Proof generation — prediction accuracy and throughput optimum")
+                ax.vlines(r["n"], *r["observed"]["capacity_tps_ci95"], color=color)
+        verification = report["verification"]
+        if verification["status"] == "complete":
+            vr = [r for r in verification["rows"] if r["observed"]]
+            vx = [r["n"] for r in vr]
+            ax.plot(vx, [r["predicted"]["capacity_tps"] for r in vr], color="#009E73", ls="--", label="Verification theory")
+            ax.plot(vx, [r["observed"]["capacity_tps"] for r in vr], "o", color="#009E73", label="Verification validation")
+            for r in vr:
+                if "capacity_tps_ci95" in r["observed"]:
+                    ax.vlines(r["n"], *r["observed"]["capacity_tps_ci95"], color="#009E73")
+            ax.set_yscale("log")
+        metric = result["metrics"]["all_sizes"]["capacity_tps"]
+        ax.set_title(f"{prover} — generation MAPE: {metric['mape_percent']:.2f}%" if metric else prover)
+        ax.set_ylabel("Equivalent stage capacity N/T [tx/s]")
+        ax.legend(fontsize=8)
+    fig.suptitle("Proof generation and verification — theory vs independent measurements")
     fig.tight_layout(rect=(0, 0, 1, .96))
     save(fig, "02_theory_vs_experiment")
 
@@ -408,9 +470,9 @@ def main(argv=None):
     parser.add_argument("--validation", type=Path, required=True, help="completed validation result.json")
     parser.add_argument("--calibration", type=Path, help="override source location after moving a campaign")
     parser.add_argument("--model", type=Path, help="override frozen fit result.json location")
-    parser.add_argument("--delta", type=float, default=10., help="maximum per-batch service time in seconds")
+    parser.add_argument("--delta", type=float, default=300., help="maximum per-batch service time in seconds (default: 300)")
     parser.add_argument("--delta-mode", choices=("deadline", "cadence"), default="deadline")
-    parser.add_argument("--max-batch", type=int, default=512, help="experimental circuit bound; e.g. 8192 on another machine")
+    parser.add_argument("--max-batch", type=int, default=8192, help="experimental circuit bound (default: 8192)")
     parser.add_argument("--bootstrap", type=int, default=500)
     parser.add_argument("--seed", type=int, default=20261007)
     parser.add_argument("--out", type=Path)
@@ -439,7 +501,8 @@ def main(argv=None):
                          "admissibility": "available circuits and calibration success, predicted mean time<=delta; observed criterion requires every recorded attempt successful within delta, not a guarantee",
                          "elasticity_validation": "compare logarithmic secants over [N,2N]; points at geometric midpoint; never compare secants as exact derivatives",
                          "accuracy": "equal weight per size; held-out sizes reported separately; MAPE is an error, not a probability of correctness",
-                         "local_scope": "total_s + verification_s per trial; sum of measured intervals, not contiguous rollup end-to-end latency; retrospective calibration-only extension",
+                         "local_scope": "total_s + verification_s per trial; sum of measured intervals, not contiguous rollup end-to-end latency; origin is recorded per model",
+                         "verification_scope": "snarkjs groth16 verify wall time; shared curve averages matched proof producers per repetition (not additional repetitions); individual diagnostics retained; N/T is equivalent transactions/s, not proofs/s or full rollup throughput",
                          "boundary": "maximum of tested supported grid, not physical or protocol ceiling"},
               "unidentified_theory": {"physical_resource_workloads_and_capacities": None,
                                       "protocol_budgets": None, "resource_bottleneck_B_and_H": None,
@@ -453,6 +516,8 @@ def main(argv=None):
             report["provers"][prover][scope] = analyse_scope(calibration, validation, frozen, prover, scope,
                 grid, args.delta, args.delta_mode, args.bootstrap, args.seed + 100*pi + si)
         report["phase_profiles"][prover] = phase_profile(validation, prover, grid)
+    report["verification"] = analyse_shared_verification(calibration, validation, frozen, grid,
+        args.delta, args.delta_mode, args.bootstrap, args.seed + 1000)
     out = bench.output_directory("theory", args.out)
     report["figures"] = figures(report, out)
     from importlib.metadata import version
@@ -462,8 +527,8 @@ def main(argv=None):
     for p, scopes in report["provers"].items():
         s = scopes["proof_generation_s"]
         if s["status"] == "complete":
-            metric = s["metrics"]["held_out_sizes"]["capacity_tps"]
-            print(f"{p}: predicted N*={s['optimal_batch_predicted']}, observed N*={s['optimal_batch_observed']}, held-out TPS MAPE={metric['mape_percent'] if metric else None}")
+            metric = s["metrics"]["all_sizes"]["capacity_tps"]
+            print(f"{p}: predicted N*={s['optimal_batch_predicted']}, observed N*={s['optimal_batch_observed']}, validation TPS MAPE={metric['mape_percent'] if metric else None}; {s['optimum_kind']}")
     return 0
 
 

@@ -8,6 +8,45 @@ sur une configuration fixe. Les durées ne permettent pas d'identifier séparém
 un travail physique W et une capacité R. Les contraintes décrivent le circuit ;
 le RSS décrit une occupation mémoire, pas un travail CPU ou un volume d'E/S.
 
+## Protocole actuel et lancement complet
+
+Depuis la racine du dépôt sur le serveur :
+
+```sh
+export RAPIDSNARK_BIN=/home/r24barbi/rapidsnark/package/bin/prover
+python3 -u scripts/calibration/run_batch_study.py --no-setup
+```
+
+Le lanceur utilise toutes les 14 tailles de 1 à 8192 en puissances de deux,
+**une seule mesure par taille et prover**, zéro warmup et une deadline de
+**300 secondes**. Il enchaîne calibration, gel, validation avec de nouvelles
+transactions, puis analyse. Cela représente 28 essais par campagne, 56 au total.
+`--no-setup` réutilise les circuits existants. Chaque étape a son dossier unique
+sous `bench-out/`. Pour une machine limitée à 512 : ajouter `--max-batch 512`.
+
+Pour renforcer ensuite l'étude tout en couvrant l'ensemble de la plage :
+
+```sh
+python3 -u scripts/calibration/run_batch_study.py --no-setup --repeat 10 --focus-repeat 30 --warmups 1
+```
+
+Cette variante mesure 10 fois chaque taille, et 30 fois 2048, 4096 et 8192,
+**dans chaque campagne**. `--focus-repeat` est un minimum, pas un ajout au nombre
+`--repeat`. Les tailles renforcées sont configurables dans le collecteur via
+`--focus-sizes 2048,4096,8192`. Les modèles donnent le même poids à chaque taille :
+les répétitions supplémentaires stabilisent les moyennes sans les surpondérer.
+
+Une mesure unique ne permet pas d'estimer la variabilité : aucun intervalle
+bootstrap artificiel n'est créé. Le modèle peut proposer un optimum, mais sa
+reproductibilité exige plusieurs mesures indépendantes. La deadline de 300 s
+est large par rapport aux essais actuels ; le rapport vérifie si elle devient
+limitante. Le timeout technique reste de 600 s par sous-processus.
+
+Les cinq périmètres, y compris `local_verified_s = total_s + verification_s`
+et la vérification séparée `verification_s`,
+sont maintenant ajustés et gelés avant validation. Les anciennes campagnes
+restent lisibles ; leurs mesures ne sont pas transformées en nouvelle calibration.
+
 ## Commandes
 
 Chaque nouveau lancement de `calibration`, `fit` ou `validation` crée par défaut
@@ -44,11 +83,11 @@ python scripts/calibration/batch_calibration.py validation --model bench-out/bat
 
 Ces commandes lancent respectivement :
 
-- 10 répétitions et 1 warmup par prover/taille sur `1,4,16,64,256` ;
-- sélection, ajustement et gel des modèles et prédictions sur les 10 tailles ;
-- 10 nouvelles répétitions et 1 warmup sur `1,2,4,...,512`, avec une autre graine.
+- 1 mesure sans warmup par prover/taille sur toutes les puissances de deux de 1 à 8192 ;
+- sélection, ajustement et gel des modèles et prédictions sur les 14 tailles ;
+- 1 nouvelle mesure sans warmup sur chaque même taille, avec une autre graine.
 
-Les tailles `2,8,32,128,512` sont réservées à la validation. Aucun résultat
+Toutes les tailles sont désormais utilisées en calibration puis en validation indépendante. Aucun résultat
 exploratoire sur la forme des courbes de rapidsnark/snarkjs n'est imposé au modèle.
 La campagne complète n'est jamais lancée par l'import du module ou par les tests.
 
@@ -89,8 +128,8 @@ Cette fonction réutilise les commandes de setup instrumentées de
 `measure_zk_resources.py` : Powers of Tau, compilation, clé Groth16, vérifications
 de la clé, export des clés de vérification et du contrat.
 
-Par défaut, les 10 tailles de 1 à 512 sont préparées avant les mesures : cela
-permet de figer également les artefacts des tailles réservées à la validation.
+Par défaut, les 14 tailles de 1 à 8192 sont préparées avant les mesures : cela
+permet de figer les artefacts avant la validation indépendante.
 Pour un essai réduit, limiter **aussi** `--setup-sizes`, comme ci-dessus.
 Les options sont `--circom CHEMIN`, `--setup-sizes 1,4`,
 `--setup-timeout 21600` (6 heures par commande) et `--no-setup` pour désactiver
@@ -123,7 +162,7 @@ python scripts/bench/measure_zk_resources.py --sizes 1,2,4 --work-dir bench-out/
 Passer ensuite `--circuits-dir bench-out/batch-artifacts` à la calibration et à la
 validation. Ce script existant mesure aussi preuve/vérification ; ses résultats
 ne sont pas importés dans la nouvelle calibration. Pour une étude complète,
-préparer les 10 tailles avant le gel ; les artefacts sont contrôlés par SHA-256.
+préparer les 14 tailles avant le gel ; les artefacts sont contrôlés par SHA-256.
 
 Sur Windows, exécuter **tout le benchmark dans le conteneur** fourni par le dépôt
 permet de mesurer les deux provers sur le même OS et leurs processus enfants via
@@ -274,7 +313,7 @@ Il n'y a pas de conversion automatique RSS → travail ni de plafond mémoire ex
 
 Un optimum continu exige un passage de xi positif à négatif. Les sorties
 distinguent maximum intérieur prédit, borne expérimentale, plateau incertain et
-données insuffisantes. 512 est seulement la borne de l'expérience.
+données insuffisantes. 8192 est seulement la borne de l'expérience.
 
 Par défaut, 500 bootstraps rééchantillonnent les répétitions **dans chaque taille**.
 Les intervalles de mesure sur les TPS sont distincts des intervalles de paramètres
@@ -356,7 +395,7 @@ contre un utilisateur modifiant volontairement tous les fichiers.
 
 Après une validation terminée, utiliser [batch_theory.py](batch_theory.py),
 documenté dans [batch_theory.md](batch_theory.md), pour calculer les élasticités,
-la taille optimale sous un budget Δ = 10 s, les erreurs théorie–mesures et
+la taille optimale sous un budget Δ = 300 s, les erreurs théorie–mesures et
 générer les figures PNG/PDF. Cette analyse produit son propre `result.json`
 dans un nouveau sous-dossier de `bench-out` et conserve les campagnes sources.
 
