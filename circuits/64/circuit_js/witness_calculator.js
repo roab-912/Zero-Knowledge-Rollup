@@ -32,8 +32,6 @@ module.exports = async function builder(code, options) {
                     err = "Not enough memory.\n";
 		} else if (code == 6) {
                     err = "Input signal array access exceeds the size.\n";
-		} else if (code == 7) {
-                    err = "Out of bounds array access.\n";
 		} else {
 		    err = "Unknown error.\n";
                 }
@@ -298,7 +296,7 @@ function qualify_input(prefix,input,input1) {
 	    let t = typeof a[0];
 	    for (let i = 1; i<a.length; i++) {
 		if (typeof a[i] != t){
-		    throw new Error(`Types are not the same in the key ${prefix}`);
+		    throw new Error(`Types are not the same in the the key ${prefix}`);
 		}
 	    }
 	    if (t == "object") {

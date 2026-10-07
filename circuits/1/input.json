@@ -3,19 +3,19 @@
         "0"
     ],
     "srcBalance": [
-        999998.0
+        1000000.0
     ],
     "srcBalanceAfter": [
-        999997.0
+        999999.0
     ],
     "dest": [
         "1"
     ],
     "destBalance": [
-        999998.0
+        1000000.0
     ],
     "destBalanceAfter": [
-        999999.0
+        1000001.0
     ],
     "amount": [
         1.0

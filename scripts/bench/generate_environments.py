@@ -3,14 +3,96 @@ import argparse
 import time
 import json
 import shutil
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.interpolate import make_interp_spline
+import shlex
+import sys
+import uuid
 from typing import List, Dict
 from pathlib import Path
 
 # Gabarit de circuit : scripts/circuit_template/ (independant du CWD).
 TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "circuit_template"
+REQUIRED_ENVIRONMENT = ("circuit_js/circuit.wasm", "circuit_final.zkey", "verification_key.json")
+
+
+def missing_environment_sizes(base_path, sizes):
+    return [n for n in sizes if not all(
+        (Path(base_path) / str(n) / name).is_file() and
+        (Path(base_path) / str(n) / name).stat().st_size > 0
+        for name in REQUIRED_ENVIRONMENT)]
+
+
+def generate_missing_environments(base_path, sizes, work_dir, snarkjs, circom,
+                                  run_step, on_progress, template_dir=TEMPLATE_DIR):
+    """Generate only absent/incomplete environments, instrumented by the caller.
+
+    Reuse the repository's setup sequence without invoking the legacy plotting
+    loop. Build in isolation, verify the key, then publish a coherent environment.
+    Existing incomplete directories are archived; complete environments are never
+    regenerated. Setup steps and their logs remain outside batch measurements.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    from scripts.bench import measure_zk_resources as resources
+
+    base_path, work_dir = Path(base_path).resolve(), Path(work_dir).resolve()
+    missing = missing_environment_sizes(base_path, sizes)
+    if not missing:
+        return []
+    if not snarkjs or not circom:
+        raise RuntimeError("missing setup executable: snarkjs and circom are required")
+    generated = []
+    base_path.mkdir(parents=True, exist_ok=True)
+    for n in missing:
+        if n < 1 or n > 8192 or n & (n - 1):
+            raise ValueError("setup sizes must be powers of two from 1 to 8192")
+        attempt = uuid.uuid4().hex
+        scratch = work_dir / (f"generation-{n}-" + attempt)
+        target = base_path / str(n)
+        # Preserve an existing circuit source (including local circuit changes).
+        template = target if (target / "circuit.circom").is_file() else Path(template_dir)
+        stage = Path(resources.prepare_circuit_dir(n, str(scratch), str(template)))
+        commands = resources.env_commands(n, resources.ptau_power(n, 8),
+                                          "__SNARKJS__", "__CIRCOM__", "some random text")
+        for command in commands:
+            argv = shlex.split(command.cmd)
+            prefix = snarkjs if argv[0] == "__SNARKJS__" else circom
+            argv = list(prefix) + argv[1:]
+            metadata = {"n": n, "attempt": attempt, "step": command.step,
+                        "group": command.group, "directory": str(stage)}
+            on_progress({**metadata, "status": "running", "command": argv})
+            result = run_step(argv, stage, command.step)
+            on_progress({**metadata, **result})
+            if result["status"] != "success":
+                raise RuntimeError(f"setup failed for N={n}, step={command.step}: "
+                                   f"{result.get('message')}; see {result.get('log')}")
+        if missing_environment_sizes(scratch, [n]):
+            raise RuntimeError(f"setup finished without all required artifacts for N={n}")
+
+        # Copy only reusable artifacts; huge intermediate ceremonies stay in setup/.
+        published = base_path / (f".publish-{n}-" + attempt)
+        published.mkdir()
+        for name in ("circuit_js", "circomlib"):
+            if (stage / name).is_dir():
+                shutil.copytree(stage / name, published / name)
+        for name in ("circuit.circom", "circuit.r1cs", "circuit.r1cs.json", "circuit.sym",
+                     "circuit_final.zkey", "verification_key.json", "verifier.sol", "input.json"):
+            if (stage / name).is_file():
+                shutil.copy2(stage / name, published / name)
+        backup = None
+        if target.exists():
+            backup = base_path / (f".before-setup-{n}-" + attempt)
+            target.rename(backup)
+        try:
+            published.rename(target)
+        except OSError:
+            if backup and not target.exists():
+                backup.rename(target)
+            raise
+        generated.append(n)
+        on_progress({"n": n, "attempt": attempt, "step": "publish", "status": "success",
+                     "directory": str(target), "previous_environment": str(backup) if backup else None})
+    return generated
 
 def run_command(command: str, cwd: str) -> bool:
     """
@@ -105,6 +187,9 @@ def change_tag_circuit(file_path: str, value: str) -> None:
         f.write(content)
 
 def experiment_loop(base_path: str, max_exponent: int, commands: List[str]) -> None:
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from scipy.interpolate import make_interp_spline
     os.makedirs(base_path, exist_ok=True)
 
     times = []
