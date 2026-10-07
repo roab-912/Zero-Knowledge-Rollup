@@ -171,6 +171,7 @@ def campaign_lock(directory):
 
 def executable(value, snarkjs=False):
     """Resolve an executable, never interpret a shell command string."""
+    value = os.path.expanduser(str(value))
     found = shutil.which(value)
     if not found and Path(value).is_file():
         found = str(Path(value).resolve())
@@ -187,6 +188,36 @@ def executable(value, snarkjs=False):
         node = shutil.which("node")
         return [node, str(path)] if node else None
     return [str(path)]
+
+
+def rapidsnark_executable(value="prover"):
+    """Find a native Linux/Windows binary, including a sibling source checkout.
+
+    An explicit CLI path or RAPIDSNARK_BIN is authoritative: never silently
+    substitute a different installation if the configured one is unavailable.
+    """
+    def native(candidate):
+        command = executable(candidate)
+        if command and (os.name == "nt" or os.access(command[0], os.X_OK)):
+            return command
+        return None
+
+    if value != "prover":
+        return native(value)
+    configured = os.environ.get("RAPIDSNARK_BIN")
+    if configured:
+        return native(configured)
+    command = native("prover")
+    if command:
+        return command
+    # ROOT.parent also works when the caller is root but the repository and
+    # rapidsnark checkout belong to another user (e.g. /home/r24barbi).
+    for base in (ROOT.parent, Path.home(), ROOT):
+        for relative in ("rapidsnark/package/bin/prover", "rapidsnark/build/prover"):
+            command = native(str(base / relative))
+            if command:
+                return command
+    return None
 
 
 def probe(argv):
@@ -593,8 +624,15 @@ def collect(args):
         if document and document.get("frozen"):
             raise ValueError("calibration is frozen; use a new output directory for another experiment")
         commands = {"snarkjs": executable(args.snarkjs, True),
-                    "rapidsnark": executable(args.rapidsnark),
+                    "rapidsnark": rapidsnark_executable(args.rapidsnark),
                     "circom": executable(args.circom)}
+        if "rapidsnark" in args.provers:
+            if commands["rapidsnark"]:
+                print(f"Rapidsnark binary: {commands['rapidsnark'][0]}", flush=True)
+            else:
+                print("Rapidsnark unavailable: pass --rapidsnark /absolute/path/to/prover "
+                      "or set RAPIDSNARK_BIN; the file must exist and be executable.",
+                      file=sys.stderr, flush=True)
         print("Inspecting environment and artifact hashes...", flush=True)
         env, artifacts = environment(commands), inventory(args.circuits_dir)
         frozen = load_frozen(args.model) if args.command == "validation" else None
@@ -1029,7 +1067,8 @@ def parser():
         cmd.add_argument("--sample-interval", type=float, default=.05)
         cmd.add_argument("--seed", type=int, default=20261006 if name == "calibration" else 20261007)
         cmd.add_argument("--snarkjs", default="snarkjs", help="executable or cli.cjs path; no shell string")
-        cmd.add_argument("--rapidsnark", default="prover", help="native binary path; run this script inside Docker if needed")
+        cmd.add_argument("--rapidsnark", default="prover",
+                         help="native binary path; default searches RAPIDSNARK_BIN, PATH, then sibling/home rapidsnark checkouts")
         cmd.add_argument("--resume", action="store_true")
         if name == "validation":
             cmd.add_argument("--model", type=Path, required=True,

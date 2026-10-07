@@ -21,6 +21,46 @@ def row(n, elapsed, rep=0, status="success", warmup=False):
 
 
 class AnalysisTests(unittest.TestCase):
+    def test_rapidsnark_sibling_checkout_without_path_even_as_other_user(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "user directory"
+            binary = root / "rapidsnark/package/bin/prover"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("#!/bin/sh\nexit 0\n")
+            binary.chmod(0o755)
+            with patch.object(bench, "ROOT", root / "Zero-Knowledge-Rollup"), \
+                    patch.object(bench.shutil, "which", return_value=None), \
+                    patch.object(Path, "home", return_value=Path(tmp) / "root"), \
+                    patch.dict(bench.os.environ, {"RAPIDSNARK_BIN": ""}):
+                self.assertEqual(bench.rapidsnark_executable(), [str(binary.resolve())])
+
+    def test_explicit_rapidsnark_overrides_environment_and_no_shell(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary = Path(tmp) / "native prover"
+            binary.write_text("#!/bin/sh\nexit 0\n")
+            binary.chmod(0o755)
+            with patch.dict(bench.os.environ, {"RAPIDSNARK_BIN": "missing-prover"}):
+                self.assertEqual(bench.rapidsnark_executable(str(binary)), [str(binary.resolve())])
+            with patch.object(bench, "executable", return_value=None) as resolve:
+                self.assertIsNone(bench.rapidsnark_executable("/missing/custom/prover"))
+                resolve.assert_called_once_with("/missing/custom/prover")
+
+    def test_rapidsnark_env_setting_is_authoritative(self):
+        with patch.dict(bench.os.environ, {"RAPIDSNARK_BIN": "/missing/selected/prover"}), \
+                patch.object(bench, "executable", return_value=None) as resolve:
+            self.assertIsNone(bench.rapidsnark_executable())
+            resolve.assert_called_once_with("/missing/selected/prover")
+
+    @unittest.skipIf(bench.os.name == "nt", "POSIX executable permission")
+    def test_rapidsnark_requires_execute_permission(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary = Path(tmp) / "prover"
+            binary.write_text("#!/bin/sh\nexit 0\n")
+            binary.chmod(0o644)
+            self.assertIsNone(bench.rapidsnark_executable(str(binary)))
+            binary.chmod(0o755)
+            self.assertEqual(bench.rapidsnark_executable(str(binary)), [str(binary.resolve())])
+
     def test_affine_amortization_and_no_finite_optimum(self):
         ns = bench.CALIBRATION
         grouped = {n: [2 + .01*n] * 3 for n in ns}

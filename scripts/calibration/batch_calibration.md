@@ -164,6 +164,39 @@ facultatif pour les ressources ; sinon les valeurs manquantes sont explicites.
 
 ## Périmètre temporel
 
+### Exécution native sur un serveur Linux
+
+Rapidsnark peut être installé hors du `PATH`. Fournir son chemin à la
+calibration **et** à la validation :
+
+```sh
+python3 scripts/calibration/batch_calibration.py calibration --no-setup --rapidsnark /home/r24barbi/rapidsnark/package/bin/prover
+python3 scripts/calibration/batch_calibration.py validation --model bench-out/NOM_DU_DOSSIER_FIT/result.json --no-setup --rapidsnark /home/r24barbi/rapidsnark/package/bin/prover
+```
+
+L'étape `fit` entre ces commandes reste identique. Pour appliquer le même chemin
+à toute la chaîne (y compris le lanceur Python pour la grille jusqu'à 8192) :
+
+```sh
+export RAPIDSNARK_BIN=/home/r24barbi/rapidsnark/package/bin/prover
+```
+
+La priorité est : chemin `--rapidsnark` explicite, `RAPIDSNARK_BIN`, `prover`
+dans le `PATH`, puis les installations `rapidsnark/package/bin/prover` et
+`rapidsnark/build/prover` à côté du projet, dans le domicile de l'utilisateur
+et dans le projet. Un chemin explicitement configuré mais invalide n'est pas
+remplacé silencieusement. Sous Linux, le fichier doit être exécutable.
+Le chemin retenu est affiché et enregistré avec son empreinte dans le manifeste.
+
+Les commandes natives restent : `snarkjs wtns calculate`, puis le binaire
+rapidsnark avec `zkey witness proof public`, ou `snarkjs groth16 prove`, puis
+`snarkjs groth16 verify`. Pour snarkjs, la séparation témoin/preuve permet la
+mesure de chaque étape au lieu d'une mesure agrégée `groth16 fullprove`.
+
+Une campagne ayant enregistré `rapidsnark: unavailable` doit être relancée
+dans un nouveau dossier après correction : `--resume` conserve les essais
+déjà enregistrés et interdit de changer l'environnement d'une campagne.
+
 Dans `scripts/bench/generate_proofs.py`, les TPS historiques sont
 `N / mean(timings)` : snarkjs utilise `groth16 fullprove` (witness + preuve),
 rapidsnark utilise `wtns calculate` puis le prover via Docker. Préparation,
