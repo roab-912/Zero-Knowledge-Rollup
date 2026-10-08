@@ -1,0 +1,12 @@
+{
+  "source": "D:\\Documents\\Code\\GitHub\\Zero-Knowledge-Rollup\\bench-out\\20260825_120620",
+  "phases": [
+    "prove",
+    "verify"
+  ],
+  "deadline_s": null,
+  "ram_budget_GB": null,
+  "derivative": "numpy.gradient(log(y), log(N)), edge_order=1",
+  "physical_capacities_calibrated": false,
+  "verify_aggregation": "successful repetitions from steps.csv pooled by N; population SD"
+}
