@@ -79,6 +79,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+if __package__:
+    from .memory_stats import MEMORY_METRICS, memory_intervals, summarize_memory
+else:
+    from memory_stats import MEMORY_METRICS, memory_intervals, summarize_memory
+
 # --------------------------------------------------------------------------- #
 # Constantes
 # --------------------------------------------------------------------------- #
@@ -471,7 +476,13 @@ class StepResult:
     cpu_pct_of_core: float = 0.0  # cpu_total/wall*100
     cpu_pct_of_machine: float = 0.0
     rss_peak_bytes: float = 0.0
-    rss_mean_bytes: float = 0.0
+    rss_peak_source: str = "unavailable"
+    rss_mean_bytes: Optional[float] = None
+    rss_mean_method: str = "time_weighted_midpoint_v1"
+    rss_window_start_s: float = 0.0
+    rss_window_end_s: float = 0.0
+    rss_measurement_status: str = "unavailable"
+    _rss_intervals: List[Tuple[float, float]] = field(default_factory=list, repr=False)
     io_read_bytes: float = 0.0
     io_write_bytes: float = 0.0
     io_rchar_bytes: float = 0.0
@@ -489,7 +500,9 @@ class StepResult:
     log_file: str = ""
 
     def to_row(self) -> Dict[str, Any]:
-        d = dict(self.__dict__)
+        d = {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
+        for metric in MEMORY_METRICS:
+            d.setdefault(metric, None)
         return d
 
 
@@ -526,7 +539,7 @@ def write_samples_csv(path: str, samples: List[Sample], ncpu: int) -> None:
             )
             w.writerow(
                 [
-                    f"{s.t:.4f}",
+                    f"{s.t:.9f}",
                     int(s.proc_rss),
                     f"{s.proc_cpu_s:.4f}",
                     f"{max(0.0, proc_cpu_pct):.2f}",
@@ -626,6 +639,7 @@ class Runner:
         ru0 = self._rusage_children()
         sampler.start()
         t0 = time.perf_counter()
+        res.rss_window_start_s = t0 - sampler._t0
 
         try:
             with open(log_path, "w", encoding="utf-8", errors="replace") as log:
@@ -650,7 +664,19 @@ class Runner:
                 log.write(f"\n[ERREUR] {exc}\n")
 
         res.wall_s = time.perf_counter() - t0
+        res.rss_window_end_s = res.rss_window_start_s + res.wall_s
         samples = sampler.stop()
+        cells, quality = memory_intervals(
+            [(s.t, s.proc_rss, s.nproc) for s in samples],
+            res.rss_window_start_s, res.rss_window_end_s)
+        if scope == "system":
+            cells = []  # Launcher RSS cannot describe the container's RAM.
+            quality.update(rss_measurement_status="unavailable_system_scope",
+                           rss_observed_duration_s=0.0, rss_observed_fraction=0.0,
+                           rss_valid_samples=0)
+        res._rss_intervals = cells
+        for name, value in {**summarize_memory(cells), **quality}.items():
+            setattr(res, name, value)
         ru1 = self._rusage_children()
         res.ok = res.returncode == 0
 
@@ -672,10 +698,12 @@ class Runner:
                 res.cpu_total_s = sampled_cpu
             rss_values = [s.proc_rss for s in samples if s.proc_rss > 0]
             res.rss_peak_bytes = max(rss_values) if rss_values else 0.0
-            res.rss_mean_bytes = statistics.mean(rss_values) if rss_values else 0.0
+            res.rss_peak_source = "process_tree_sampled" if rss_values else "unavailable"
+            # The mean/median/percentiles above are weighted by elapsed time.
             if rss_rusage > res.rss_peak_bytes:
                 # le sampler peut manquer un pic très bref
                 res.rss_peak_bytes = rss_rusage
+                res.rss_peak_source = "rusage_children_high_watermark"
             res.io_read_bytes = max(0.0, last.proc_read - first.proc_read)
             res.io_write_bytes = max(0.0, last.proc_write - first.proc_write)
             res.io_rchar_bytes = max(0.0, last.proc_rchar - first.proc_rchar)
@@ -691,6 +719,8 @@ class Runner:
             write_samples_csv(samples_path, samples, self.ncpu)
         else:
             res.rss_peak_bytes = rss_rusage
+            if rss_rusage > 0:
+                res.rss_peak_source = "rusage_children_high_watermark"
 
         # Pour un step exécuté dans un conteneur, les compteurs du process hôte
         # ne voient rien : on se rabat sur les compteurs système.
@@ -698,6 +728,8 @@ class Runner:
             if res.sys_cpu_busy_s > 0:
                 res.cpu_total_s = res.sys_cpu_busy_s
             if res.sys_mem_used_delta_bytes > 0:
+                if res.sys_mem_used_delta_bytes > res.rss_peak_bytes:
+                    res.rss_peak_source = "system_memory_delta"
                 res.rss_peak_bytes = max(res.rss_peak_bytes, res.sys_mem_used_delta_bytes)
             res.io_read_bytes = max(res.io_read_bytes, res.sys_read_bytes)
             res.io_write_bytes = max(res.io_write_bytes, res.sys_write_bytes)
@@ -1402,7 +1434,42 @@ def aggregate(steps: List[StepResult]) -> Dict[str, Any]:
         dict({"n": size, "group": group}, **{f"{m}_sum": vals[m] for m in METRICS})
         for (size, group), vals in sorted(groups.items())
     ]
-    return {"phases": out_phases, "env_groups": out_groups}
+    # Pool temporal distributions inside a repetition BEFORE computing its
+    # median/percentiles. A mean of stage medians is not a phase median.
+    memory_reps: Dict[Tuple[int, str, str, int], List[StepResult]] = {}
+    for s in steps:
+        memory_reps.setdefault((s.size, s.phase, s.prover, s.rep), []).append(s)
+    memory_rows = []
+    for (n, phase, prover, rep), members in sorted(memory_reps.items()):
+        complete = all(s._rss_intervals for s in members)
+        cells = [cell for s in members for cell in s._rss_intervals] if complete else []
+        duration = sum(s.wall_s for s in members)
+        observed = sum(getattr(s, "rss_observed_duration_s", 0.0) for s in members)
+        gaps = [getattr(s, "rss_max_sample_gap_s", None) for s in members]
+        memory_rows.append(dict(
+            n=n, phase=phase, prover=prover, rep=rep, ok=all(s.ok for s in members),
+            wall_s=duration, rss_mean_method="time_weighted_midpoint_v1",
+            rss_measurement_status=("incomplete" if not complete else
+                                    "sparse" if any(s.rss_measurement_status == "sparse" for s in members) else "ok"),
+            rss_valid_samples=sum(getattr(s, "rss_valid_samples", 0) for s in members),
+            rss_observed_fraction=observed / duration if duration else 0.0,
+            rss_max_sample_gap_s=max((v for v in gaps if v is not None), default=None),
+            rss_peak_bytes=max(s.rss_peak_bytes for s in members),
+            **summarize_memory(cells)))
+    for row in out_phases:
+        matching = [r for r in memory_rows
+                    if (r["n"], r["phase"], r["prover"]) == (row["n"], row["phase"], row["prover"])]
+        valid = [r for r in matching if r["ok"] and r["rss_mean_bytes"] is not None]
+        row["rss_n_reps_valid"] = len(valid)
+        row["rss_n_reps_sparse"] = sum(r["rss_measurement_status"] == "sparse" for r in valid)
+        for metric in MEMORY_METRICS:
+            vals = [r[metric] for r in valid]
+            for suffix, reducer in (("mean", statistics.mean), ("median", statistics.median),
+                                    ("min", min), ("max", max), ("stdev", statistics.pstdev)):
+                row[f"{metric}_{suffix}"] = reducer(vals) if vals else None
+        # Preserve historical peak fields; add the median across repetitions.
+        row["rss_peak_bytes_median"] = statistics.median(r["rss_peak_bytes"] for r in matching)
+    return {"phases": out_phases, "env_groups": out_groups, "memory_repetitions": memory_rows}
 
 
 def phase_lookup(phases: List[Dict[str, Any]], prover: str) -> Dict[Tuple[int, str], Dict[str, Any]]:
@@ -2973,6 +3040,16 @@ def write_report(outdir: str, manifest: Dict[str, Any], prover: str, usd_per_hou
     lines.append(f"- rapidsnark : {manifest['params'].get('rapidsnark_status')}")
     lines.append(f"- Tailles mesurées : {', '.join(str(s) for s in sizes)}")
     lines.append(f"- Répétitions preuve/vérification : {manifest['params']['repeat']}\n")
+    if "memory_measurement" in manifest:
+        lines.append("## Distributions RAM\n")
+        lines.append("Moyenne, médiane, P05/P25/P75/P95/P99 et écart-type temporels "
+                     "pondérés sont disponibles dans `steps.csv` et "
+                     "`memory_repetitions.csv`. Leurs résumés entre répétitions "
+                     "sont dans `phases.csv`, avec les effectifs valides. "
+                     "Les traces `raw/samples/` sont conservées. Les valeurs "
+                     "indisponibles sont vides ; `sparse` signale une seule "
+                     "observation positive. Le pic reste utilisé dans les "
+                     "figures de dimensionnement ci-dessous.\n")
     lines.append("## Moyennes par phase\n")
     lines.append("| n | phase | durée (s) | CPU (s) | cœurs occupés | RSS max (MiB) | lecture (MiB) | écriture (MiB) |")
     lines.append("|---|-------|-----------|---------|---------------|---------------|---------------|----------------|")
@@ -3287,6 +3364,17 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
         "circuits": circuits_info,
         "steps": [s.to_row() for s in runner.steps],
         "aggregates": agg,
+        "memory_measurement": {
+            "version": 1,
+            "quantity": "sum of process-tree RSS; shared pages may be counted more than once",
+            "method": "time_weighted_midpoint_v1",
+            "quantiles": "inverse duration-weighted empirical CDF",
+            "zeros": "included at startup/exit; entirely unobserved command is null",
+            "phase": "sequential step distributions pooled within each repetition; gaps between steps excluded",
+            "repetitions": "equal-weight summary of successful, measured repetitions; counts exported",
+            "system_scope": "process RSS distribution unavailable for containers; legacy peak may use system delta",
+            "raw": "raw/samples/*.csv retained, including with --prune",
+        },
     }
     return manifest
 
@@ -3295,6 +3383,7 @@ def write_outputs(outdir: str, manifest: Dict[str, Any], args: argparse.Namespac
     save_csv(os.path.join(outdir, "steps.csv"), manifest["steps"])
     save_csv(os.path.join(outdir, "phases.csv"), manifest["aggregates"]["phases"])
     save_csv(os.path.join(outdir, "env_breakdown.csv"), manifest["aggregates"]["env_groups"])
+    save_csv(os.path.join(outdir, "memory_repetitions.csv"), manifest["aggregates"].get("memory_repetitions", []))
     save_json(os.path.join(outdir, "manifest.json"), manifest)
 
 
@@ -3367,6 +3456,8 @@ def main() -> None:
     g.add_argument("--dry-run", action="store_true", help="afficher les commandes sans les exécuter")
 
     args = p.parse_args()
+    if not math.isfinite(args.sample_interval) or args.sample_interval <= 0:
+        p.error("--sample-interval doit être strictement positif et fini")
 
     # --- régénération de figures et tables uniquement --- #
     if args.plot_only:
