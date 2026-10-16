@@ -1,0 +1,13 @@
+phase,prover,n,historical_n_reps,historical_execution_s
+prove,rapidsnark,1,10,1.915710048750043
+prove,rapidsnark,4,10,1.9611996980383992
+prove,rapidsnark,32,10,2.2032638266682625
+prove,rapidsnark,128,10,2.765958411619067
+prove,rapidsnark,1024,10,7.948353320360184
+prove,rapidsnark,4096,10,24.59429123532027
+prove,snarkjs,1,10,6.462122273631394
+prove,snarkjs,4,10,6.677151769399643
+prove,snarkjs,32,10,7.954889330081642
+prove,snarkjs,128,10,11.1922616539523
+prove,snarkjs,1024,10,36.14319420326501
+prove,snarkjs,4096,10,119.50488612893969

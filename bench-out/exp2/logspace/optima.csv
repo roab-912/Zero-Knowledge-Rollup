@@ -1,0 +1,5 @@
+phase,prover,model,intrinsic_N0,continuous_best_in_range,integer_best_in_range,predicted_best_tested_N,observed_best_tested_N,predicted_choice_at_upper_boundary,observed_choice_at_upper_boundary,choice_ratio,observed_throughput_at_predicted_choice,observed_best_throughput,throughput_regret_pct,throughput_retained_pct,tolerance_pct,recommendation_within_tolerance,observed_near_optimal_sizes
+prove,rapidsnark,affine,,8192.0,8192,8192,8192,True,True,1.0,1793.735206937206,1793.735206937206,0.0,100.0,5.0,True,8192
+prove,rapidsnark,superlinear,,8192.0,8192,8192,8192,True,True,1.0,1793.735206937206,1793.735206937206,0.0,100.0,5.0,True,8192
+prove,snarkjs,affine,,8192.0,8192,8192,4096,True,False,2.0,319.1006170963303,342.7474919795852,6.899211646066061,93.10078835393394,5.0,False,4096
+prove,snarkjs,superlinear,,8192.0,8192,8192,4096,True,False,2.0,319.1006170963303,342.7474919795852,6.899211646066061,93.10078835393394,5.0,False,4096

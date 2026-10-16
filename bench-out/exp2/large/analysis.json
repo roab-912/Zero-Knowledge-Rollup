@@ -1,0 +1,107 @@
+{
+  "source": "D:\\Documents\\Code\\GitHub\\Zero-Knowledge-Rollup\\bench-out\\20260825_120620",
+  "train_max": 4096,
+  "power": 2.0,
+  "design": "large",
+  "calibration_count": 6,
+  "tolerance": 0.05,
+  "primary_elasticity_comparison": "log throughput gains on identical adjacent size intervals",
+  "selection": "size coordinates only; no measured values used",
+  "phases": [
+    "prove"
+  ],
+  "objective": "unweighted least squares in log time",
+  "coefficient_units": {
+    "t0": "s",
+    "b": "s/tx",
+    "a": "s/tx^p"
+  },
+  "model_selection": "none; both prespecified models reported",
+  "source_sha256": {
+    "phases.csv": "914d51c68dd055748aa78eb813ad16a817d49626cd5afc8779ac00044d3f38a9",
+    "steps.csv": "26db42b2a9441d52f907f2f4a95242894ac1f7f1f309af906c79e3ec5c886b29",
+    "manifest.json": "41e418392d40304a65bdf16f6940241a82907aaeb8505aeebf1b549422ea9f49"
+  },
+  "fits": [
+    {
+      "phase": "prove",
+      "prover": "rapidsnark",
+      "train_sizes": [
+        1,
+        256,
+        512,
+        1024,
+        2048,
+        4096
+      ],
+      "validation_sizes": [
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        8192
+      ],
+      "models": {
+        "affine": {
+          "name": "affine",
+          "t0": 0.19553084290426348,
+          "b": 0.0005750103727536114,
+          "a": 0.0,
+          "power": 2.0,
+          "train_log_rmse": 0.02276214424930957
+        },
+        "superlinear": {
+          "name": "superlinear",
+          "t0": 0.19553084292599762,
+          "b": 0.0005750103726043156,
+          "a": 0.0,
+          "power": 2.0,
+          "train_log_rmse": 0.02276214424930963
+        }
+      }
+    },
+    {
+      "phase": "prove",
+      "prover": "snarkjs",
+      "train_sizes": [
+        1,
+        256,
+        512,
+        1024,
+        2048,
+        4096
+      ],
+      "validation_sizes": [
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        8192
+      ],
+      "models": {
+        "affine": {
+          "name": "affine",
+          "t0": 0.6665530589664554,
+          "b": 0.0028659328279074525,
+          "a": 0.0,
+          "power": 2.0,
+          "train_log_rmse": 0.03662082124630993
+        },
+        "superlinear": {
+          "name": "superlinear",
+          "t0": 0.666553058433688,
+          "b": 0.0028659328281937227,
+          "a": 0.0,
+          "power": 2.0,
+          "train_log_rmse": 0.03662082124630991
+        }
+      }
+    }
+  ]
+}
