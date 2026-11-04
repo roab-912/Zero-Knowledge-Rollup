@@ -1,0 +1,1281 @@
+{
+  "source": "/home/r24barbi/Zero-Knowledge-Rollup/bench-out/exp3/full_workflow",
+  "tie_rtol": 1e-06,
+  "release_period_s": null,
+  "rejected_repetitions": [],
+  "figure_style": {
+    "reference": "exp1/First Result",
+    "font_size": 8,
+    "width_inches": 8.5,
+    "dpi": 300,
+    "formats": [
+      "png",
+      "pdf"
+    ]
+  },
+  "pipelines": [
+    {
+      "prover": "rapidsnark",
+      "stages": [
+        "transaction_build",
+        "txpool_insert",
+        "txpool_select",
+        "batch_build",
+        "txpool_assign",
+        "state_copy",
+        "compute_batch",
+        "input_prepare",
+        "state_hash_before",
+        "state_hash_after",
+        "da_serialize",
+        "da_compress",
+        "da_json_persist",
+        "da_blob_persist",
+        "snapshot_persist",
+        "witness",
+        "proof",
+        "verify"
+      ],
+      "sizes": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192
+      ],
+      "excluded_sizes": []
+    },
+    {
+      "prover": "snarkjs",
+      "stages": [
+        "transaction_build",
+        "txpool_insert",
+        "txpool_select",
+        "batch_build",
+        "txpool_assign",
+        "state_copy",
+        "compute_batch",
+        "input_prepare",
+        "state_hash_before",
+        "state_hash_after",
+        "da_serialize",
+        "da_compress",
+        "da_json_persist",
+        "da_blob_persist",
+        "snapshot_persist",
+        "witness",
+        "proof",
+        "verify"
+      ],
+      "sizes": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192
+      ],
+      "excluded_sizes": []
+    }
+  ],
+  "transitions": [
+    {
+      "prover": "rapidsnark",
+      "stage_before": "txpool_assign",
+      "stage_after": "transaction_build",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "transaction_build",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "input_prepare",
+      "stage_after": "transaction_build",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_compress",
+      "stage_after": "transaction_build",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "transaction_build",
+      "stage_after": "da_compress",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_blob_persist",
+      "stage_after": "transaction_build",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "transaction_build",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "txpool_select",
+      "stage_after": "txpool_insert",
+      "N_low": 1,
+      "N_high": 2,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_json_persist",
+      "stage_after": "txpool_insert",
+      "N_low": 16,
+      "N_high": 32,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_insert",
+      "N_low": 4,
+      "N_high": 8,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "witness",
+      "stage_after": "txpool_insert",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "proof",
+      "stage_after": "txpool_insert",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "verify",
+      "stage_after": "txpool_insert",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "dominant_stage_switch",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_select",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "txpool_assign",
+      "stage_after": "input_prepare",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_assign",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_assign",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "txpool_assign",
+      "stage_after": "da_serialize",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "txpool_assign",
+      "stage_after": "da_compress",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_assign",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "input_prepare",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "da_serialize",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "da_compress",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "da_blob_persist",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_blob_persist",
+      "stage_after": "state_copy",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_copy",
+      "stage_after": "da_blob_persist",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "compute_batch",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "state_hash_before",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "compute_batch",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "state_hash_after",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "compute_batch",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "compute_batch",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "compute_batch",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "input_prepare",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "input_prepare",
+      "stage_after": "da_serialize",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "input_prepare",
+      "stage_after": "da_compress",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "state_hash_after",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "state_hash_before",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "state_hash_after",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_before",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "da_serialize",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "state_hash_after",
+      "stage_after": "da_compress",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_compress",
+      "stage_after": "da_serialize",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_serialize",
+      "stage_after": "da_compress",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_blob_persist",
+      "stage_after": "da_serialize",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_compress",
+      "stage_after": "da_blob_persist",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_blob_persist",
+      "stage_after": "da_compress",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "snapshot_persist",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "da_json_persist",
+      "stage_after": "proof",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "witness",
+      "stage_after": "proof",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "verify",
+      "stage_after": "witness",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "rapidsnark",
+      "stage_before": "verify",
+      "stage_after": "proof",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "txpool_assign",
+      "stage_after": "transaction_build",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "transaction_build",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "input_prepare",
+      "stage_after": "transaction_build",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "transaction_build",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_compress",
+      "stage_after": "transaction_build",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "transaction_build",
+      "stage_after": "da_compress",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_blob_persist",
+      "stage_after": "transaction_build",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "transaction_build",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "txpool_select",
+      "stage_after": "txpool_insert",
+      "N_low": 1,
+      "N_high": 2,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_insert",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_json_persist",
+      "stage_after": "txpool_insert",
+      "N_low": 16,
+      "N_high": 32,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_insert",
+      "N_low": 4,
+      "N_high": 8,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "witness",
+      "stage_after": "txpool_insert",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "verify",
+      "stage_after": "txpool_insert",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_select",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_select",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "txpool_assign",
+      "stage_after": "input_prepare",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "txpool_assign",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "txpool_assign",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "txpool_assign",
+      "stage_after": "da_serialize",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "txpool_assign",
+      "stage_after": "da_compress",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "txpool_assign",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "input_prepare",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "da_serialize",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "da_compress",
+      "N_low": 64,
+      "N_high": 128,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "da_blob_persist",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_blob_persist",
+      "stage_after": "state_copy",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_copy",
+      "stage_after": "da_blob_persist",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "compute_batch",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "state_hash_before",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "compute_batch",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "state_hash_after",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "compute_batch",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "compute_batch",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "compute_batch",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "input_prepare",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "input_prepare",
+      "stage_after": "da_serialize",
+      "N_low": 256,
+      "N_high": 512,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "input_prepare",
+      "stage_after": "da_compress",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "input_prepare",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "state_hash_after",
+      "N_low": 128,
+      "N_high": 256,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "state_hash_before",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "state_hash_after",
+      "N_low": 4096,
+      "N_high": 8192,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_before",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "da_serialize",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "state_hash_after",
+      "stage_after": "da_compress",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_compress",
+      "stage_after": "da_serialize",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_serialize",
+      "stage_after": "da_compress",
+      "N_low": 32,
+      "N_high": 64,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_blob_persist",
+      "stage_after": "da_serialize",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "da_serialize",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_compress",
+      "stage_after": "da_blob_persist",
+      "N_low": 2,
+      "N_high": 4,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "da_blob_persist",
+      "stage_after": "da_compress",
+      "N_low": 8,
+      "N_high": 16,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "snapshot_persist",
+      "stage_after": "da_compress",
+      "N_low": 1024,
+      "N_high": 2048,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    },
+    {
+      "prover": "snarkjs",
+      "stage_before": "verify",
+      "stage_after": "witness",
+      "N_low": 2048,
+      "N_high": 4096,
+      "kind": "pairwise_crossing",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    }
+  ],
+  "proving_phase_transitions": [
+    {
+      "prover": "rapidsnark",
+      "stage_before": "verify",
+      "stage_after": "proving_total",
+      "N_low": 512,
+      "N_high": 1024,
+      "kind": "dominant_stage_switch",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    }
+  ]
+}

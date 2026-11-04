@@ -9,3 +9,5 @@ circuits/*
 *.sym
 *.ptau
 *.wtns
+logs/*
+raw/*
