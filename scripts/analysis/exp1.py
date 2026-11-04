@@ -477,7 +477,9 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--from", dest="run_dir", type=Path,
                         default=ROOT / "bench-out/20260825_120620")
-    parser.add_argument("--outdir", type=Path, default=ROOT / "bench-out/exp1")
+    parser.add_argument("--outdir", type=Path,
+                        help="Dossier de sortie (défaut : bench-out/exp1/<benchmark>). "
+                             "Un suffixe est ajouté si le dossier existe déjà.")
     parser.add_argument("--phases", nargs="+", choices=["prove", "verify", "env"],
                         default=["prove", "verify"])
     parser.add_argument("--deadline", type=float, help="Budget Delta explicite en secondes")
@@ -500,7 +502,17 @@ def main(argv=None):
     with (args.run_dir / "manifest.json").open(encoding="utf-8") as f:
         manifest = json.load(f)
     series = load_series(args.run_dir, args.phases)
-    args.outdir.mkdir(parents=True, exist_ok=True)
+    output_base = args.outdir if args.outdir is not None else (
+        ROOT / "bench-out/exp1" / args.run_dir.resolve().name)
+    args.outdir = output_base
+    suffix = 2
+    while True:
+        try:
+            args.outdir.mkdir(parents=True, exist_ok=False)
+            break
+        except FileExistsError:
+            args.outdir = output_base.with_name(f"{output_base.name}_{suffix}")
+            suffix += 1
     export_metrics(series, args.outdir)
     optima = observed_optima(series, args.deadline, args.ram_budget)
     write_csv(args.outdir / "observed_optima.csv", optima)
@@ -525,3 +537,5 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# python3 scripts/analysis/exp1.py --from bench-out/<dossier_du_nouveau_benchmark>

@@ -1014,9 +1014,11 @@ NATIVE_CANDIDATES = (
     "prover",
 )
 NATIVE_PATH_CANDIDATES = (
+    "rapidsnark/package/bin/prover",
+    "rapidsnark/build_prover/src/prover",
+    "rapidsnark/build/prover",
     "circuits/rapidsnark/package/bin/prover",
     "circuits/rapidsnark/build/prover",
-    "rapidsnark/package/bin/prover",
 )
 # emplacements usuels d'une compilation locale sous Debian/WSL, hors dépôt
 NATIVE_ABS_CANDIDATES = (
@@ -1210,6 +1212,13 @@ def detect_rapidsnark(
 
     if mode in ("auto", "native"):
         binary = args.rapidsnark_bin or ""
+        # Préférer la compilation du dépôt aux installations du PATH ou de ~.
+        if not binary:
+            for rel in NATIVE_PATH_CANDIDATES:
+                cand = os.path.join(repo_root, rel)
+                if os.path.isfile(cand) and os.access(cand, os.X_OK):
+                    binary = os.path.abspath(cand)
+                    break
         if not binary:
             for cand in NATIVE_CANDIDATES:
                 found = shutil.which(cand)
@@ -1217,8 +1226,7 @@ def detect_rapidsnark(
                     binary = found
                     break
         if not binary:
-            candidates = [os.path.join(repo_root, rel) for rel in NATIVE_PATH_CANDIDATES]
-            candidates += [os.path.expanduser(p) for p in NATIVE_ABS_CANDIDATES]
+            candidates = [os.path.expanduser(p) for p in NATIVE_ABS_CANDIDATES]
             for cand in candidates:
                 if os.path.isfile(cand) and os.access(cand, os.X_OK):
                     binary = os.path.abspath(cand)
@@ -3411,7 +3419,9 @@ def main() -> None:
     g.add_argument("--out-root", type=str, default="bench-out",
                    help="racine des runs ; le run va dans <racine>/YYYYMMDD_HHmmss")
     g.add_argument("--out-dir", type=str, default="", help="dossier de sortie explicite (ignore --out-root)")
-    g.add_argument("--repo-root", type=str, default=".", help="racine du dépôt")
+    g.add_argument("--repo-root", type=str,
+                   default=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                   help="racine du dépôt (par défaut : déduite du chemin du script)")
     g.add_argument("--template-dir", type=str, default="scripts/circuit_template", help="dossier contenant circuit.circom et circomlib")
     g.add_argument("--circuits-dir", type=str, default="circuits", help="circuits existants (avec --skip-setup)")
     g.add_argument("--work-dir", type=str, default="", help="dossier de travail des circuits (défaut : <sortie>/circuits)")
@@ -3522,3 +3532,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# python3 scripts/bench/measure_zk_resources.py --max-exponent 13 --skip-setup --circuits-dir circuits --repeat 1 --prover both --rapidsnark-mode native --require-rapidsnark --count-constraints --prune
