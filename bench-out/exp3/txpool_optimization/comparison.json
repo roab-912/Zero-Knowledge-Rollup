@@ -1,0 +1,31 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "sqlite": "3.50.4",
+  "baseline_sha256": "99c357bf5d3ed79d6b0c55381756a645a59d0118d34e53a6d8a6d573b52efb58",
+  "current_sha256": "1e0f78ec2826d488961c43a1f11f615f3fe17de8f09f945ee6a1749b00659db6",
+  "repeat": 3,
+  "summaries": [
+    {
+      "size": 512,
+      "before_mean_s": 6.24999479999921,
+      "before_stdev_s": 0.46806721008039376,
+      "before_with_close_mean_s": 6.24999479999921,
+      "after_mean_s": 0.05878626671619713,
+      "after_stdev_s": 0.011412780714218279,
+      "after_with_close_mean_s": 0.065322033323658,
+      "speedup": 106.31725995073566
+    },
+    {
+      "size": 8192,
+      "before_mean_s": 99.0643713666359,
+      "before_stdev_s": 1.7746938611062923,
+      "before_with_close_mean_s": 99.0643713666359,
+      "after_mean_s": 1.0213266333254676,
+      "after_stdev_s": 0.22253838188800987,
+      "after_with_close_mean_s": 1.0309797666268423,
+      "speedup": 96.99577797563114
+    }
+  ],
+  "limits": "Local isolated ingestion; excludes HTTP and SNARK; speedup is not a server prediction"
+}

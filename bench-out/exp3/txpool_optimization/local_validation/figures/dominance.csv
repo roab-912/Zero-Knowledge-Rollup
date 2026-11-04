@@ -1,0 +1,3 @@
+prover,n,dominant_stages,T_max_stage_s,T_sum_stages_s,ideal_pipeline_bound_tx_s,sequential_estimate_tx_s,release_period_s,ideal_bound_with_release_tx_s
+local_only,512,da,0.2690362,0.36990103333333335,1903.0896213966744,1384.1540138078374,,1903.0896213966744
+local_only,8192,batch_preparation,0.9907409333333334,1.5476071333333334,8268.559140317475,5293.333058213267,,8268.559140317475

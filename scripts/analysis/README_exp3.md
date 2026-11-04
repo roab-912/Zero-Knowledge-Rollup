@@ -72,6 +72,13 @@ entre les groupes ; chaque groupe est supposé exécuté séquentiellement.
 Le groupe DA inclut les coûts locaux de stockage, pas la publication L1.
 Une ancienne mesure `fullprove` reste combinée et n'invente pas de witness.
 
+`Batch preparation` conserve son nom et inclut l'ingestion dans la txpool.
+Le pool réutilise maintenant une connexion WAL, avec une transaction atomique
+par `add()` (insertion + hash final) et `synchronous=NORMAL`. Les appels restent
+individuels dans le benchmark et dans l'API. Une nouvelle collecte est nécessaire
+pour mesurer cette optimisation ; relancer uniquement `exp3.py` conserve les
+durées de l'ancienne implémentation.
+
 Il suffit de relancer l'analyse sur une collecte détaillée existante :
 
 ```bash

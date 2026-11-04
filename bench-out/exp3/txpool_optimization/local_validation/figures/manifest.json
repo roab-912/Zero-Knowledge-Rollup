@@ -1,0 +1,70 @@
+{
+  "source": "D:\\Documents\\Code\\GitHub\\Zero-Knowledge-Rollup\\bench-out\\exp3\\txpool_optimization\\local_validation",
+  "tie_rtol": 1e-06,
+  "view": "grouped",
+  "groups": {
+    "batch_preparation": [
+      "transaction_build",
+      "txpool_insert",
+      "txpool_select",
+      "batch_build",
+      "txpool_assign"
+    ],
+    "computation": [
+      "state_copy",
+      "compute_batch",
+      "input_prepare",
+      "state_hash_before",
+      "state_hash_after",
+      "state_hash"
+    ],
+    "da": [
+      "da_serialize",
+      "da_compress",
+      "da_json_persist",
+      "da_blob_persist",
+      "snapshot_persist",
+      "da_encode",
+      "da_persist"
+    ]
+  },
+  "release_period_s": null,
+  "rejected_repetitions": [],
+  "figure_style": {
+    "reference": "exp1/First Result",
+    "font_size": 8,
+    "width_inches": 8.5,
+    "dpi": 300,
+    "formats": [
+      "png",
+      "pdf"
+    ]
+  },
+  "pipelines": [
+    {
+      "prover": "local_only",
+      "stages": [
+        "batch_preparation",
+        "computation",
+        "da"
+      ],
+      "sizes": [
+        512,
+        8192
+      ],
+      "excluded_sizes": []
+    }
+  ],
+  "transitions": [
+    {
+      "prover": "local_only",
+      "stage_before": "da",
+      "stage_after": "batch_preparation",
+      "N_low": 512,
+      "N_high": 8192,
+      "kind": "dominant_stage_switch",
+      "uncertainty": "measured bracket; no fitted crossing or confidence interval"
+    }
+  ],
+  "proving_phase_transitions": []
+}

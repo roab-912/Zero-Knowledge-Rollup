@@ -43,7 +43,11 @@ def measure_local(size, rep, workdir, state_accounts=None):
     executor = Executor()
     # A fresh, isolated pool per invocation; schema creation is one-time setup.
     # UUID paths also allow rerunning a worker without selecting stale rows.
-    pool = TxPool(str(workdir / f"txpool_{uuid.uuid4().hex}.sqlite3"))
+    with TxPool(str(workdir / f"txpool_{uuid.uuid4().hex}.sqlite3")) as pool:
+        return _measure_local_steps(size, rep, workdir, accounts, state, da, executor, pool)
+
+
+def _measure_local_steps(size, rep, workdir, accounts, state, da, executor, pool):
     rows = []
 
     def measure(stage, operation):
@@ -103,6 +107,7 @@ def measure_local(size, rep, workdir, state_accounts=None):
     if tuple(row["stage"] for row in rows) != LOCAL_V2:
         raise ValueError("Local measurement schema mismatch")
     return dict(version=2, size=size, rep=rep, rows=rows,
+                txpool_storage="persistent WAL connection; atomic insert+hash; synchronous=NORMAL",
                 payload_bytes=len(payload), serialized_bytes=len(serialized), state_accounts=accounts,
                 txpool_pending_initial=size,
                 workload="independent transfers; unique senders and recipients; amount=1",

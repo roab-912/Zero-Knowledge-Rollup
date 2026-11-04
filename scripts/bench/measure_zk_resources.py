@@ -3437,6 +3437,8 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
             "zk_timings": "steps.csv: command elapsed times include process/container startup",
             "local_workload": "N independent transfers, amount=1, N pending SQLite transactions; 2N or fixed account count",
             "local_storage": "isolated run files, buffered writes without fsync; no L1 broadcast",
+            "txpool_storage": "one persistent WAL connection per pool; atomic insert+hash per add; synchronous=NORMAL",
+            "txpool_shutdown": "pool closed at worker exit, outside per-operation timers",
             "local_resources": "per-operation CPU and wall only; wrapper CPU/RSS/IO in steps.csv include startup",
             "limits": "stage dominance is not identification of a physical resource bottleneck",
         },

@@ -26,9 +26,11 @@ ROOT = Path(__file__).resolve().parents[2]
 class CollectionTests(unittest.TestCase):
     def test_txpool_closes_connections_after_use(self):
         with tempfile.TemporaryDirectory() as directory:
-            pool = TxPool(str(Path(directory) / "pool.sqlite3"))
-            with pool._connect() as conn:
-                conn.execute("SELECT 1")
+            with TxPool(str(Path(directory) / "pool.sqlite3")) as pool:
+                with pool._connect() as conn:
+                    conn.execute("SELECT 1")
+                with pool._connect() as reused:
+                    self.assertIs(conn, reused)
             with self.assertRaises(sqlite3.ProgrammingError):
                 conn.execute("SELECT 1")
 

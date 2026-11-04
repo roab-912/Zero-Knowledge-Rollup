@@ -64,19 +64,30 @@ La base isolée contient exactement N transactions en attente, avec des
 émetteurs uniques. Le benchmark mesure les méthodes réelles de `TxPool` sans
 démarrer l'API du séquenceur. Il ne couvre pas la contention entre producteurs,
 une grande file d'attente préexistante, les doublons d'émetteurs ou la remise en
-attente après arrondi à une puissance de deux. La fermeture explicite des
-connexions SQLite fait partie du comportement courant.
+attente après arrondi à une puissance de deux. Le pool réutilise une connexion
+SQLite protégée par un verrou ; chaque `add()` valide ensemble l'insertion et
+le hash final, en une transaction. Les options WAL et `synchronous=NORMAL`
+sont conservées. La connexion est fermée à la fin du worker, hors des timers
+par opération. Une application peut utiliser `TxPool.close()` ou `with TxPool(...)`.
 
 La construction des transactions et leur insertion représentent le travail
 d'ingestion associé à N transactions ; elles ne sont pas exécutées à cet
 endroit dans le traitement d'un batch déjà constitué. La somme des étapes
 reste une estimation de travail séquentiel, pas une trace de latence réelle.
+Le groupe conserve le nom `Batch preparation` et inclut toujours cette
+ingestion locale ; son nom et ses composants sont inchangés par l'optimisation.
 Les hash internes à la publication DA et au snapshot restent dans leurs
 propres durées, comme les appels répétés du rollup actuel.
 
 Les écritures utilisent le buffering et les options SQLite de l'implémentation.
 Les fichiers DA et snapshot ne sont pas synchronisés par `fsync` : leurs
 durées ne mesurent donc pas la fin d'une écriture durable sur le support.
+
+L'ancien chemin ouvrait/fermait une connexion par transaction et utilisait
+deux écritures en autocommit. Les anciennes mesures restent valides pour
+cette ancienne implémentation ; les performances de la connexion réutilisée
+nécessitent une nouvelle collecte. Ne pas remplacer les durées des CSV
+historiques par les résultats d'un benchmark fait sur une autre machine.
 
 ## Autres opérations présentes, non instrumentées par ce microbenchmark
 

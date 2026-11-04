@@ -1,0 +1,7 @@
+n,phase,prover,rep,ok,wall_s,rss_mean_method,rss_measurement_status,rss_valid_samples,rss_observed_fraction,rss_max_sample_gap_s,rss_peak_bytes,rss_min_bytes,rss_mean_bytes,rss_median_bytes,rss_p05_bytes,rss_p25_bytes,rss_p75_bytes,rss_p95_bytes,rss_p99_bytes,rss_stdev_bytes,rss_integral_byte_s,rss_sampled_peak_bytes
+512,local,,1,True,0.49879470001906157,time_weighted_midpoint_v1,incomplete,0,0.0,0.11377970001194626,0.0,,,,,,,,,,,
+512,local,,2,True,0.46876049996353686,time_weighted_midpoint_v1,incomplete,0,0.0,0.11323570006061345,0.0,,,,,,,,,,,
+512,local,,3,True,0.8883194000227377,time_weighted_midpoint_v1,incomplete,0,0.0,0.12927709997165948,0.0,,,,,,,,,,,
+8192,local,,1,True,1.837924399995245,time_weighted_midpoint_v1,incomplete,0,0.0,0.11532890005037189,0.0,,,,,,,,,,,
+8192,local,,2,True,1.792828399920836,time_weighted_midpoint_v1,incomplete,0,0.0,0.11382780002895743,0.0,,,,,,,,,,,
+8192,local,,3,True,1.8200597000541165,time_weighted_midpoint_v1,incomplete,0,0.0,0.11514060001354665,0.0,,,,,,,,,,,
