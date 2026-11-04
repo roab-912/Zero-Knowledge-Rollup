@@ -1,14 +1,32 @@
 # Experiment 3: observed stage dominance
 
-Source: `/home/r24barbi/Zero-Knowledge-Rollup/bench-out/exp3/full_workflow`. Setup is excluded. Each prover is a separate
+Source: `/home/r24barbi/Zero-Knowledge-Rollup/bench-out/exp3/full_workflow`. View: **grouped**. Setup is excluded. Each prover is a separate
 pipeline; verification is kept with its source backend. Successful repetitions
 are aggregated with population SD. Failed/incomplete proving repetitions are
 discarded together. Sizes missing any selected stage are excluded (manifest).
 
+The default grouped view has up to six phases per backend:
+batch preparation (transaction creation + SQLite + batch construction),
+state computation (copy + execution + state hashes + circuit input preparation),
+witness, proof, verify, and DA/persistence (serialization + compression +
+JSON/blob writes + state snapshot). Only measured phases are displayed.
+Legacy fullprove stays combined; no missing witness duration is inferred.
+Use `--view detailed` to display all individual operations.
+
+Group elapsed/CPU/I/O values are summed within each repetition, and peak RSS
+uses the maximum, before computing means and population SD. This preserves
+within-repetition covariance. Every recorded step belongs to one group only;
+the diagnostic proving_total is never added to witness and proof.
+
 `01_stage_times` compares mean durations with one SD. `02_stage_dominance`
 shows T_stage/max(T_stage), with stars for the largest mean(s).
-`stage_metrics.csv`, `dominance.csv`, and `transitions.csv` give the underlying
-values. Transitions are brackets between measured sizes, without interpolation,
+`stage_metrics.csv` always retains detailed step metrics. `grouped_metrics.csv`
+contains grouped metrics when the grouped view is selected. `dominance.csv`
+and `transitions.csv` describe the selected view, which is also recorded in
+manifest.json. The sum of elapsed means is preserved by grouping, but the
+maximum and its associated pipeline bound can change: each group is treated
+as a sequential phase. It does not identify a physical resource allocation.
+Transitions are brackets between measured sizes, without interpolation,
 confidence intervals or a claim about the first integer crossing. Pairwise
 crossings below another stage's envelope are distinguished from dominant-stage
 switches. The tie tolerance is numerical, not a statistical significance test.
