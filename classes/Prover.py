@@ -1,5 +1,6 @@
 from models.Batch import Batch
 from models.State import State
+from classes.BatchInput import write_batch_input
 
 import ast
 import json
@@ -200,28 +201,8 @@ class Prover:
     #  Helpers existants (préservés)
     # ------------------------------------------------------------------
     def __write_input_file__(self, batch: Batch, new_state: State):
-        amount = [tx.amount for tx in batch.transactions]
-        src = [tx.from_address for tx in batch.transactions]
-        dest = [tx.to_adress for tx in batch.transactions]
-
-        srcBalance = [self.state.get_balance(tx.from_address) for tx in batch.transactions]
-        destBalance = [self.state.get_balance(tx.to_adress) for tx in batch.transactions]
-        srcBalanceAfter = [new_state.get_balance(tx.from_address) for tx in batch.transactions]
-        destBalanceAfter = [new_state.get_balance(tx.to_adress) for tx in batch.transactions]
-
-        data = {
-            "src": src,
-            "srcBalance": srcBalance,
-            "srcBalanceAfter": srcBalanceAfter,
-            "dest": dest,
-            "destBalance": destBalance,
-            "destBalanceAfter": destBalanceAfter,
-            "amount": amount,
-        }
-
         filepath = os.path.join(f"./circuits/{self.size}/", "input.json")
-        with open(filepath, "w") as f:
-            json.dump(data, f, indent=4)
+        write_batch_input(self.state, batch, new_state, filepath)
         print(f"[Prover] Fichier d'input écrit dans {filepath}")
 
     def __create_witness__(self):

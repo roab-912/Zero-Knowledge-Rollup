@@ -38,6 +38,12 @@ dupliquées ici.
 
 Exemples
 --------
+    # Exp 3 : étapes locales du rollup + témoin/preuve séparés
+    python3 scripts/bench/measure_zk_resources.py --max-exponent 13 --skip-setup \
+        --prover both --rollup-local --repeat 10 --out-dir bench-out/exp3/measurements
+    python3 scripts/analysis/exp3.py --from bench-out/exp3/measurements \
+        --outdir bench-out/exp3/figures
+
     # jeu complet: setup + preuve + vérif pour 1..64 transactions
     python3 scripts/bench/measure_zk_resources.py --sizes 1,2,4,8,16,32,64
 
@@ -3252,6 +3258,7 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
 
     runner = Runner(outdir, args.sample_interval, ncpu, dry_run=args.dry_run, quiet=args.quiet)
     circuits_info: Dict[str, Any] = {}
+    local_rows: List[Dict[str, Any]] = []
 
     for size in sizes:
         power = ptau_power(size, args.ptau_offset)
@@ -3259,6 +3266,30 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
         print(f"\n### Circuit n={size} (2^{power} powers of tau) ###")
 
         info: Dict[str, Any] = {"n": size, "ptau_power": power, "dir": os.path.relpath(circuit_dir, outdir)}
+
+        if args.rollup_local:
+            local_input_path = None
+            worker = os.path.join(repo_root, "scripts", "bench", "measure_rollup_local.py")
+            for rep in range(1, args.repeat + 1):
+                local_dir = os.path.join(outdir, "raw", "rollup_local", f"n{size}_r{rep}")
+                output = os.path.join(local_dir, "measurements.json")
+                # Do not let an older successful worker result hide a failure.
+                if not args.dry_run and os.path.isfile(output):
+                    os.remove(output)
+                cmd = shlex.join([sys.executable, worker, "--size", str(size),
+                                  "--rep", str(rep), "--workdir", local_dir,
+                                  "--output", output])
+                result = runner.run(cmd, repo_root, size=size, phase="local",
+                                    step="rollup_local", group="local", rep=rep)
+                if result.ok and not args.dry_run:
+                    with open(output, encoding="utf-8") as stream:
+                        local_rows.extend(json.load(stream)["rows"])
+                    local_input_path = os.path.join(local_dir, "input.json")
+                elif not result.ok and not args.keep_going:
+                    raise RuntimeError(f"Local rollup measurement failed: {result.log_file}")
+            if args.rollup_local_only:
+                circuits_info[str(size)] = info
+                continue
 
         # ---------------- phase env ---------------- #
         if not args.skip_setup:
@@ -3283,20 +3314,34 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
                 continue
 
         # ---------------- phase prove ---------------- #
-        # snarkjs : une seule commande (fullprove = témoin + preuve)
+        if args.rollup_local and not args.dry_run:
+            if local_input_path is None:
+                continue
+            with open(local_input_path, encoding="utf-8") as stream:
+                local_input = json.load(stream)
+            with open(os.path.join(circuit_dir, "input.json"), encoding="utf-8") as stream:
+                circuit_input = json.load(stream)
+            if local_input != circuit_input:
+                raise ValueError(f"N={size}: circuit input does not match the local independent-transfer workload")
+        # snarkjs : témoin/preuve séparés ; --fullprove conserve l'ancien protocole
         # rapidsnark : le témoin doit être calculé à part, comme dans generate_proofs.py
         fullprove_cmd = (
             f"{args.snarkjs} groth16 fullprove input.json circuit_js/circuit.wasm "
             f"circuit_final.zkey proof.json public.json"
         )
         witness_cmd = f"{args.snarkjs} wtns calculate circuit_js/circuit.wasm input.json witness.wtns"
+        prove_cmd = f"{args.snarkjs} groth16 prove circuit_final.zkey witness.wtns proof.json public.json"
 
         for prover in provers:
+            proof_available = False
             for rep in range(1, args.repeat + 1):
                 print(f"  · preuve ({prover} rep {rep}/{args.repeat})")
 
                 if prover == "snarkjs":
-                    steps_to_run = [("fullprove_snarkjs", fullprove_cmd, "process")]
+                    steps_to_run = ([("witness_snarkjs", witness_cmd, "process"),
+                                     ("prove_snarkjs", prove_cmd, "process")]
+                                    if args.split_prove else
+                                    [("fullprove_snarkjs", fullprove_cmd, "process")])
                 else:
                     cmd, scope = rapidsnark_command(rs_cfg, size, circuit_dir)
                     steps_to_run = [
@@ -3317,15 +3362,20 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
                         prover=prover,
                         scope=scope,
                     )
-                    if not res.ok and not args.keep_going:
+                    if not res.ok:
                         failed = True
                         break
+                proof_available = not failed
                 if failed:
-                    break
+                    if not args.keep_going:
+                        break
+                    continue
                 if args.sleep_between > 0:
                     time.sleep(args.sleep_between)
 
             # ---------------- phase verify ---------------- #
+            if not proof_available:
+                continue  # Never verify stale outputs left by a failed proof.
             for rep in range(1, args.repeat + 1):
                 print(f"  · vérification ({prover} rep {rep}/{args.repeat})")
                 runner.run(
@@ -3366,11 +3416,23 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
             "provers": provers,
             "rapidsnark_status": rs_cfg.describe(),
             "rapidsnark_mode": rs_cfg.mode,
+            "split_prove": args.split_prove,
+            "rollup_local": args.rollup_local,
+            "rollup_local_only": args.rollup_local_only,
             "cli": " ".join(sys.argv),
         },
         "env": collect_env(args),
         "circuits": circuits_info,
         "steps": [s.to_row() for s in runner.steps],
+        "local_steps": local_rows,
+        "experiment3": {
+            "local_timings": "local_steps.csv: operation timers exclude startup; CPU uses process_time_ns",
+            "zk_timings": "steps.csv: command elapsed times include process/container startup",
+            "local_workload": "2N accounts, N independent transfers, amount=1, same balances as circuit template",
+            "local_storage": "isolated run files, buffered writes without fsync; no L1 broadcast",
+            "local_resources": "per-operation CPU and wall only; wrapper CPU/RSS/IO in steps.csv include startup",
+            "limits": "stage dominance is not identification of a physical resource bottleneck",
+        },
         "aggregates": agg,
         "memory_measurement": {
             "version": 1,
@@ -3389,6 +3451,7 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
 
 def write_outputs(outdir: str, manifest: Dict[str, Any], args: argparse.Namespace) -> None:
     save_csv(os.path.join(outdir, "steps.csv"), manifest["steps"])
+    save_csv(os.path.join(outdir, "local_steps.csv"), manifest.get("local_steps", []))
     save_csv(os.path.join(outdir, "phases.csv"), manifest["aggregates"]["phases"])
     save_csv(os.path.join(outdir, "env_breakdown.csv"), manifest["aggregates"]["env_groups"])
     save_csv(os.path.join(outdir, "memory_repetitions.csv"), manifest["aggregates"].get("memory_repetitions", []))
@@ -3410,6 +3473,16 @@ def main() -> None:
     g.add_argument("--skip-setup", action="store_true", help="ne pas mesurer la phase environnement (circuits existants)")
     g.add_argument("--clean-setup", action="store_true", help="supprimer le dossier du circuit avant le setup")
     g.add_argument("--repeat", type=int, default=3, help="répétitions des phases preuve et vérification")
+    proving = g.add_mutually_exclusive_group()
+    proving.add_argument("--split-prove", action="store_true", default=True,
+                         help="mesurer witness puis groth16 prove séparément pour snarkjs (défaut)")
+    proving.add_argument("--fullprove", dest="split_prove", action="store_false",
+                         default=argparse.SUPPRESS,
+                         help="ancien protocole snarkjs combinant witness et preuve (sans --rollup-local)")
+    g.add_argument("--rollup-local", action="store_true",
+                   help="mesurer les étapes locales du rollup dans un stockage isolé ; active --split-prove")
+    g.add_argument("--rollup-local-only", action="store_true",
+                   help="mesurer seulement le rollup local, sans outil SNARK ni connexion L1")
     g.add_argument("--sleep-between", type=float, default=1.0, help="pause entre répétitions (s)")
     g.add_argument("--keep-going", action="store_true", help="continuer malgré l'échec d'une commande")
     g.add_argument("--prune", action="store_true", help="supprimer ptau/zkey intermédiaires après mesure")
@@ -3491,6 +3564,12 @@ def main() -> None:
 
     if args.repeat < 1:
         raise SystemExit("--repeat doit être >= 1")
+    args.rollup_local = args.rollup_local or args.rollup_local_only
+    if args.rollup_local and not args.split_prove:
+        p.error("--fullprove est incompatible avec --rollup-local ; utiliser les mesures séparées")
+    if args.rollup_local_only:
+        args.prover, args.rapidsnark_mode = "snarkjs", "off"
+        args.skip_setup = True
 
     if args.out_dir:
         outdir = os.path.abspath(args.out_dir)
