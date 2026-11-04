@@ -1,2 +1,0 @@
-prover,stage_before,stage_after,N_low,N_high,kind,uncertainty
-local_only,da,batch_preparation,512,8192,dominant_stage_switch,measured bracket; no fitted crossing or confidence interval
