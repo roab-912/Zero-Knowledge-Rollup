@@ -15,6 +15,7 @@ import csv
 from itertools import combinations
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 
@@ -25,21 +26,18 @@ else:
     from exp1 import COLORS as PROVER_COLORS
     from exp1 import ROOT, number, write_csv
 
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from scripts.bench.rollup_stages import LOCAL_LABELS, LOCAL_SCHEMAS, workflow_inventory
+
 LABELS = {
-    "batch_build": "Batch construction",
-    "compute_batch": "Batch execution (Executor)",
-    "input_prepare": "Circuit input preparation",
-    "state_hash": "State hashes (before + after)",
-    "da_encode": "DA serialization + compression",
-    "da_persist": "DA persistence",
-    "snapshot_persist": "Snapshot persistence",
+    **LOCAL_LABELS,
     "witness": "Witness calculation",
     "proof": "Proof generation only",
     "witness_and_proof": "Witness + proof (fullprove)",
     "verify": "Local verification (snarkjs)",
 }
 METRICS = ("wall_s", "cpu_total_s", "rss_peak_bytes", "io_read_bytes", "io_write_bytes")
-LOCAL_STAGES = set(LABELS) - {"witness", "proof", "witness_and_proof", "verify"}
 
 
 def read_csv(path):
@@ -121,12 +119,18 @@ def load_measurements(run_dir):
                 rejected.append(dict(n=n, prover="", rep=rep, phase="local"))
                 continue
             stages = [r["stage"] for r in rows]
-            expected = LOCAL_STAGES
-            if set(stages) != expected or len(stages) != len(expected):
+            versions = [v for v, expected in LOCAL_SCHEMAS.items()
+                        if set(stages) == set(expected) and len(stages) == len(expected)]
+            if not versions:
                 raise ValueError(f"Incomplete/duplicate local stages: N={n}, rep={rep}")
+            version = versions[0]
             for row in rows:
+                if row.get("local_schema_version") and int(row["local_schema_version"]) != version:
+                    raise ValueError(f"Local schema version does not match stages: N={n}, rep={rep}")
                 observations.append(dict(n=n, prover="", rep=rep, stage=row["stage"],
                                          timing_scope=row["timing_scope"], resource_scope="operation_cpu_only",
+                                         local_schema_version=version,
+                                         state_accounts=row.get("state_accounts", ""),
                                          **{m: number(row, m) for m in METRICS}))
     if not observations:
         raise ValueError("No successful recurring measurements")
@@ -144,8 +148,13 @@ def load_measurements(run_dir):
         if len(scopes) != 1:
             raise ValueError(f"Mixed measurement scopes: {n}, {prover}, {stage}")
         timing, resource = scopes.pop()
+        configurations = {(r.get("local_schema_version", ""), r.get("state_accounts", "")) for r in rows}
+        if len(configurations) != 1:
+            raise ValueError(f"Mixed local state configurations: {n}, {prover}, {stage}")
+        version, accounts = configurations.pop()
         row = dict(n=n, prover=prover, stage=stage, n_reps=len(rows),
-                   timing_scope=timing, resource_scope=resource)
+                   timing_scope=timing, resource_scope=resource,
+                   local_schema_version=version, state_accounts=accounts)
         for metric in METRICS:
             values = [r[metric] for r in rows]
             # Missing counters stay missing, rather than turning into zero work.
@@ -160,6 +169,10 @@ def build_pipelines(rows, tie_rtol=1e-6, release_period=None):
     pipelines = []
     for backend in backends:
         selected = [r for r in rows if r["prover"] in ("", backend)]
+        local_versions = {r.get("local_schema_version") for r in selected if not r["prover"]
+                          and r.get("local_schema_version")}
+        if len(local_versions) > 1:
+            raise ValueError("Cannot mix local v1/v2 protocols in one pipeline")
         stages = [s for s in LABELS if any(r["stage"] == s for r in selected)]
         if backend != "local_only" and ("verify" not in stages or not (
                 "witness_and_proof" in stages or {"witness", "proof"}.issubset(stages))):
@@ -282,8 +295,8 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
     plt.rcParams.update({"font.size": font_size, "axes.grid": True, "grid.alpha": .22,
                          "savefig.bbox": "tight"})
     from matplotlib.colors import LinearSegmentedColormap
-    colors = dict(zip(LABELS, ("#555555", "#D55E00", "#E69F00", "#56B4E9",
-                               "#882255", "#44AA99", "#999933")))
+    palette = ("#555555", "#D55E00", "#E69F00", "#56B4E9", "#882255", "#44AA99", "#999933")
+    colors = {stage: palette[index % len(palette)] for index, stage in enumerate(LOCAL_LABELS)}
 
     def stage_style(stage, backend):
         if stage == "verify":
@@ -292,7 +305,9 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
             return dict(color=PROVER_COLORS.get(backend, "#555555"),
                         linestyle=":" if stage == "witness" else "-",
                         marker="^" if stage == "witness" else "o", markersize=3)
-        return dict(color=colors[stage], linestyle="-", marker="o", markersize=3)
+        group = list(LOCAL_LABELS).index(stage) // len(palette)
+        return dict(color=colors[stage], linestyle=("-", "--", "-.")[group],
+                    marker=("o", "s", "^")[group], markersize=3)
 
     def stage_label(stage, backend):
         if stage in ("proof", "witness", "witness_and_proof", "proving_total"):
@@ -442,6 +457,30 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
         save(fig, "05_proving_vs_verify", "Proof generation, witness calculation and local verification",
              "Time shading: +/- 1 SD; vertical bands: measured crossing brackets")
 
+    # Shared local measurements are displayed once, irrespective of the number
+    # of prover backends; their global state size is explicit in the CSV.
+    state_stages = ("state_copy", "compute_batch", "state_hash_before", "state_hash_after", "state_hash")
+    p = pipelines[0]
+    available = [s for s in state_stages if s in p["stages"]]
+    if available:
+        fig, ax = plt.subplots(figsize=(width, width * .48), layout="constrained")
+        for stage in available:
+            data = [p["lookup"][int(n), stage] for n in p["n"]]
+            t = np.array([r["wall_s_mean"] for r in data])
+            sd = np.array([r["wall_s_stdev"] for r in data])
+            label = LABELS[stage]
+            if stage == "compute_batch" and data[0].get("local_schema_version") == 1:
+                label += " + state copy (v1)"
+            style = stage_style(stage, "")
+            ax.plot(p["n"], t, label=label, **style)
+            ax.fill_between(p["n"], np.where(t - sd > 0, t - sd, np.nan), t + sd,
+                            color=style["color"], alpha=.12)
+        ax.set(xlabel=r"Batch size $N$ [tx]", ylabel=r"$T_p(N)$ [s]", yscale="log")
+        ax.set_xscale("log", base=2)
+        ax.set_title("(a) Global state processing", loc="left")
+        save(fig, "06_state_processing", "Global state computation and hashing",
+             "Time shading: +/- 1 SD; global account count is recorded separately from batch size")
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -468,6 +507,9 @@ def main():
     pipelines = build_pipelines(rows, args.tie_rtol, args.release_period_s)
     args.outdir.mkdir(parents=True, exist_ok=True)
     transitions = export(pipelines, args.outdir, args.tie_rtol)
+    inventory_path = args.run_dir / "resource_inventory.csv"
+    inventory = read_csv(inventory_path) if inventory_path.exists() else workflow_inventory({r["stage"] for r in rows})
+    write_csv(args.outdir / "resource_inventory.csv", inventory)
     comparisons, proving_transitions = proving_comparison(pipelines, args.outdir, args.tie_rtol)
     figures(pipelines, args.outdir, args.fig_font_size, args.fig_width, comparisons, args.tie_rtol,
             args.fig_dpi, args.fig_format)
@@ -517,7 +559,12 @@ explicit assumptions, never inferred from setup or inclusion latency.
 ZK command timings include process/Node/Docker startup. Local timers run inside
 a worker after imports and fixture initialization. The worker uses real
 Executor, State, Batch, Transaction and DataAvailability classes and the shared
-input writer. The workload has N independent transfers and 2N accounts.
+input writer. The workload has N independent transfers; the account count is
+recorded in stage_metrics.csv (default 2N, or fixed by --rollup-state-accounts).
+Local v2 separates state copy, state execution, each state hash, SQLite work,
+DA serialization/compression and JSON/blob writes. V1 remains readable but
+cannot be mixed with v2. The state-processing curves are in 06_state_processing;
+resource_inventory.csv lists measured and unmeasured workflow operations.
 Executor logging remains part of its measured cost. Account count, compression,
 logging and filesystem caching affect results. These local operations are
 isolated microbenchmarks, not a live trace or the same batch as a legacy run.
@@ -552,4 +599,4 @@ Legacy fullprove stays explicitly combined; witness/proof are never invented.
 if __name__ == "__main__":
     main()
 
-# python3 scripts/analysis/exp3.py --from bench-out/TON_NOUVEAU_RUN
+# python3 scripts/analysis/exp3.py --from bench-out/exp3/full_workflow --outdir bench-out/exp3/full_workflow/figures

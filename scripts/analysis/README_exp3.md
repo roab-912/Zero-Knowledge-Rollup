@@ -8,16 +8,17 @@ pour le witness puis `groth16 prove` pour la preuve seule.
   deux processus et change le protocole par rapport à `fullprove` de l'Exp 1.
 - `--fullprove` permet de reproduire l'ancien protocole combiné, sans
   `--rollup-local`. Ces mesures ne permettent pas de séparer les deux durées.
-- `--rollup-local` active aussi cette séparation et mesure sept opérations
-  locales : construction du batch, exécution avec copie de l'état, préparation
-  des entrées du circuit, deux hachages d'état, encodage/compression DA,
-  persistance DA, puis snapshot. Ces durées utilisent les classes du rollup
-  (`Executor`, `State`, `Transaction`, `Batch`, `DataAvailability`) et le même
+- `--rollup-local` mesure quinze opérations locales : création des transactions,
+  insertion/sélection/affectation SQLite, construction du batch, copie de l'état,
+  calcul du nouvel état, entrées du circuit, hash avant/après, sérialisation et
+  compression DA, écritures JSON et blob, puis snapshot. Ces durées utilisent
+  les classes du rollup (`TxPool`, `Executor`, `State`, `Transaction`, `Batch`, `DataAvailability`) et le même
   sérialiseur d'entrées que `Prover`.
 
 Le worker ne démarre ni API, ni séquenceur, ni client L1. Il écrit uniquement
 dans le dossier de résultats. Les fixtures ont N transferts indépendants,
-2N comptes, un montant de 1 et les mêmes soldes que le circuit synthétique.
+2N comptes par défaut, un montant de 1 et les mêmes soldes que le circuit synthétique.
+`--rollup-state-accounts M` fixe la taille de l'état global, avec M >= 2*max(N).
 Le collecteur vérifie la concordance des entrées avant de lancer les preuves.
 La création de l'état initial et les imports sont hors chronométrage local.
 Les logs de l'Executor sont inclus, conformément à son comportement actuel.
@@ -64,6 +65,13 @@ Les PNG/PDF sont déjà générés dans `bench-out/exp3/legacy/` :
 - `05_proving_vs_verify` : courbes `proof`, `witness` et `verify` ; la courbe
   `proof` contient uniquement `groth16 prove`. Un ancien dataset `fullprove`
   reste combiné et explicitement nommé `proof (fullprove)`.
+- `06_state_processing` : copie de l'état global, calcul du nouvel état, hash
+  de l'état précédent et du nouvel état.
+- `resource_inventory.csv` : inventaire des étapes, fonctions, ressources
+  sollicitées et statut de collecte.
+
+L'[inventaire détaillé](RESOURCE_INVENTORY.md) précise les ressources physiques,
+les contraintes L1 et les opérations encore non instrumentées.
 
 Le style reprend `exp1/First Result` : couleurs bleu rapidsnark, rose snarkjs,
 vert pointillé pour la vérification, marqueurs de taille 3, bandes d'écart-type

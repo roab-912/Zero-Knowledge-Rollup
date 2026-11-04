@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 
 from exp3 import build_pipelines, crossover_brackets, load_measurements, proving_comparison
+from scripts.bench.rollup_stages import LOCAL_SCHEMAS
 
 
 def pipeline(times):
@@ -68,6 +69,38 @@ class Exp3Tests(unittest.TestCase):
     def test_missing_workflow_cannot_produce_a_rate(self):
         with self.assertRaisesRegex(ValueError, "Incomplete recurring workflow"):
             build_pipelines([dict(n=1, prover="snarkjs", stage="verify", wall_s_mean=1)])
+
+    def test_local_schema_compatibility_and_state_cardinality(self):
+        for version, stages in LOCAL_SCHEMAS.items():
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                run = Path(directory)
+                (run / "steps.csv").write_text("phase,step,rep,size,ok\n", encoding="utf-8")
+                fields = ["size", "rep", "stage", "ok", "wall_s", "cpu_total_s", "timing_scope"]
+                if version == 2:
+                    fields += ["local_schema_version", "state_accounts"]
+                rows = [dict(size=4, rep=1, stage=stage, ok=True, wall_s=.01,
+                             cpu_total_s=.005, timing_scope="in_process_operation") for stage in stages]
+                if version == 2:
+                    for row in rows:
+                        row.update(local_schema_version=2, state_accounts=32)
+                with (run / "local_steps.csv").open("w", encoding="utf-8", newline="") as stream:
+                    writer = csv.DictWriter(stream, fieldnames=fields)
+                    writer.writeheader()
+                    writer.writerows(rows)
+                data, rejected = load_measurements(run)
+                self.assertFalse(rejected)
+                self.assertEqual(len(data), len(stages))
+                self.assertEqual({r["local_schema_version"] for r in data}, {version})
+                self.assertEqual({r["state_accounts"] for r in data}, {"32"} if version == 2 else {""})
+                self.assertEqual(build_pipelines(data)[0]["backend"], "local_only")
+
+    def test_cannot_mix_old_compute_including_copy_with_new_compute_only(self):
+        rows = [dict(n=1, prover="", stage="compute_batch", wall_s_mean=.1,
+                     local_schema_version=1),
+                dict(n=2, prover="", stage="compute_batch", wall_s_mean=.1,
+                     local_schema_version=2)]
+        with self.assertRaisesRegex(ValueError, "Cannot mix local v1/v2"):
+            build_pipelines(rows)
 
     def test_existing_dataset_phase_vs_proof_crossings(self):
         run = Path(__file__).resolve().parents[2] / "bench-out/20260825_120620"

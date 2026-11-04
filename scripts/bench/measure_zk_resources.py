@@ -87,8 +87,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 if __package__:
     from .memory_stats import MEMORY_METRICS, memory_intervals, summarize_memory
+    from .rollup_stages import workflow_inventory
 else:
     from memory_stats import MEMORY_METRICS, memory_intervals, summarize_memory
+    from rollup_stages import workflow_inventory
 
 # --------------------------------------------------------------------------- #
 # Constantes
@@ -3276,9 +3278,12 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
                 # Do not let an older successful worker result hide a failure.
                 if not args.dry_run and os.path.isfile(output):
                     os.remove(output)
-                cmd = shlex.join([sys.executable, worker, "--size", str(size),
-                                  "--rep", str(rep), "--workdir", local_dir,
-                                  "--output", output])
+                worker_argv = [sys.executable, worker, "--size", str(size),
+                               "--rep", str(rep), "--workdir", local_dir,
+                               "--output", output]
+                if args.rollup_state_accounts is not None:
+                    worker_argv.extend(["--state-accounts", str(args.rollup_state_accounts)])
+                cmd = shlex.join(worker_argv)
                 result = runner.run(cmd, repo_root, size=size, phase="local",
                                     step="rollup_local", group="local", rep=rep)
                 if result.ok and not args.dry_run:
@@ -3419,6 +3424,7 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
             "split_prove": args.split_prove,
             "rollup_local": args.rollup_local,
             "rollup_local_only": args.rollup_local_only,
+            "rollup_state_accounts": args.rollup_state_accounts,
             "cli": " ".join(sys.argv),
         },
         "env": collect_env(args),
@@ -3426,9 +3432,10 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
         "steps": [s.to_row() for s in runner.steps],
         "local_steps": local_rows,
         "experiment3": {
+            "local_schema_version": 2,
             "local_timings": "local_steps.csv: operation timers exclude startup; CPU uses process_time_ns",
             "zk_timings": "steps.csv: command elapsed times include process/container startup",
-            "local_workload": "2N accounts, N independent transfers, amount=1, same balances as circuit template",
+            "local_workload": "N independent transfers, amount=1, N pending SQLite transactions; 2N or fixed account count",
             "local_storage": "isolated run files, buffered writes without fsync; no L1 broadcast",
             "local_resources": "per-operation CPU and wall only; wrapper CPU/RSS/IO in steps.csv include startup",
             "limits": "stage dominance is not identification of a physical resource bottleneck",
@@ -3452,6 +3459,22 @@ def run_benchmark(args: argparse.Namespace, outdir: str) -> Dict[str, Any]:
 def write_outputs(outdir: str, manifest: Dict[str, Any], args: argparse.Namespace) -> None:
     save_csv(os.path.join(outdir, "steps.csv"), manifest["steps"])
     save_csv(os.path.join(outdir, "local_steps.csv"), manifest.get("local_steps", []))
+    measured = {row["stage"] for row in manifest.get("local_steps", [])}
+    for step in manifest["steps"]:
+        if not step.get("ok"):
+            continue
+        if step["phase"] == "env":
+            measured.add("setup")
+        elif step["phase"] == "verify":
+            measured.add("verify")
+        else:
+            for prefix, stage in (("witness_", "witness"), ("prove_", "proof"),
+                                  ("fullprove_", "witness_and_proof")):
+                if step["step"].startswith(prefix):
+                    measured.add(stage)
+    # Dry-run commands do not constitute actual observations.
+    manifest["resource_inventory"] = workflow_inventory(set() if getattr(args, "dry_run", False) else measured)
+    save_csv(os.path.join(outdir, "resource_inventory.csv"), manifest["resource_inventory"])
     save_csv(os.path.join(outdir, "phases.csv"), manifest["aggregates"]["phases"])
     save_csv(os.path.join(outdir, "env_breakdown.csv"), manifest["aggregates"]["env_groups"])
     save_csv(os.path.join(outdir, "memory_repetitions.csv"), manifest["aggregates"].get("memory_repetitions", []))
@@ -3483,6 +3506,8 @@ def main() -> None:
                    help="mesurer les étapes locales du rollup dans un stockage isolé ; active --split-prove")
     g.add_argument("--rollup-local-only", action="store_true",
                    help="mesurer seulement le rollup local, sans outil SNARK ni connexion L1")
+    g.add_argument("--rollup-state-accounts", type=int, default=None,
+                   help="nombre fixe de comptes dans l'état global local (défaut : 2N ; exige au moins 2*max(N))")
     g.add_argument("--sleep-between", type=float, default=1.0, help="pause entre répétitions (s)")
     g.add_argument("--keep-going", action="store_true", help="continuer malgré l'échec d'une commande")
     g.add_argument("--prune", action="store_true", help="supprimer ptau/zkey intermédiaires après mesure")
@@ -3567,6 +3592,11 @@ def main() -> None:
     args.rollup_local = args.rollup_local or args.rollup_local_only
     if args.rollup_local and not args.split_prove:
         p.error("--fullprove est incompatible avec --rollup-local ; utiliser les mesures séparées")
+    if args.rollup_state_accounts is not None:
+        if not args.rollup_local:
+            p.error("--rollup-state-accounts nécessite --rollup-local ou --rollup-local-only")
+        if args.rollup_state_accounts < 2 * max(parse_sizes(args)):
+            p.error("--rollup-state-accounts doit être au moins égal à 2*max(N)")
     if args.rollup_local_only:
         args.prover, args.rapidsnark_mode = "snarkjs", "off"
         args.skip_setup = True
@@ -3613,4 +3643,4 @@ if __name__ == "__main__":
     main()
 
 
-# python3 scripts/bench/measure_zk_resources.py --max-exponent 13 --skip-setup --circuits-dir circuits --repeat 1 --prover both --rapidsnark-mode native --require-rapidsnark --count-constraints --prune
+# python3 scripts/bench/measure_zk_resources.py --max-exponent 13 --skip-setup --circuits-dir circuits --prover both --require-rapidsnark --rollup-local --rollup-state-accounts 16384 --repeat 10 --sample-interval 0.01 --no-plots --out-dir bench-out/exp3/full_workflow

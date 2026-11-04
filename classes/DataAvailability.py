@@ -101,6 +101,10 @@ class DataAvailability:
         Le tout est ensuite compressé zlib pour maximiser le nombre de tx
         que l'on peut emballer dans un seul blob (126 976 octets utiles max).
         """
+        return self.compress_blob_payload(self.serialize_blob_payload(batch))
+
+    def serialize_blob_payload(self, batch: Batch) -> bytes:
+        """Serialize the existing blob payload format, before compression."""
         buf = bytearray()
         buf += struct.pack(">I", batch.id)
         buf += struct.pack(">I", len(batch))
@@ -108,7 +112,12 @@ class DataAvailability:
             tx_bytes = json.dumps(tx.to_dict(), sort_keys=True).encode("utf-8")
             buf += struct.pack(">I", len(tx_bytes))
             buf += tx_bytes
-        return zlib.compress(bytes(buf), level=9)
+        return bytes(buf)
+
+    @staticmethod
+    def compress_blob_payload(serialized: bytes) -> bytes:
+        """Compress serialized payloads with the rollup's existing zlib level."""
+        return zlib.compress(serialized, level=9)
 
     def write_blob_locally(self, batch: Batch, payload: bytes) -> str:
         """
