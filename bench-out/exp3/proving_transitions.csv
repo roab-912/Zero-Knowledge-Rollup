@@ -1,2 +1,0 @@
-prover,stage_before,stage_after,N_low,N_high,kind,uncertainty
-rapidsnark,verify,proving_total,512,1024,dominant_stage_switch,measured bracket; no fitted crossing or confidence interval

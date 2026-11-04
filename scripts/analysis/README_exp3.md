@@ -50,6 +50,47 @@ garde les mesures de commandes (avec démarrage du processus/conteneur), ainsi
 que les mesures globales du worker. Les compteurs RAM/I/O du worker incluent
 son initialisation et ne sont pas attribués à ses opérations internes.
 
+## Vue regroupée : six courbes par prouveur
+
+Par défaut, `exp3.py` regroupe les étapes locales et garde witness, proof et
+verify séparés. Les deux prouveurs restent dans des panneaux distincts.
+
+| Courbe | Étapes incluses |
+| --- | --- |
+| Préparation du batch | Création des transactions, insertion/sélection SQLite, construction et affectation du batch |
+| Computation de l'état | Copie, exécution des transactions, hash avant/après, préparation des entrées du circuit |
+| Witness | Calcul du témoin seul |
+| Proof | Génération de preuve seule |
+| Verify | Vérification locale |
+| DA + persistance | Sérialisation, compression, écritures JSON/blob et snapshot de l'état |
+
+Chaque étape appartient à un seul groupe. Les durées, le travail CPU et les
+I/O sont additionnés **par répétition**, puis les moyennes et écarts-types
+sont calculés. Le RSS utilise le maximum des étapes séquentielles.
+La somme des temps est conservée. Le maximum et les transitions sont calculés
+entre les groupes ; chaque groupe est supposé exécuté séquentiellement.
+Le groupe DA inclut les coûts locaux de stockage, pas la publication L1.
+Une ancienne mesure `fullprove` reste combinée et n'invente pas de witness.
+
+Il suffit de relancer l'analyse sur une collecte détaillée existante :
+
+```bash
+python scripts/analysis/exp3.py --from bench-out/exp3/full_workflow --outdir bench-out/exp3/full_workflow/figures
+```
+
+Les figures principales affichent au plus six phases, plus l'enveloppe du
+maximum sur la figure des durées. `stage_metrics.csv` conserve les étapes
+détaillées ; `grouped_metrics.csv` contient les agrégats. `dominance.csv` et
+`transitions.csv` correspondent à la vue choisie, enregistrée dans le manifeste.
+Les diagnostics preuve/vérification et état global gardent leurs quelques
+courbes spécialisées.
+
+Pour retrouver toutes les courbes individuelles :
+
+```bash
+python scripts/analysis/exp3.py --from bench-out/exp3/full_workflow --outdir bench-out/exp3/full_workflow/figures_detailed --view detailed
+```
+
 ## Exploiter le dataset existant
 
 ```bash
@@ -58,7 +99,7 @@ python scripts/analysis/exp3.py --from bench-out/20260825_120620 --outdir bench-
 
 Les PNG/PDF sont déjà générés dans `bench-out/exp3/legacy/` :
 
-- `01_stage_times` : durées moyennes, écart-type population et maximum des étapes ;
+- `01_stage_times` : durées moyennes, écart-type population et maximum des groupes (ou étapes avec `--view detailed`) ;
 - `02_stage_dominance` : durées normalisées par le maximum, avec étapes dominantes ;
 - `03_derived_rates` : comparaison des estimations séquentielle et pipeline idéal ;
 - `04_resources_*` : CPU, RAM et I/O disponibles, sans les convertir arbitrairement en durées ;

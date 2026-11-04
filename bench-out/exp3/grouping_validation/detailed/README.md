@@ -1,0 +1,82 @@
+# Experiment 3: observed stage dominance
+
+Source: `D:\Documents\Code\GitHub\Zero-Knowledge-Rollup\bench-out\exp3\grouping_validation\measurements`. View: **detailed**. Setup is excluded. Each prover is a separate
+pipeline; verification is kept with its source backend. Successful repetitions
+are aggregated with population SD. Failed/incomplete proving repetitions are
+discarded together. Sizes missing any selected stage are excluded (manifest).
+
+The default grouped view has up to six phases per backend:
+batch preparation (transaction creation + SQLite + batch construction),
+state computation (copy + execution + state hashes + circuit input preparation),
+witness, proof, verify, and DA/persistence (serialization + compression +
+JSON/blob writes + state snapshot). Only measured phases are displayed.
+Legacy fullprove stays combined; no missing witness duration is inferred.
+Use `--view detailed` to display all individual operations.
+
+Group elapsed/CPU/I/O values are summed within each repetition, and peak RSS
+uses the maximum, before computing means and population SD. This preserves
+within-repetition covariance. Every recorded step belongs to one group only;
+the diagnostic proving_total is never added to witness and proof.
+
+`01_stage_times` compares mean durations with one SD. `02_stage_dominance`
+shows T_stage/max(T_stage), with stars for the largest mean(s).
+`stage_metrics.csv` always retains detailed step metrics. `grouped_metrics.csv`
+contains grouped metrics when the grouped view is selected. `dominance.csv`
+and `transitions.csv` describe the selected view, which is also recorded in
+manifest.json. The sum of elapsed means is preserved by grouping, but the
+maximum and its associated pipeline bound can change: each group is treated
+as a sequential phase. It does not identify a physical resource allocation.
+Transitions are brackets between measured sizes, without interpolation,
+confidence intervals or a claim about the first integer crossing. Pairwise
+crossings below another stage's envelope are distinguished from dominant-stage
+switches. The tie tolerance is numerical, not a statistical significance test.
+
+`05_proving_vs_verify` displays proof, witness and verification separately
+when the source contains split measurements. The proof curve excludes witness
+calculation. Legacy fullprove stays combined and is labeled proof (fullprove);
+no witness curve is inferred from that combined duration.
+`proving_comparison.csv` separately compares the complete witness+proof phase
+(same definition as Exp 1) with verification.
+`proving_transitions.csv` contains these phase crossings. The proving SD is
+computed after summing steps within each repetition, preserving covariance.
+The combined phase is excluded from the decomposed stage envelope to avoid
+counting both a total and its components as independent stages.
+
+`03_derived_rates` compares N/max(T_stage), an ideal pipeline bound requiring
+independent stage allocations and overlap, with N/sum(T_stage), a sequential
+estimate. Shared CPU/IO work can invalidate the independent-stage assumption.
+The current ZKRollup holds a lock over compute_batch, including settlement;
+it does not implement the ideal pipeline. Release intervals are optional,
+explicit assumptions, never inferred from setup or inclusion latency.
+
+ZK command timings include process/Node/Docker startup. Local timers run inside
+a worker after imports and fixture initialization. The worker uses real
+Executor, State, Batch, Transaction and DataAvailability classes and the shared
+input writer. The workload has N independent transfers; the account count is
+recorded in stage_metrics.csv (default 2N, or fixed by --rollup-state-accounts).
+Local v2 separates state copy, state execution, each state hash, SQLite work,
+DA serialization/compression and JSON/blob writes. V1 remains readable but
+cannot be mixed with v2. The state-processing curves are in 06_state_processing;
+resource_inventory.csv lists measured and unmeasured workflow operations.
+Executor logging remains part of its measured cost. Account count, compression,
+logging and filesystem caching affect results. These local operations are
+isolated microbenchmarks, not a live trace or the same batch as a legacy run.
+Very short local CPU timings may be zero at the platform clock resolution
+(notably on Windows); this does not establish absence of CPU work.
+
+`04_resources_*` shows CPU work and available sampled RSS/IO, separately from
+elapsed times. Local operation memory/IO are unavailable, not zero. Their
+worker's process metrics including imports/startup remain in source steps.csv.
+Docker system-scope counters are retained in CSV but omitted from resource
+plots because they include other host processes. RAM is occupancy, not work
+converted to seconds. No CPU, disk or network capacity is calibrated here.
+
+Local verification is not L1 verification time. L1 submission, RPC, inclusion,
+blob propagation, KZG and finality are unmeasured. Use live instrumentation or
+the existing settlement benchmarks for those; inclusion latency alone does
+not establish a service capacity. Synthetic SNARK and local workloads must
+match, and allocations must be controlled, before testing physical resource
+bottleneck predictions from the paper.
+
+Local rollup stages absent from this dataset: **False**.
+Legacy fullprove stays explicitly combined; witness/proof are never invented.

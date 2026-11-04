@@ -6,7 +6,8 @@ import unittest
 
 import numpy as np
 
-from exp3 import build_pipelines, crossover_brackets, load_measurements, proving_comparison
+from exp3 import (GROUPS, GROUP_OF, build_pipelines, crossover_brackets,
+                  group_observations, load_measurements, proving_comparison)
 from scripts.bench.rollup_stages import LOCAL_SCHEMAS
 
 
@@ -19,6 +20,60 @@ def pipeline(times):
 
 
 class Exp3Tests(unittest.TestCase):
+    def test_groups_cover_every_local_step_exactly_once(self):
+        flat = [stage for members in GROUPS.values() for stage in members]
+        self.assertEqual(len(flat), len(set(flat)))
+        self.assertEqual(set(GROUP_OF), set().union(*(set(s) for s in LOCAL_SCHEMAS.values())))
+
+    def test_grouped_rss_is_maximum_and_work_is_additive(self):
+        base = dict(n=1, prover="", rep=1, timing_scope="in_process_operation",
+                    resource_scope="operation_cpu_only", local_schema_version=2, state_accounts="2")
+        rows = [dict(base, stage="state_copy", wall_s=1., cpu_total_s=.5,
+                     rss_peak_bytes=10., io_read_bytes=3., io_write_bytes=4.),
+                dict(base, stage="compute_batch", wall_s=3., cpu_total_s=2.,
+                     rss_peak_bytes=20., io_read_bytes=5., io_write_bytes=6.)]
+        grouped = group_observations(rows)
+        self.assertEqual(len(grouped), 1)
+        self.assertEqual(grouped[0]["stage"], "computation")
+        self.assertEqual(grouped[0]["wall_s"], 4.)
+        self.assertEqual(grouped[0]["cpu_total_s"], 2.5)
+        self.assertEqual(grouped[0]["rss_peak_bytes"], 20.)
+        self.assertEqual(grouped[0]["io_read_bytes"], 8.)
+        self.assertEqual(grouped[0]["io_write_bytes"], 10.)
+
+    def test_grouped_sd_uses_paired_repetitions_and_pipeline_has_six_phases(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            (run / "steps.csv").write_text("phase,step,rep,size,ok\n", encoding="utf-8")
+            rows = []
+            for rep, copy, compute in [(1, 1., 3.), (2, 3., 1.)]:
+                for stage in LOCAL_SCHEMAS[2]:
+                    rows.append(dict(size=1, rep=rep, stage=stage, ok=True,
+                                     wall_s=copy if stage == "state_copy" else compute if stage == "compute_batch" else 1.,
+                                     cpu_total_s=1., timing_scope="in_process_operation",
+                                     local_schema_version=2, state_accounts=2))
+            with (run / "local_steps.csv").open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+                writer.writeheader()
+                writer.writerows(rows)
+            detailed = load_measurements(run)[0]
+            grouped = load_measurements(run, grouped=True)[0]
+            computation = next(r for r in grouped if r["stage"] == "computation")
+            self.assertEqual(computation["wall_s_mean"], 7.)
+            self.assertEqual(computation["wall_s_stdev"], 0.)
+            self.assertEqual(computation["n_reps"], 2)
+            self.assertTrue(np.isnan(computation["io_read_bytes_mean"]))
+            self.assertAlmostEqual(sum(r["wall_s_mean"] for r in detailed),
+                                   sum(r["wall_s_mean"] for r in grouped))
+            zk = [dict(n=1, prover="snarkjs", stage=s, wall_s_mean=t)
+                  for s, t in [("witness", 2.), ("proof", 3.), ("verify", 4.), ("proving_total", 5.)]]
+            detail_pipeline = build_pipelines(detailed + zk)[0]
+            group_pipeline = build_pipelines(grouped + zk)[0]
+            self.assertEqual(len(group_pipeline["stages"]), 6)
+            self.assertNotIn("proving_total", group_pipeline["stages"])
+            np.testing.assert_allclose(detail_pipeline["total"], group_pipeline["total"])
+            self.assertGreater(group_pipeline["maximum"][0], detail_pipeline["maximum"][0])
+
     def test_crossing_is_not_necessarily_dominant(self):
         rows = crossover_brackets(pipeline([[2, 1, 10], [1, 2, 10]]))
         self.assertEqual(len(rows), 1)
@@ -93,6 +148,8 @@ class Exp3Tests(unittest.TestCase):
                 self.assertEqual({r["local_schema_version"] for r in data}, {version})
                 self.assertEqual({r["state_accounts"] for r in data}, {"32"} if version == 2 else {""})
                 self.assertEqual(build_pipelines(data)[0]["backend"], "local_only")
+                groups = load_measurements(run, grouped=True)[0]
+                self.assertEqual({r["stage"] for r in groups}, set(GROUPS))
 
     def test_cannot_mix_old_compute_including_copy_with_new_compute_only(self):
         rows = [dict(n=1, prover="", stage="compute_batch", wall_s_mean=.1,
@@ -104,6 +161,8 @@ class Exp3Tests(unittest.TestCase):
 
     def test_existing_dataset_phase_vs_proof_crossings(self):
         run = Path(__file__).resolve().parents[2] / "bench-out/20260825_120620"
+        if not (run / "steps.csv").exists():
+            self.skipTest("Optional historical raw dataset is not present in this checkout")
         rows, rejected = load_measurements(run)
         self.assertFalse(rejected)
         pipelines = build_pipelines(rows)

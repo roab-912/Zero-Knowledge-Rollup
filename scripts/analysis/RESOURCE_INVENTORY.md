@@ -140,7 +140,12 @@ python scripts/bench/measure_zk_resources.py --skip-setup --max-exponent 13 --pr
 python scripts/analysis/exp3.py --from bench-out/exp3/full_workflow --outdir bench-out/exp3/full_workflow/figures
 ```
 
-`01_stage_times` compare toutes les durées disponibles.
+`01_stage_times` affiche par défaut six grandes phases : préparation du batch,
+computation de l'état, witness, proof, verify et DA/persistance. Les durées
+des étapes de chaque groupe sont additionnées par répétition avant le calcul
+des statistiques ; aucune étape n'est éliminée du total. `--view detailed`
+permet de comparer toutes les étapes individuellement.
+`stage_metrics.csv` garde les détails ; `grouped_metrics.csv` fournit les groupes.
 `06_state_processing` détaille la copie, le calcul de l'état et ses empreintes.
 `resource_inventory.csv` indique les mesures réellement présentes dans le run.
 Les versions locales v1 et v2 sont reconnues, mais ne sont pas mélangées :

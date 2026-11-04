@@ -1,0 +1,10 @@
+n,phase,prover,rep,ok,wall_s,rss_mean_method,rss_measurement_status,rss_valid_samples,rss_observed_fraction,rss_max_sample_gap_s,rss_peak_bytes,rss_min_bytes,rss_mean_bytes,rss_median_bytes,rss_p05_bytes,rss_p25_bytes,rss_p75_bytes,rss_p95_bytes,rss_p99_bytes,rss_stdev_bytes,rss_integral_byte_s,rss_sampled_peak_bytes
+1,local,,1,True,0.3326173999812454,time_weighted_midpoint_v1,incomplete,0,0.0,0.11467819998506457,0.0,,,,,,,,,,,
+1,local,,2,True,0.2372289999620989,time_weighted_midpoint_v1,incomplete,0,0.0,0.10968929994851351,0.0,,,,,,,,,,,
+1,local,,3,True,0.21539090003352612,time_weighted_midpoint_v1,incomplete,0,0.0,0.10586799995508045,0.0,,,,,,,,,,,
+8,local,,1,True,0.2920115999877453,time_weighted_midpoint_v1,incomplete,0,0.0,0.10339160007424653,0.0,,,,,,,,,,,
+8,local,,2,True,0.28357660002075136,time_weighted_midpoint_v1,incomplete,0,0.0,0.10208209999836981,0.0,,,,,,,,,,,
+8,local,,3,True,0.30466660007368773,time_weighted_midpoint_v1,incomplete,0,0.0,0.10703149996697903,0.0,,,,,,,,,,,
+32,local,,1,True,0.5785356999840587,time_weighted_midpoint_v1,incomplete,0,0.0,0.11211319989524782,0.0,,,,,,,,,,,
+32,local,,2,True,0.5590616000117734,time_weighted_midpoint_v1,incomplete,0,0.0,0.11109440005384386,0.0,,,,,,,,,,,
+32,local,,3,True,0.5035711999516934,time_weighted_midpoint_v1,incomplete,0,0.0,0.11236160004045814,0.0,,,,,,,,,,,

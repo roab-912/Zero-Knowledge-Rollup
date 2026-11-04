@@ -30,7 +30,17 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from scripts.bench.rollup_stages import LOCAL_LABELS, LOCAL_SCHEMAS, workflow_inventory
 
+GROUPS = {
+    "batch_preparation": ("transaction_build", "txpool_insert", "txpool_select", "batch_build", "txpool_assign"),
+    "computation": ("state_copy", "compute_batch", "input_prepare", "state_hash_before", "state_hash_after", "state_hash"),
+    "da": ("da_serialize", "da_compress", "da_json_persist", "da_blob_persist",
+           "snapshot_persist", "da_encode", "da_persist"),
+}
+GROUP_LABELS = {"batch_preparation": "Batch preparation", "computation": "State computation",
+                "da": "DA + persistence"}
+GROUP_OF = {stage: group for group, members in GROUPS.items() for stage in members}
 LABELS = {
+    **GROUP_LABELS,
     **LOCAL_LABELS,
     "witness": "Witness calculation",
     "proof": "Proof generation only",
@@ -60,7 +70,35 @@ def stage_name(row):
     raise ValueError(f"Unknown recurring step: {step}")
 
 
-def load_measurements(run_dir):
+def group_observations(observations):
+    """Sum sequential local steps within repetitions before computing their SD.
+
+    SNARK timings remain separate; proving_total is only a diagnostic and is
+    never added to witness/proof. V1's combined steps stay atomic.
+    """
+    buckets, result = {}, []
+    for row in observations:
+        if row["stage"] not in GROUP_OF:
+            result.append(row)
+            continue
+        key = row["n"], row["prover"], row["rep"], GROUP_OF[row["stage"]]
+        buckets.setdefault(key, []).append(row)
+    for (_, _, _, group), members in buckets.items():
+        if len({r["stage"] for r in members}) != len(members):
+            raise ValueError(f"Duplicate local step in group {group}")
+        configurations = {(r.get("local_schema_version", ""), r.get("state_accounts", ""),
+                           r["timing_scope"], r["resource_scope"]) for r in members}
+        if len(configurations) != 1:
+            raise ValueError(f"Mixed local measurement configurations in group {group}")
+        row = dict(members[0], stage=group, members="|".join(sorted(r["stage"] for r in members)))
+        for metric in METRICS:
+            values = [number(r, metric) for r in members]
+            row[metric] = float((np.max if metric == "rss_peak_bytes" else np.sum)(values))
+        result.append(row)
+    return result
+
+
+def load_measurements(run_dir, grouped=False):
     """Discard whole failed proving repetitions, not just their failed steps."""
     raw = read_csv(run_dir / "steps.csv")
     manifest_path = run_dir / "manifest.json"
@@ -134,10 +172,13 @@ def load_measurements(run_dir):
                                          **{m: number(row, m) for m in METRICS}))
     if not observations:
         raise ValueError("No successful recurring measurements")
-    buckets = {}
     for row in observations:
         if not np.isfinite(row["wall_s"]) or row["wall_s"] <= 0:
             raise ValueError(f"Invalid duration (dry runs cannot be analyzed): {row}")
+    if grouped:
+        observations = group_observations(observations)
+    buckets = {}
+    for row in observations:
         key = row["n"], row["prover"], row["stage"]
         buckets.setdefault(key, []).append(row)
     result = []
@@ -152,9 +193,12 @@ def load_measurements(run_dir):
         if len(configurations) != 1:
             raise ValueError(f"Mixed local state configurations: {n}, {prover}, {stage}")
         version, accounts = configurations.pop()
+        memberships = {r.get("members", r["stage"]) for r in rows}
+        if len(memberships) != 1:
+            raise ValueError(f"Mixed group members: {n}, {prover}, {stage}")
         row = dict(n=n, prover=prover, stage=stage, n_reps=len(rows),
                    timing_scope=timing, resource_scope=resource,
-                   local_schema_version=version, state_accounts=accounts)
+                   local_schema_version=version, state_accounts=accounts, members=memberships.pop())
         for metric in METRICS:
             values = [r[metric] for r in rows]
             # Missing counters stay missing, rather than turning into zero work.
@@ -225,8 +269,19 @@ def crossover_brackets(pipeline, tie_rtol=1e-6):
     return out
 
 
-def export(pipelines, outdir, tie_rtol):
-    summary, transitions, metrics = [], [], []
+def stage_metric_rows(pipelines):
+    metrics = []
+    for p in pipelines:
+        for i, n in enumerate(p["n"]):
+            for j, stage in enumerate(p["stages"]):
+                metrics.append(dict(pipeline=p["backend"], **p["lookup"][int(n), stage],
+                                    normalized_time=float(p["times"][i, j] / p["maximum"][i]),
+                                    equivalent_stage_rate_tx_s=float(n / p["times"][i, j])))
+    return metrics
+
+
+def export(pipelines, outdir, tie_rtol, metrics_filename="stage_metrics.csv"):
+    summary, transitions = [], []
     for p in pipelines:
         for i, n in enumerate(p["n"]):
             maximum, total = float(p["maximum"][i]), float(p["total"][i])
@@ -238,13 +293,8 @@ def export(pipelines, outdir, tie_rtol):
                                 sequential_estimate_tx_s=float(n / total),
                                 release_period_s=p["release_period"],
                                 ideal_bound_with_release_tx_s=float(n / interval)))
-            for j, stage in enumerate(p["stages"]):
-                row = p["lookup"][int(n), stage]
-                metrics.append(dict(pipeline=p["backend"], **row,
-                                    normalized_time=float(p["times"][i, j] / maximum),
-                                    equivalent_stage_rate_tx_s=float(n / p["times"][i, j])))
         transitions.extend(crossover_brackets(p, tie_rtol))
-    write_csv(outdir / "stage_metrics.csv", metrics)
+    write_csv(outdir / metrics_filename, stage_metric_rows(pipelines))
     write_csv(outdir / "dominance.csv", summary)
     # Keep a header even when no transition has been observed.
     fields = ["prover", "stage_before", "stage_after", "N_low", "N_high", "kind", "uncertainty"]
@@ -288,7 +338,7 @@ def proving_comparison(pipelines, outdir, tie_rtol):
 
 
 def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=1e-6,
-            dpi=300, formats=("png", "pdf")):
+            dpi=300, formats=("png", "pdf"), state_pipelines=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -297,8 +347,11 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
     from matplotlib.colors import LinearSegmentedColormap
     palette = ("#555555", "#D55E00", "#E69F00", "#56B4E9", "#882255", "#44AA99", "#999933")
     colors = {stage: palette[index % len(palette)] for index, stage in enumerate(LOCAL_LABELS)}
+    colors.update(batch_preparation="#555555", computation="#D55E00", da="#56B4E9")
 
     def stage_style(stage, backend):
+        if stage in GROUP_LABELS:
+            return dict(color=colors[stage], linestyle="-", marker="o", markersize=3)
         if stage == "verify":
             return dict(color=PROVER_COLORS[""], linestyle="--", marker="o", markersize=3)
         if stage in ("proof", "witness", "witness_and_proof", "proving_total"):
@@ -347,7 +400,9 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
         ax.set(yscale="log", xlabel=r"Batch size $N$ [tx]", ylabel=r"$T_p(N)$ [s]")
         ax.set_title(f"({chr(97 + index)}) {p['backend']}", loc="left")
         ax.set_xscale("log", base=2)
-    save(fig, "01_stage_times", "Measured stage times and dominant-stage envelope",
+    grouped = any(s in GROUP_LABELS for p in pipelines for s in p["stages"])
+    save(fig, "01_stage_times", "Grouped phase times and dominant-phase envelope" if grouped else
+         "Measured stage times and dominant-stage envelope",
          "Time shading: +/- 1 SD; ZK commands include startup, local operations exclude it")
 
     fig, axes = plt.subplots(len(pipelines), 1, squeeze=False,
@@ -460,7 +515,7 @@ def figures(pipelines, outdir, font_size=8, width=8.5, comparisons=(), tie_rtol=
     # Shared local measurements are displayed once, irrespective of the number
     # of prover backends; their global state size is explicit in the CSV.
     state_stages = ("state_copy", "compute_batch", "state_hash_before", "state_hash_after", "state_hash")
-    p = pipelines[0]
+    p = (state_pipelines or pipelines)[0]
     available = [s for s in state_stages if s in p["stages"]]
     if available:
         fig, ax = plt.subplots(figsize=(width, width * .48), layout="constrained")
@@ -488,6 +543,8 @@ def main():
     parser.add_argument("--outdir", type=Path, default=ROOT / "bench-out/exp3")
     parser.add_argument("--release-period-s", type=float)
     parser.add_argument("--tie-rtol", type=float, default=1e-6)
+    parser.add_argument("--view", choices=["grouped", "detailed"], default="grouped",
+                        help="grouped: up to six phases per backend; detailed: all measured steps")
     parser.add_argument("--fig-font-size", type=float, default=8)
     parser.add_argument("--fig-width", type=float, default=8.5)
     parser.add_argument("--fig-dpi", type=int, default=300)
@@ -503,17 +560,23 @@ def main():
         parser.error("--tie-rtol must be in [0, 1)")
     if args.fig_dpi < 1:
         parser.error("--fig-dpi must be positive")
-    rows, rejected = load_measurements(args.run_dir)
+    detailed_rows, rejected = load_measurements(args.run_dir)
+    detailed_pipelines = build_pipelines(detailed_rows, args.tie_rtol, args.release_period_s)
+    rows = load_measurements(args.run_dir, grouped=True)[0] if args.view == "grouped" else detailed_rows
     pipelines = build_pipelines(rows, args.tie_rtol, args.release_period_s)
     args.outdir.mkdir(parents=True, exist_ok=True)
-    transitions = export(pipelines, args.outdir, args.tie_rtol)
+    transitions = export(pipelines, args.outdir, args.tie_rtol,
+                         "grouped_metrics.csv" if args.view == "grouped" else "stage_metrics.csv")
+    if args.view == "grouped":
+        write_csv(args.outdir / "stage_metrics.csv", stage_metric_rows(detailed_pipelines))
     inventory_path = args.run_dir / "resource_inventory.csv"
-    inventory = read_csv(inventory_path) if inventory_path.exists() else workflow_inventory({r["stage"] for r in rows})
+    inventory = read_csv(inventory_path) if inventory_path.exists() else workflow_inventory({r["stage"] for r in detailed_rows})
     write_csv(args.outdir / "resource_inventory.csv", inventory)
     comparisons, proving_transitions = proving_comparison(pipelines, args.outdir, args.tie_rtol)
     figures(pipelines, args.outdir, args.fig_font_size, args.fig_width, comparisons, args.tie_rtol,
-            args.fig_dpi, args.fig_format)
+            args.fig_dpi, args.fig_format, state_pipelines=detailed_pipelines)
     manifest = dict(source=str(args.run_dir.resolve()), tie_rtol=args.tie_rtol,
+                    view=args.view, groups=GROUPS if args.view == "grouped" else {},
                     release_period_s=args.release_period_s, rejected_repetitions=rejected,
                     figure_style=dict(reference="exp1/First Result", font_size=args.fig_font_size,
                                       width_inches=args.fig_width, dpi=args.fig_dpi, formats=args.fig_format),
@@ -522,18 +585,36 @@ def main():
                                for p in pipelines], transitions=transitions,
                     proving_phase_transitions=proving_transitions)
     (args.outdir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    missing_local = not any(r["stage"] == "compute_batch" for r in rows)
+    missing_local = not any(r["stage"] == "compute_batch" for r in detailed_rows)
     readme = f"""# Experiment 3: observed stage dominance
 
-Source: `{args.run_dir.resolve()}`. Setup is excluded. Each prover is a separate
+Source: `{args.run_dir.resolve()}`. View: **{args.view}**. Setup is excluded. Each prover is a separate
 pipeline; verification is kept with its source backend. Successful repetitions
 are aggregated with population SD. Failed/incomplete proving repetitions are
 discarded together. Sizes missing any selected stage are excluded (manifest).
 
+The default grouped view has up to six phases per backend:
+batch preparation (transaction creation + SQLite + batch construction),
+state computation (copy + execution + state hashes + circuit input preparation),
+witness, proof, verify, and DA/persistence (serialization + compression +
+JSON/blob writes + state snapshot). Only measured phases are displayed.
+Legacy fullprove stays combined; no missing witness duration is inferred.
+Use `--view detailed` to display all individual operations.
+
+Group elapsed/CPU/I/O values are summed within each repetition, and peak RSS
+uses the maximum, before computing means and population SD. This preserves
+within-repetition covariance. Every recorded step belongs to one group only;
+the diagnostic proving_total is never added to witness and proof.
+
 `01_stage_times` compares mean durations with one SD. `02_stage_dominance`
 shows T_stage/max(T_stage), with stars for the largest mean(s).
-`stage_metrics.csv`, `dominance.csv`, and `transitions.csv` give the underlying
-values. Transitions are brackets between measured sizes, without interpolation,
+`stage_metrics.csv` always retains detailed step metrics. `grouped_metrics.csv`
+contains grouped metrics when the grouped view is selected. `dominance.csv`
+and `transitions.csv` describe the selected view, which is also recorded in
+manifest.json. The sum of elapsed means is preserved by grouping, but the
+maximum and its associated pipeline bound can change: each group is treated
+as a sequential phase. It does not identify a physical resource allocation.
+Transitions are brackets between measured sizes, without interpolation,
 confidence intervals or a claim about the first integer crossing. Pairwise
 crossings below another stage's envelope are distinguished from dominant-stage
 switches. The tie tolerance is numerical, not a statistical significance test.
