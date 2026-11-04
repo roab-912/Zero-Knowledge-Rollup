@@ -551,3 +551,5 @@ Legacy fullprove stays explicitly combined; witness/proof are never invented.
 
 if __name__ == "__main__":
     main()
+
+# python3 scripts/analysis/exp3.py --from bench-out/TON_NOUVEAU_RUN

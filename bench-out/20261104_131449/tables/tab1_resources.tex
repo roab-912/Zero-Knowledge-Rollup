@@ -1,0 +1,72 @@
+% Généré par measure_zk_resources.py — le label est définitif, adapter le caption si besoin.
+% Setup = powers of tau (phase 1) + circom compilation + zkey (phase 2).
+% Peak RAM d'une sous-étape : maximum sur les commandes du groupe ;
+% durée, CPU et I/O : somme sur ces mêmes commandes.
+\begin{table}[t]
+\centering
+\caption{Resource footprint of the Groth16 pipeline as a function of the batch size $N_b$ (mean over repetitions). Time is wall-clock, Cores is the mean number of busy cores (CPU time / wall-clock) and I/O is the volume read / written at the read()/write() syscall level. The indented rows break the one-off setup down into its phase 1 (powers of tau, reusable across circuits), circuit compilation and phase 2 (circuit-specific proving key) sub-steps.}
+\label{tab:zk_resources}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|r|l|r|r|r|r|}
+\hline
+$N_b$ & \textbf{Phase} & \textbf{Time (s)} & \textbf{Cores} & \textbf{Peak RAM} & \textbf{I/O (R/W)} \\
+\hline
+1 & Proof generation (snarkjs) & 0.81 & 3.2 & 354\,MiB & 8\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.19 & 1.6 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.60 & 3.8 & 339\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+2 & Proof generation (snarkjs) & 0.84 & 3.2 & 356\,MiB & 8\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.19 & 1.6 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.7 & 337\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+4 & Proof generation (snarkjs) & 0.84 & 3.3 & 366\,MiB & 9\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.19 & 1.6 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.9 & 340\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+8 & Proof generation (snarkjs) & 0.86 & 3.4 & 397\,MiB & 9\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.20 & 1.8 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.58 & 3.8 & 318\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+16 & Proof generation (snarkjs) & 0.91 & 3.4 & 465\,MiB & 10\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.21 & 2.0 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 338\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+32 & Proof generation (snarkjs) & 0.96 & 3.7 & 558\,MiB & 11\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.22 & 2.1 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 341\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+64 & Proof generation (snarkjs) & 1.06 & 3.9 & 813\,MiB & 14\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.24 & 2.5 & 55\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 334\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+128 & Proof generation (snarkjs) & 1.27 & 4.2 & 1.18\,GiB & 19\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.27 & 3.0 & 54\,MiB & 2\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 339\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+256 & Proof generation (snarkjs) & 1.60 & 4.7 & 1.44\,GiB & 32\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.35 & 3.8 & 69\,MiB & 3\,MiB / 0\,MiB \\
+ & Verification & 0.58 & 3.8 & 318\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+512 & Proof generation (snarkjs) & 2.24 & 5.1 & 1.79\,GiB & 78\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.48 & 4.3 & 75\,MiB & 3\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 345\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+1024 & Proof generation (snarkjs) & 3.58 & 5.4 & 2.87\,GiB & 147\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 0.79 & 5.0 & 192\,MiB & 4\,MiB / 0\,MiB \\
+ & Verification & 0.59 & 3.8 & 336\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+2048 & Proof generation (snarkjs) & 6.32 & 5.6 & 4.09\,GiB & 242\,MiB / 0\,MiB \\
+ & Proof generation (rapidsnark) & 1.33 & 6.0 & 321\,MiB & 4\,MiB / 1\,MiB \\
+ & Verification & 0.58 & 3.8 & 318\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+4096 & Proof generation (snarkjs) & 13.07 & 5.1 & 7.85\,GiB & 419\,MiB / 2\,MiB \\
+ & Proof generation (rapidsnark) & 2.42 & 7.0 & 573\,MiB & 6\,MiB / 1\,MiB \\
+ & Verification & 0.58 & 3.8 & 322\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+8192 & Proof generation (snarkjs) & 26.09 & 5.0 & 10.73\,GiB & 770\,MiB / 37\,MiB \\
+ & Proof generation (rapidsnark) & 4.66 & 7.0 & 1.06\,GiB & 9\,MiB / 38\,MiB \\
+ & Verification & 0.59 & 3.7 & 325\,MiB & 6\,MiB / 0\,MiB \\
+\hline
+\end{tabular}}
+\end{table}
