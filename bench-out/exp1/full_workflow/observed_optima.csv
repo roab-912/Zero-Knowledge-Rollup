@@ -1,0 +1,4 @@
+phase,prover,criterion,Delta_s,ram_budget_GB,admissible_measured_sizes,N_best_measured,throughput_tx_s,at_largest_admissible
+prove,rapidsnark,N/T_phase,,,14,8192,1761.8617032432662,True
+prove,snarkjs,N/T_phase,,,14,2048,321.3876706624456,False
+verify,,N/T_phase,,,14,8192,13681.486178595795,True

@@ -1,0 +1,3 @@
+# cmd : /home/r24barbi/Zero-Knowledge-Rollup/rapidsnark/package/bin/prover circuit_final.zkey witness.wtns proof.json public.json
+# cwd : /home/r24barbi/Zero-Knowledge-Rollup/circuits/8192
+

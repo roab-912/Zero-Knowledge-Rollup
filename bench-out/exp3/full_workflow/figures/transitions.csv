@@ -1,0 +1,13 @@
+prover,stage_before,stage_after,N_low,N_high,kind,uncertainty
+rapidsnark,computation,batch_preparation,128,256,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,da,batch_preparation,512,1024,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,verify,batch_preparation,4096,8192,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,computation,proof,2,4,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,da,proof,32,64,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,witness,proof,512,1024,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,verify,witness,2048,4096,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+rapidsnark,verify,proof,1024,2048,dominant_stage_switch,measured bracket; no fitted crossing or confidence interval
+snarkjs,computation,batch_preparation,128,256,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+snarkjs,da,batch_preparation,512,1024,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+snarkjs,verify,batch_preparation,4096,8192,pairwise_crossing,measured bracket; no fitted crossing or confidence interval
+snarkjs,verify,witness,2048,4096,pairwise_crossing,measured bracket; no fitted crossing or confidence interval

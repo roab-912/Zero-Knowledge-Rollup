@@ -1,0 +1,180 @@
+{
+  "version": 2,
+  "size": 64,
+  "rep": 10,
+  "rows": [
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "transaction_build",
+      "ok": true,
+      "wall_s": 0.00031874,
+      "cpu_total_s": 0.000321694,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "txpool_insert",
+      "ok": true,
+      "wall_s": 0.004008416,
+      "cpu_total_s": 0.004010824,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "txpool_select",
+      "ok": true,
+      "wall_s": 0.000443592,
+      "cpu_total_s": 0.000445937,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "batch_build",
+      "ok": true,
+      "wall_s": 3.907e-06,
+      "cpu_total_s": 5.681e-06,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "txpool_assign",
+      "ok": true,
+      "wall_s": 9.9114e-05,
+      "cpu_total_s": 0.000100999,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "state_copy",
+      "ok": true,
+      "wall_s": 0.000216201,
+      "cpu_total_s": 0.000217878,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "compute_batch",
+      "ok": true,
+      "wall_s": 0.005551485,
+      "cpu_total_s": 0.005553628,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "input_prepare",
+      "ok": true,
+      "wall_s": 0.000333318,
+      "cpu_total_s": 0.000336401,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "state_hash_before",
+      "ok": true,
+      "wall_s": 0.005914006,
+      "cpu_total_s": 0.005908022,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "state_hash_after",
+      "ok": true,
+      "wall_s": 0.004950191,
+      "cpu_total_s": 0.004952199,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "da_serialize",
+      "ok": true,
+      "wall_s": 0.000255514,
+      "cpu_total_s": 0.000257203,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "da_compress",
+      "ok": true,
+      "wall_s": 0.000243902,
+      "cpu_total_s": 0.000245581,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "da_json_persist",
+      "ok": true,
+      "wall_s": 0.036207111,
+      "cpu_total_s": 0.0361758,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "da_blob_persist",
+      "ok": true,
+      "wall_s": 5.7696e-05,
+      "cpu_total_s": 5.9532e-05,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    },
+    {
+      "size": 64,
+      "rep": 10,
+      "stage": "snapshot_persist",
+      "ok": true,
+      "wall_s": 0.009559611,
+      "cpu_total_s": 0.009562087,
+      "timing_scope": "in_process_operation",
+      "local_schema_version": 2,
+      "state_accounts": 16384
+    }
+  ],
+  "txpool_storage": "persistent WAL connection; atomic insert+hash; synchronous=NORMAL",
+  "payload_bytes": 3225,
+  "serialized_bytes": 10513,
+  "state_accounts": 16384,
+  "txpool_pending_initial": 64,
+  "workload": "independent transfers; unique senders and recipients; amount=1",
+  "startup_included": false,
+  "executor_logging_included": true
+}

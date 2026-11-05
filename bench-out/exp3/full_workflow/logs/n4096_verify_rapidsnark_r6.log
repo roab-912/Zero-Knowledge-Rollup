@@ -1,0 +1,4 @@
+# cmd : snarkjs groth16 verify verification_key.json public.json proof.json
+# cwd : /home/r24barbi/Zero-Knowledge-Rollup/circuits/4096
+
+[32;22m[INFO]  [39;1msnarkJS[0m: OK!
